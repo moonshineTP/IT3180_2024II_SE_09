@@ -1,0 +1,39 @@
+.tab-content-1 {
+  display: grid;
+  grid-template-columns: 20% 80%;
+  min-height: 100vh; /* Chiều cao cố định */
+}
+.nav-content {
+  box-sizing: border-box;
+  background: white;
+  border: 1rem solid grey;
+  min-height: 100%; /* Đảm bảo content luôn fill đầy chiều cao */
+}
+.navarea {
+  position: relative;
+  background-image: url(./src/assets/images/1-hinh-nen-xam-trang-inkythuatso-27-14-19-57.png);
+  background-repeat: repeat-y; /* Lặp theo chiều dọc */
+  background-position: left top;
+  background-size: 100% auto;
+  z-index: 1;
+}
+.navarea::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4); /* Điều chỉnh độ mờ ở đây */
+  z-index: 2;
+}
+.navarea p {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  height: 10rem;
+  font-weight: 500;
+  font-size: 2rem;
+  text-align: center;
+  color: white;
+}
