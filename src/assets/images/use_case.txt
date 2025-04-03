@@ -1,0 +1,196 @@
+HỆ THỐNG QUẢN LÝ CHUNG CƯ - BIỂU ĐỒ USE CASE (Dạng Mã Giả)
+
+ACTORS:
+    Admin (Ban quản lý)
+    Super Admin
+    Quản lý Chung cư
+    Kỹ sư Triển khai
+    Người dùng (Cư dân)
+    Hệ thống
+    Kế toán
+    Ngân hàng
+    Bộ phận Liên Quan (Điện, Nước, Vệ sinh, An ninh...)
+
+USE_CASES:
+
+    I. Quản lý Tài khoản:
+        USE_CASE Tạo Super Admin (ACTORS: Kỹ sư Triển khai)
+            INCLUDE Mã hóa mật khẩu (BCrypt)
+            EXTEND Xử lý lỗi tạo Super Admin thất bại
+
+        USE_CASE Tạo Admin (ACTORS: Super Admin, Quản lý Chung cư)
+            INCLUDE Cấp quyền Admin
+            INCLUDE Lưu thông tin Admin
+            EXTEND Xử lý trùng username/mật khẩu yếu
+
+        USE_CASE Xóa Admin (ACTORS: Super Admin, Quản lý Chung cư)
+            EXTEND Xử lý lỗi xóa Admin không thành công
+
+        USE_CASE Tạo User (ACTORS: Admin, Quản lý Chung cư)
+            INCLUDE Kiểm tra tính hợp lệ thông tin User
+            INCLUDE Mã hóa mật khẩu User (BCrypt)
+            INCLUDE Lưu thông tin User
+            EXTEND Gửi SMS xác nhận đăng ký (tùy chọn)
+            EXTEND Xử lý trùng username/mật khẩu yếu/thông tin không hợp lệ/lỗi lưu trữ
+
+        USE_CASE Xóa User (ACTORS: Admin, Quản lý Chung cư)
+            EXTEND Xử lý lỗi xóa User không thành công/không tìm thấy User/không đủ quyền
+
+        USE_CASE Đặt lại mật khẩu (ACTORS: User, Admin)
+            INCLUDE Xác thực mật khẩu mới
+            INCLUDE Kiểm tra độ mạnh mật khẩu mới
+            INCLUDE Mã hóa mật khẩu mới (BCrypt)
+            INCLUDE Cập nhật mật khẩu vào database
+            EXTEND Xử lý lỗi mật khẩu không khớp/mật khẩu yếu/lỗi hệ thống
+
+    II. Quản lý Thông tin Con người và Dịch vụ:
+        USE_CASE Tạo/Cập nhật Thông tin Người (ACTORS: Admin, User)
+            INCLUDE Kiểm tra định dạng thông tin
+            INCLUDE Lưu thông tin người vào database
+            EXTEND Xử lý lỗi trùng tên/sai định dạng/lỗi lưu trữ
+
+        USE_CASE Tạo/Cập nhật Thông tin Dịch vụ (ACTORS: Admin)
+            INCLUDE Kiểm tra định dạng thông tin dịch vụ
+            INCLUDE Lưu thông tin dịch vụ vào database
+            EXTEND Xử lý lỗi thiếu thông tin/sai định dạng/lỗi lưu trữ
+
+        USE_CASE Xóa Thông tin Dịch vụ (ACTORS: Admin)
+            EXTEND Xử lý lỗi xóa thông tin dịch vụ thất bại
+
+        USE_CASE Đăng ký/Cập nhật Thông tin Phòng (ACTORS: Admin)
+            INCLUDE Kiểm tra tính hợp lệ thông tin phòng
+            INCLUDE Lưu thông tin phòng vào database
+            EXTEND Xử lý lỗi trùng phòng/sai định dạng
+
+        USE_CASE Làm trống phòng (ACTORS: Admin)
+            EXTEND Xử lý lỗi phòng còn nợ phí/xóa nhầm
+
+    III. Quản lý Khoản Thu:
+        USE_CASE Tạo Quỹ Thu (ACTORS: Admin)
+            INCLUDE Kiểm tra tính hợp lệ thông tin quỹ
+            INCLUDE Lưu thông tin quỹ vào database
+            EXTEND Xử lý lỗi thiếu dữ liệu/số tiền không hợp lệ/thông tin mâu thuẫn
+
+        USE_CASE Theo dõi, Xử lý Quỹ (ACTORS: Admin)
+            INCLUDE Hiển thị thông tin quỹ
+            EXTEND Xử lý lỗi số tiền trích/thêm không hợp lệ/dữ liệu trích bị lỗi/không đủ điều kiện xóa quỹ
+
+        USE_CASE Thống kê Các Quỹ (ACTORS: Admin)
+            INCLUDE Tạo biểu đồ thống kê
+            EXTEND Xử lý lỗi không có quỹ hoạt động/quá nhiều quỹ
+
+    IV. Quản lý Phí:
+        USE_CASE Tạo Loại Phí và Biểu Phí (ACTORS: Admin)
+            INCLUDE Kiểm tra quy định phí
+            INCLUDE Lưu thông tin phí vào database
+            EXTEND Xử lý lỗi xung đột quy định/đơn giá/thiếu quỹ/quỹ không phù hợp
+
+        USE_CASE Nhập, Bớt Người Nộp và Quản lý Khoản Nộp Tương Ứng (ACTORS: Admin)
+            INCLUDE Cập nhật thông tin khoản nộp
+            EXTEND Xử lý lỗi người không tồn tại/mâu thuẫn logic dữ liệu
+
+        USE_CASE Xử lý Phí Tồn Đọng và Phạt Trễ Hạn (ACTORS: Hệ thống)
+            INCLUDE Tính toán phí phạt
+            INCLUDE Tạo thông báo phạt
+            EXTEND Xử lý lỗi sót cư dân/cư dân khiếu nại
+
+        USE_CASE Đối Soát và Báo Cáo Thu Phí (ACTORS: Admin, Hệ thống, Kế toán, Ngân hàng)
+            INCLUDE Kiểm tra dữ liệu thu phí
+            INCLUDE Tạo báo cáo thu phí
+            INCLUDE Tạo file đối soát ngân hàng
+            EXTEND Xử lý lỗi chênh lệch số tiền/lỗi định dạng
+
+    V. Quản lý các Vấn đề Phát sinh (Khiếu nại):
+        USE_CASE Tiếp Nhận Vấn Đề Phát Sinh (Khiếu nại) (ACTORS: User, Admin)
+            INCLUDE Tạo Ticket khiếu nại
+            EXTEND Xử lý lỗi thông tin không đủ/ticket trùng lặp
+
+        USE_CASE Khắc Phục, Cập Nhật Khiếu Nại (ACTORS: Admin, Bộ phận Liên Quan)
+            INCLUDE Cập nhật tiến độ xử lý ticket
+            EXTEND Xử lý lỗi quá hạn xử lý/khiếu nại con chưa xử lý
+
+        USE_CASE Xác Nhận Hoàn Thành Xử Lý Khiếu Nại và Phản Hồi (ACTORS: Admin, User)
+            INCLUDE Chuyển trạng thái ticket "Đã đóng"
+            INCLUDE Gửi báo cáo tổng kết
+            EXTEND Xử lý lỗi cư dân không hài lòng
+
+    VI. Thông báo:
+        USE_CASE Thông Báo Kiểm Tra Định Kỳ Đối Với Admin (ACTORS: Hệ thống, Super Admin)
+            INCLUDE Thống kê dữ liệu thay đổi
+            INCLUDE Tạo ticket thống kê
+            INCLUDE Gửi thông báo kiểm tra định kỳ
+            EXTEND Xử lý lỗi hệ thống không gửi thông báo
+
+        USE_CASE Thông Báo Gửi Từ Ban Quản Lý (Thông Tin Chung) (ACTORS: Admin)
+            INCLUDE Tạo thông báo
+            INCLUDE Gửi thông báo đẩy (push notification)
+            EXTEND Xử lý lỗi thông tin không đủ/không hợp lệ/thông báo không gửi được
+
+        USE_CASE Thông Báo Sự Cố Khẩn Cấp (Bảo trì, Mất điện, Cháy nổ) (ACTORS: Admin, User)
+            INCLUDE Tạo thông báo khẩn cấp
+            INCLUDE Hiển thị thông báo khẩn cấp trên app
+            EXTEND Xử lý lỗi thông báo giả mạo/cư dân không nhận được cảnh báo
+
+        USE_CASE Thông Báo Nhắc Nợ (ACTORS: Hệ thống, Admin)
+            INCLUDE Lọc danh sách nợ phí
+            INCLUDE Tạo thông báo nhắc nợ (theo cấp độ)
+            EXTEND Xử lý lỗi cư dân đã thanh toán nhưng chưa cập nhật/nhầm phòng
+
+        USE_CASE Thông Báo Sự Kiện (Tiệc tùng, Họp dân cư) (ACTORS: Admin)
+            INCLUDE Tạo thư mời điện tử
+            INCLUDE Gửi lời nhắc tự động
+            EXTEND Xử lý lỗi thay đổi địa điểm/thời gian/số người tham dự quá chỉ tiêu
+
+    VII. Tìm Kiếm:
+        USE_CASE Tìm Kiếm Thông Tin Cư Dân/Phòng (ACTORS: Admin, User)
+            INCLUDE Truy vấn database
+            INCLUDE Hiển thị kết quả tìm kiếm
+            EXTEND Xử lý lỗi không tìm thấy/từ khóa nhập sai
+
+        USE_CASE Tìm Kiếm Lịch Sử Giao Dịch/Đóng Phí (phía admin) (ACTORS: Admin)
+            INCLUDE Lọc dữ liệu giao dịch
+            INCLUDE Hiển thị danh sách giao dịch/biểu đồ thống kê
+            EXTEND Xử lý lỗi không có giao dịch/quyền truy cập hạn chế
+
+        USE_CASE Tìm Kiếm Thông Báo/Tin Tức (ACTORS: Admin, User)
+            INCLUDE Tìm kiếm Full-Text
+            INCLUDE Hiển thị danh sách thông báo/tin tức
+            EXTEND Xử lý lỗi từ khóa quá chung chung/không có thông báo phù hợp
+
+        USE_CASE Tìm Kiếm Sự Cố/Khiếu Nại/Ticket Hỗ Trợ (ACTORS: Admin)
+            INCLUDE Truy vấn bảng Issues/Tickets
+            INCLUDE Hiển thị danh sách ticket
+            EXTEND Xử lý lỗi ticket đã xóa
+
+    VIII. Kiểm Tra, Thống Kê, Báo Cáo Dữ liệu, Lỗi Hệ Thống:
+        USE_CASE Thống Kê Dữ Liệu Hệ Thống Cho Superadmin (ACTORS: Hệ thống, Super Admin)
+            INCLUDE Tạo truy vấn kích thước/số lượng dữ liệu
+            INCLUDE Tạo chart/bar thống kê
+            EXTEND Xử lý lỗi dữ liệu bị tràn
+
+        USE_CASE Kiểm Tra, Báo Cáo Hoạt Động Trực Tiếp Của Admin/User (ACTORS: Super Admin)
+            INCLUDE Lấy nhật ký/log hoạt động
+            INCLUDE Tạo báo cáo hoạt động
+            EXTEND Xử lý lỗi không có log/không thể chuyển log thành báo cáo
+
+        USE_CASE Kiểm Tra, Báo Cáo Hoạt Động Hệ Thống Định Kỳ (ACTORS: Hệ thống, Super Admin)
+            INCLUDE Tạo ticket báo cáo định kỳ
+            INCLUDE Gửi báo cáo hoạt động hệ thống
+            EXTEND Xử lý lỗi kiểm tra CSDL
+
+        USE_CASE Kiểm Tra/ Báo Cáo Lỗi Hệ Thống (ACTORS: Hệ thống, Super Admin)
+            INCLUDE Thu thập log lỗi
+            INCLUDE Phân loại lỗi
+            INCLUDE Tạo báo cáo lỗi
+            EXTEND Xử lý lỗi không có log lỗi/không thể truy vấn log/lỗi tạo báo cáo/lỗi nghiêm trọng ảnh hưởng hoạt động
+
+    IX. Khai Phá Dữ Liệu:
+        USE_CASE Tiền Xử Lý Dữ Liệu (ACTORS: Hệ thống)
+            INCLUDE Thu thập dữ liệu thô
+            INCLUDE Làm sạch, chuẩn hóa, định dạng dữ liệu
+            EXTEND Xử lý lỗi dữ liệu bị lỗi/không đầy đủ
+
+        USE_CASE Xuất Dữ Liệu (ACTORS: Admin)
+            INCLUDE Truy vấn database
+            INCLUDE Tạo file csv/json
+            EXTEND Xử lý lỗi dữ liệu trả về/lỗi định dạng file

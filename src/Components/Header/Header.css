@@ -1,0 +1,64 @@
+#header {
+  background-color: white;
+  height: 15rem;
+  display: flex;
+  align-items: center; /* Căn giữa các item theo chiều dọc */
+  position: relative;
+}
+
+.item {
+  box-sizing: border-box;
+}
+
+.item:nth-child(1) {
+  width: 80%;
+  background: linear-gradient(to bottom, #ffffff, #bfff00);
+}
+
+.item:nth-child(2) {
+  width: 20%;
+  background: linear-gradient(to bottom, #ffffff, #bfff00);
+  height: 100%;
+}
+
+#logo-part {
+  margin: 0.5rem;
+  display: flex;
+  width: 100%;
+  align-items: center; /* Căn giữa logo và text theo chiều dọc */
+}
+
+#logo-part img {
+  width: 14rem;
+  height: 14rem;
+  object-fit: contain; /* Đảm bảo ảnh không bị méo */
+}
+
+#logo-text {
+  color: #06ac06;
+  margin-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Chiều cao bằng chiều cao của container #logo-part */
+}
+.green-light-container {
+  /* display: flex; KHÔNG CẦN flex ở đây */
+  /* flex-direction: column; KHÔNG CẦN flex ở đây */
+  text-align: left; /* Căn trái nội dung (GREEN LIGHT và hr) */
+}
+.green-light-text {
+  font-size: 3.5rem;
+  font-weight: 600;
+  color: #06ac06;
+  line-height: 1.2; /* Điều chỉnh khoảng cách dòng (tùy chọn) */
+}
+.green-light-container > hr {
+  margin: 0.5rem 0; /* Điều chỉnh khoảng cách trên và dưới hr */
+  border: none; /* Loại bỏ viền mặc định của hr nếu cần */
+  border-top: 1px solid #06ac06; /* Tạo đường kẻ ngang bằng CSS */
+}
+#logo-text > span {
+  font-weight: 200; /* Sử dụng font-weight: 200 trong CSS thay vì inline style */
+  font-size: 1.5rem;
+  color: #06ac06;
+}
