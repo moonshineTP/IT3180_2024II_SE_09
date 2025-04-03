@@ -1,35 +1,25 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import Header from "./Components/Header/Header";
+import MenuTab from "./Components/MenuTab/MenuTab";
+import TabContent from "./Components/TabContent/TabContent";
+import "./index.css";
+import "./Components/Header/Header.css";
+import "./Components/MenuTab/MenuTab.css";
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
+  const [activeTab, setActiveTab] = useState("Home");
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <Header />
+      {/* Truyền props xuống MenuTab */}
+      <div id="main">
+        <MenuTab activeTab={activeTab} setActiveTab={setActiveTab} />
+        {/* Truyền prop xuống TabContent */}
+        <TabContent activeTab={activeTab} />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+      <div id="footer">
+        <p>Xin nhẹ tay...</p>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
-  )
+  );
 }
-
-export default App
