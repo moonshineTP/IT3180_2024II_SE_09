@@ -1,8 +1,9 @@
+/* Header.css */
 #header {
   background-color: white;
   height: 15rem;
   display: flex;
-  align-items: center; /* Căn giữa các item theo chiều dọc */
+  align-items: center;
   position: relative;
 }
 
@@ -12,26 +13,25 @@
 
 .item:nth-child(1) {
   width: 80%;
-  background: linear-gradient(to bottom, #ffffff, #bfff00);
 }
 
 .item:nth-child(2) {
   width: 20%;
-  background: linear-gradient(to bottom, #ffffff, #bfff00);
   height: 100%;
 }
+/* Styles for left section */
 
 #logo-part {
   margin: 0.5rem;
   display: flex;
   width: 100%;
-  align-items: center; /* Căn giữa logo và text theo chiều dọc */
+  align-items: center;
 }
 
 #logo-part img {
   width: 14rem;
   height: 14rem;
-  object-fit: contain; /* Đảm bảo ảnh không bị méo */
+  object-fit: contain;
 }
 
 #logo-text {
@@ -39,26 +39,94 @@
   margin-left: 1rem;
   display: flex;
   flex-direction: column;
-  height: 100%; /* Chiều cao bằng chiều cao của container #logo-part */
+  height: 100%;
 }
+
 .green-light-container {
-  /* display: flex; KHÔNG CẦN flex ở đây */
-  /* flex-direction: column; KHÔNG CẦN flex ở đây */
-  text-align: left; /* Căn trái nội dung (GREEN LIGHT và hr) */
+  text-align: left;
 }
+
 .green-light-text {
   font-size: 3.5rem;
   font-weight: 600;
   color: #06ac06;
-  line-height: 1.2; /* Điều chỉnh khoảng cách dòng (tùy chọn) */
+  line-height: 1.2;
 }
+
 .green-light-container > hr {
-  margin: 0.5rem 0; /* Điều chỉnh khoảng cách trên và dưới hr */
-  border: none; /* Loại bỏ viền mặc định của hr nếu cần */
-  border-top: 1px solid #06ac06; /* Tạo đường kẻ ngang bằng CSS */
+  margin: 0.5rem 0;
+  border: none;
+  border-top: 1px solid #06ac06;
 }
+
 #logo-text > span {
-  font-weight: 200; /* Sử dụng font-weight: 200 trong CSS thay vì inline style */
+  font-weight: 200;
   font-size: 1.5rem;
   color: #06ac06;
+}
+
+/* Styles for right section */
+.right-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between; /* Distribute space evenly */
+  height: 100%; /* Occupy the full height */
+  padding-top: 1rem; /* Add some padding at the top */
+  padding-bottom: 1rem; /* Add some padding at the bottom */
+}
+
+.greeting-text {
+  font-size: 2rem;
+  color: green;
+  text-align: right;
+  margin-right: 1rem;
+  font-weight: 700;
+}
+
+.email-text {
+  font-size: 1.2rem;
+  color: grey;
+  text-align: right;
+  margin-right: 1rem;
+  text-decoration: underline;
+}
+
+
+/* New styles for icon buttons */
+.icon-button-container {
+  display: flex;
+  justify-content: flex-end; /* Align buttons to the right */
+  margin-right: 1rem;
+  margin-top: auto; /* Push the button container to the bottom */
+
+}
+
+.icon-button {
+  background: rgba(255, 255, 255, 0.2); /* Transparent white background */
+  backdrop-filter: blur(5px); /* Apply a blur effect */
+  border: none;
+  border-radius: 50%;
+  width: 3rem;
+  height: 3rem;
+  box-sizing: border-box; /* Thêm dòng này */
+  padding: 0; /* Thêm dòng này */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 1rem;
+  cursor: pointer;
+  color: green; /* Icon color */
+  font-size: 1.5rem;
+  transition: all 0.2s ease-in-out; /* Smooth transition for hover effects */
+  overflow: hidden; /* Thêm dòng này */
+  outline: none; /* Remove outline on focus */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.icon-button:hover {
+  background: white; /* White background on hover */
+  color: black; /* Black icon on hover */
+  transform: scale(1.1); /* Slightly enlarge on hover */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
 }

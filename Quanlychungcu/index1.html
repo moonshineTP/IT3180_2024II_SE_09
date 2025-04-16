@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- Favicon và manifest -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/src/assets/images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/src/assets/images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/src/assets/images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="/src/assets/images/favicon/site.webmanifest" />
+
+    <!-- Favicon .ico dự phòng -->
+    <link
+      rel="shortcut icon"
+      href="/src/assets/images/favicon/favicon.ico"
+      type="image/x-icon"
+    />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>GREEN LIGHT</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-image: url("https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?cs=srgb&dl=pexels-pixabay-259588.jpg&fm=jpg");
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+
+      .container {
+        position: relative;
+        background-color: rgba(255, 255, 255);
+        padding: 50px;
+        width: 300px;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      /* Đảm bảo nội dung nằm trên lớp hiệu ứng */
+      #login-form,
+      #register-form,
+      #forgot-password-form {
+        position: relative;
+        z-index: 1;
+      }
+
+      h2 {
+        text-align: center;
+        color: #333;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      /* Custom icons for each input type */
+      #login-username,
+      #register-username {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23999'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E");
+      }
+      #recovery-password,
+      #login-password,
+      #register-password {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23999'%3E%3Cpath d='M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z'/%3E%3C/svg%3E");
+      }
+      #login-email,
+      #register-email,
+      #recovery-email {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23999'%3E%3Cpath d='M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z'/%3E%3C/svg%3E");
+      }
+      button {
+        width: 100%;
+        padding: 10px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+
+      .switch {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      .switch a {
+        color: #4caf50;
+        text-decoration: none;
+        font-size: 14px;
+      }
+
+      #forgot-password {
+        font-size: 14px;
+        color: #4caf50 !important;
+        display: block;
+        text-align: right;
+        margin-top: -10px;
+      }
+
+      .hidden {
+        display: none;
+      }
+      .input-wrapper input:focus::placeholder {
+        opacity: 0; /* Ẩn khi focus */
+      }
+      .input-wrapper,
+      .show-password {
+        position: relative;
+      }
+      /*báo mật khẩu invalid*/
+      .input-wrapper input.invalid-border {
+        border: 2px solid red !important;
+        box-shadow: 0 0 0px rgba(0, 0, 0, 0) !important;
+      }
+      .input-wrapper input:focus ~ label.invalid-font,
+      .input-wrapper input:not(:placeholder-shown) ~ label.invalid-font {
+        color: red !important; /* Chữ đỏ */
+        border: 2px solid red !important; /* Viền đỏ */
+      }
+      .error-message {
+        display: none; /* Ẩn ban đầu */
+        font-size: 12px;
+        color: red;
+        font-style: italic;
+        margin-top: 5px;
+      }
+
+      .error-message.visible {
+        display: block; /* Hiển thị khi có lỗi */
+      }
+      .input-wrapper input {
+        width: 100%;
+        padding: 10px 35px 10px 10px;
+        border: 2px solid #424040;
+        border-radius: 10px;
+        box-sizing: border-box;
+        font-size: 16px;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 18px;
+      }
+      .input-wrapper input:focus + label,
+      .input-wrapper input:not(:placeholder-shown) + label,
+      .input-wrapper input:-internal-autofill-selected + label {
+        top: -8px; /* Di chuyển lên trên */
+        font-size: 12px;
+        border: 2px solid #4caf50;
+        border-radius: 10px;
+        color: #4caf50;
+        padding: 0 5px;
+        left: 10px;
+      }
+      /* Ẩn biểu tượng khi focus hoặc có nội dung */
+
+      /* Hiệu ứng mượt mà cho label */
+      .input-wrapper label {
+        position: absolute;
+        top: 10px; /* Vị trí ban đầu bên trong input */
+        left: 10px;
+        color: gray;
+        border: 0px;
+        background-color: rgba(255, 255, 255);
+        transition: all 0.3s ease; /* Hiệu ứng mượt mà */
+        pointer-events: none; /* Ngăn label cản trở việc click vào input */
+        opacity: 1; /* Ẩn ban đầu */
+      }
+      /* Hiệu ứng khi HOVER */
+      .input-wrapper input:hover {
+        border-color: #4caf50; /* Viền xanh khi hover */
+        box-shadow: 0 0 8px rgba(76, 175, 80, 0.3); /* Hiệu ứng phát sáng */
+      }
+
+      /* Hiệu ứng khi FOCUS */
+      .input-wrapper input:focus {
+        border-color: #4caf50 !important; /* Viền xanh đậm */
+        box-shadow: 0 0 16px rgba(76, 175, 80, 0.5); /* Phát sáng mạnh hơn */
+        outline: none; /* Bỏ viền focus mặc định */
+      }
+
+      /* Hiệu ứng khi CÓ NỘI DUNG (không còn placeholder) */
+      .input-wrapper input:not(:placeholder-shown) {
+        border-color: #4caf50; /* Viền xanh khi có nội dung */
+        box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+      }
+      .input-wrapper input:-internal-autofill-selected {
+        -webkit-box-shadow: 0 0 0 1000px white inset !important;
+        box-shadow: 0 0 0 1000px white inset !important;
+        -webkit-text-fill-color: #333 !important; /* Màu chữ */
+        transition: background-color 5000s ease-in-out 0s; /* Trì hoãn hiệu ứng mặc định */
+      }
+      .input-wrapper input:-moz-autofill {
+        -webkit-box-shadow: 0 0 0 1000px white inset !important;
+        box-shadow: 0 0 0 1000px white inset !important;
+        -webkit-text-fill-color: #333 !important; /* Màu chữ */
+        transition: background-color 5000s ease-in-out 0s; /* Trì hoãn hiệu ứng mặc định */
+      }
+      /* Tắt mũi tên định dạng ngày tháng */
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        display: none !important;
+      }
+      .loading-overlay {
+        display: none; /* Ẩn mặc định */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7); /* Màng phủ đen với opacity 50% */
+        z-index: 9998; /* Đảm bảo nằm dưới spinner nhưng trên tất cả nội dung khác */
+        pointer-events: all; /* Chặn mọi tương tác */
+      }
+      
+      .spinner-container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 9999; /* Đảm bảo spinner nằm trên màng phủ */
+        /* Thêm các thuộc tính căn giữa */
+        display: flex;
+        align-items: center; /* Căn giữa theo chiều dọc */
+        justify-content: center; /* Căn giữa theo chiều ngang */
+        flex-direction: column; /* Đặt chiều dọc cho các phần tử con */
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      .loading-spinner {
+        width: 70px; /* Kích thước của spinner */
+        height: 70px; /* Kích thước của spinner */
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      #loading-text {
+        color: greenyellow;
+        font-size: 20px;
+        text-align: center;
+        margin-top: 10px;
+      }
+      .spinner-container img {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="loading-overlay">
+      <div class="spinner-container">
+        <div class="loading-spinner">
+            <img src="\src\assets\images\favicon\android-chrome-512x512.png" alt="Loading"/>
+        </div>
+        <div id="loading-text">Địt Mẹ Mày</div>
+      </div>
+    </div>
+    <div class="container">
+      <!-- Biểu mẫu đăng nhập -->
+      <div id="login-form">
+        <h2>Đăng Nhập</h2>
+        <form>
+          <div class="form-group">
+            <div class="input-wrapper">
+              <input
+                type="text"
+                id="login-email"
+                placeholder=" "
+                autocomplete="off"
+              />
+              <label for="login-email">Email</label>
+            </div>
+            <span class="error-message" id="login-email-error"></span>
+          </div>
+          <div class="form-group">
+            <div class="input-wrapper">
+              <input type="password" id="login-password" placeholder=" " />
+              <label for="login-password">Mật khẩu</label>
+            </div>
+            <span class="error-message" id="login-password-error"></span>
+          </div>
+          <div class="form-group">
+            <span>
+              <input type="checkbox" id="toggle-password1" />
+              <label for="toggle-password1">Hiển thị mật khẩu</label>
+            </span>
+            <a href="#" id="forgot-password">Quên mật khẩu?</a>
+          </div>
+          <button type="submit" onclick="login()">Đăng Nhập</button>
+        </form>
+        <div class="switch">
+          <a href="#" id="show-register">Chưa có tài khoản? Đăng ký</a>
+        </div>
+      </div>
+
+      <!-- Biểu mẫu đăng ký -->
+      <div id="register-form" class="hidden">
+        <h2>Đăng Ký</h2>
+        <form>
+          <div class="form-group">
+            <div class="input-wrapper">
+              <input
+                type="text"
+                id="register-email"
+                placeholder=" "
+                autocomplete="off"
+              />
+              <label for="register-email">Email</label>
+            </div>
+            <span class="error-message" id="register-email-error"></span>
+          </div>
+          <div class="form-group">
+            <div class="input-wrapper">
+              <input type="password" id="register-password" placeholder=" " />
+              <label for="register-password">Mật khẩu</label>
+            </div>
+            <span class="error-message" id="register-password-error"></span>
+          </div>
+
+          <div class="form-group">
+            <span>
+              <input type="checkbox" id="toggle-password2" />
+              <label for="toggle-password2">Hiển thị mật khẩu</label>
+            </span>
+          </div>
+          <button type="submit" onclick="Register()">Đăng Ký</button>
+        </form>
+        <div class="switch">
+          <a href="#" id="show-login">Đã có tài khoản? Đăng nhập</a>
+        </div>
+      </div>
+
+      <!-- Cửa sổ khôi phục mật khẩu -->
+      <div id="forgot-password-form" class="hidden">
+        <h2>Khôi Phục Mật Khẩu</h2>
+        <form>
+          <div class="form-group">
+            <div class="input-wrapper">
+              <input
+                type="text"
+                id="recovery-email"
+                placeholder=" "
+                autocomplete="off"
+              />
+              <label for="recovery-email">Email</label>
+            </div>
+            <span class="error-message" id="recovery-email-error"></span>
+          </div>
+          <div class="form-group">
+            <div class="input-wrapper">
+              <input type="password" id="recovery-password" placeholder=" " />
+              <label for="recovery-password">Mật khẩu mới</label>
+            </div>
+            <span class="error-message" id="recovery-password-error"></span>
+          </div>
+          <div class="form-group">
+            <span>
+              <input type="checkbox" id="toggle-password3" />
+              <label for="toggle-password3">Hiển thị mật khẩu</label>
+            </span>
+          </div>
+          <button type="submit" onclick="Recovery()">Gửi Yêu Cầu</button>
+        </form>
+        <div class="switch">
+          <a href="#" id="back-to-login">Quay lại Đăng Nhập</a>
+        </div>
+      </div>
+    </div>
+    <script>
+      //chờ load trang
+      function showLoading() {
+  document.querySelector(".loading-overlay").style.display = "block";
+}
+
+function hideLoading() {
+  document.querySelector(".loading-overlay").style.display = "none";
+}
+      // Gán sự kiện submit cho tất cả form
+      document.querySelectorAll("form").forEach((form) => {
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const formId = e.target.closest("[id]").id;
+        });
+      });
+      // Cập nhật hàm xử lý trạng thái
+      const handleInputState = (input) => {
+        const wrapper = input.parentElement;
+        const hasValue = input.value.trim() !== "";
+
+        wrapper.classList.toggle("filled", hasValue);
+
+        // Đồng bộ trạng thái background-image
+        if (hasValue || document.activeElement === input) {
+          input.style.backgroundImage = "none";
+        } else {
+          // Khôi phục biểu tượng mặc định
+          switch (input.id) {
+            case "login-username":
+            case "register-username":
+              input.style.backgroundImage =
+                "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23999'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E\")";
+              break;
+            case "login-password":
+            case "register-password":
+            case "recovery-password":
+              input.style.backgroundImage =
+                "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23999'%3E%3Cpath d='M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z'/%3E%3C/svg%3E\")";
+              break;
+            case "register-email":
+            case "recovery-email":
+            case "login-email":
+              input.style.backgroundImage =
+                "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23999'%3E%3Cpath d='M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z'/%3E%3C/svg%3E\")";
+              break;
+          }
+        }
+      };
+
+      // Cập nhật event listeners
+      document.querySelectorAll(".input-wrapper input").forEach((input) => {
+        // Xử lý sự kiện focus/blur
+        input.addEventListener("focus", () => handleInputState(input));
+        input.addEventListener("blur", () => handleInputState(input));
+
+        // Xử lý sự kiện input
+        input.addEventListener("input", () => handleInputState(input));
+
+        // Kiểm tra ban đầu
+        handleInputState(input);
+
+        // Kiểm tra lại sau 100ms cho trường hợp tự điền
+        setTimeout(() => handleInputState(input), 100);
+      });
+      // Xử lý chuyển đổi form
+      const showForm = (showId, hideIds) => {
+        hideIds.forEach((id) =>
+          document.getElementById(id).classList.add("hidden")
+        );
+        document.getElementById(showId).classList.remove("hidden");
+      };
+
+      document
+        .getElementById("show-register")
+        .addEventListener("click", (e) => {
+          e.preventDefault();
+          showForm("register-form", ["login-form", "forgot-password-form"]);
+        });
+
+      document.getElementById("show-login").addEventListener("click", (e) => {
+        e.preventDefault();
+        showForm("login-form", ["register-form", "forgot-password-form"]);
+      });
+
+      document
+        .getElementById("forgot-password")
+        .addEventListener("click", (e) => {
+          e.preventDefault();
+          showForm("forgot-password-form", ["login-form", "register-form"]);
+        });
+
+      document
+        .getElementById("back-to-login")
+        .addEventListener("click", (e) => {
+          e.preventDefault();
+          showForm("login-form", ["forgot-password-form", "register-form"]);
+        });
+      //xử lý hiện mật khẩu
+      const checkbox1 = document.getElementById("toggle-password1");
+      const checkbox2 = document.getElementById("toggle-password2");
+      const checkbox3 = document.getElementById("toggle-password3");
+      const password1 = document.getElementById("login-password");
+      const password2 = document.getElementById("register-password");
+      const password3 = document.getElementById("recovery-password");
+      // Hàm đồng bộ trạng thái 2 checkbox
+      function syncCheckbox(event) {
+        const isChecked = event.target.checked;
+        checkbox1.checked = isChecked;
+        checkbox2.checked = isChecked;
+        checkbox3.checked = isChecked;
+        const type = isChecked ? "text" : "password";
+        password1.type = type;
+        password2.type = type;
+        password3.type = type;
+      }
+
+      // Lắng nghe sự kiện thay đổi
+      checkbox1.addEventListener("change", syncCheckbox);
+      checkbox2.addEventListener("change", syncCheckbox);
+      checkbox3.addEventListener("change", syncCheckbox);
+      // hiệu ứng sai thông tin nhập liệu
+      function alertEmail(responseData, form) {
+        let ID = form + "-email",
+          IDerror = form + "-email-error";
+
+        const emailInput = document.getElementById(ID);
+        const emailLabel = document.querySelector("label[for=" + ID + "]");
+        const emailError = document.getElementById(IDerror);
+
+        // Thêm hiệu ứng lỗi
+        emailInput.classList.add("invalid-border");
+        emailLabel?.classList.add("invalid-border", "invalid-font");
+        emailError.textContent = responseData;
+        emailError.classList.add("visible");
+
+        // Xóa hiệu ứng khi focus
+        const removeError = () => {
+          emailInput.classList.remove("invalid-border");
+          emailLabel?.classList.remove("invalid-border", "invalid-font");
+          emailError.classList.remove("visible");
+        };
+        emailInput.addEventListener("focus", removeError, { once: true });
+      }
+
+      function alertPassword(responseData, form) {
+        let ID = form + "-password",
+          IDerror = form + "-password-error";
+
+        const passwordInput = document.getElementById(ID);
+        const passwordLabel = document.querySelector("label[for=" + ID + "]");
+        const passwordError = document.getElementById(IDerror);
+
+        // Thêm hiệu ứng lỗi
+        passwordInput.classList.add("invalid-border");
+        passwordLabel?.classList.add("invalid-border", "invalid-font");
+        passwordError.textContent = responseData;
+        passwordError.classList.add("visible");
+
+        // Xóa hiệu ứng khi focus
+        const removeError = () => {
+          passwordInput.classList.remove("invalid-border");
+          passwordLabel?.classList.remove("invalid-border", "invalid-font");
+          passwordError.classList.remove("visible");
+        };
+        passwordInput.addEventListener("focus", removeError, { once: true });
+      }
+      // Gửi username và password đến Spring Boot
+      async function login() {
+        const email = document.getElementById("login-email").value;
+        const password = document.getElementById("login-password").value;
+        
+        try {
+            // Hiển thị loading
+            document.getElementById("loading-text").textContent = "Loading...";
+            showLoading();
+
+            const response = await fetch("http://localhost:8080/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            
+            const data = await response.json();
+            
+            if (data.emailStatus === "Successful!" && data.passwordStatus === "Successful!") {
+                document.getElementById("loading-text").textContent = "Đăng nhập thành công! Đang chuyển hướng...";
+                localStorage.setItem("token", data.Token);
+                localStorage.setItem("isAuthenticated", "true");
+                localStorage.setItem("email", email);
+                
+                // Chuyển hướng sau 1 giây
+                setTimeout(() => {
+                    window.location.href = "/index.html";
+                }, 1000);
+            } else {
+                document.getElementById("loading-text").textContent = "Đăng nhập thất bại!";
+                if (data.emailStatus !== "Successful!") alertEmail(data.emailStatus, "login");
+                if (data.passwordStatus !== "Successful!") alertPassword(data.passwordStatus, "login");
+            }
+            
+            return data;
+        } catch (error) {
+            console.error("Login failed:", error);
+            document.getElementById("loading-text").textContent = "Lỗi kết nối!";
+            return "error_connection";
+        } finally {
+            // Ẩn loading sau 1000ms để người dùng kịp đọc thông báo
+            setTimeout(hideLoading, 1000);
+
+        }
+}
+      async function Register() {
+        const email = document.getElementById("register-email").value;
+        const newPassword = document.getElementById("register-password").value;
+
+        try {
+          document.getElementById("loading-text").textContent = "Loading...";
+          showLoading();
+          // Gửi yêu cầu đến Spring Boot
+          const response = await fetch(
+            "http://localhost:8080/api/auth/request-register",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                password: newPassword,
+                email: email,
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          if (data.emailStatus === "Successful!" && data.passwordStatus === "Successful!") {
+                document.getElementById("loading-text").textContent = "Đăng ký thành công! Vui lòng xác nhận qua email.";
+                // Chuyển hướng sau 1 giây
+                setTimeout(() => {
+                    window.location.href = "/index1.html";
+                }, 1000);
+            } else {
+                document.getElementById("loading-text").textContent = "Đăng ký thất bại!";
+                if (data.emailStatus !== "Successful!") alertEmail(data.emailStatus, "register");
+                if (data.passwordStatus !== "Successful!") alertPassword(data.passwordStatus, "register");
+            }
+            
+            return data;
+        } catch (error) {
+          console.error("Register failed:", error);
+          document.getElementById("loading-text").textContent = "Lỗi kết nối!";
+          return "error_connection";
+        }
+        finally {
+          setTimeout(hideLoading, 1000);
+        }
+      }
+      ////////////////Quên mật khẩu (đm khó vl luôn đấy nên đừng làm gì để bug nhé!)
+      async function Recovery() {
+        const email = document.getElementById("recovery-email").value;
+        const newPassword = document.getElementById("recovery-password").value;
+
+        try {
+          document.getElementById("loading-text").textContent = "Loading...";
+          showLoading();
+          const response = await fetch(
+            "http://localhost:8080/api/auth/request-reset",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                password: newPassword,
+                email: email,
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          if (data.emailStatus === "Successful!" && data.passwordStatus === "Successful!") {
+                document.getElementById("loading-text").textContent = "Khôi phục thành công! Vui lòng xác nhận qua email.";
+                // Chuyển hướng sau 1 giây
+                setTimeout(() => {
+                    window.location.href = "/index1.html";
+                }, 1000);
+            } else {
+                document.getElementById("loading-text").textContent = "Khôi phục thất bại!";
+                if (data.emailStatus !== "Successful!") alertEmail(data.emailStatus, "recovery");
+                if (data.passwordStatus !== "Successful!") alertPassword(data.passwordStatus, "recovery");
+            }
+            
+            return data;
+        } catch (error) {
+          console.error("Recovery failed:", error);
+          document.getElementById("loading-text").textContent = "Lỗi kết nối!";
+          return "error_connection";
+        }
+        finally {
+          setTimeout(hideLoading, 1000);
+        }
+      }
+    </script>
+  </body>
+</html>
