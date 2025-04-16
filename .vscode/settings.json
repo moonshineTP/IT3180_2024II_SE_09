@@ -1,0 +1,11 @@
+{
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "cSpell.words": [
+        "databind",
+        "fasterxml",
+        "jjwt",
+        "jsonwebtoken",
+        "springframework"
+    ]
+}
