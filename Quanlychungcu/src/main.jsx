@@ -1,15 +1,20 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App"; // Tạo file App.jsx chứa toàn bộ layout
-// Kiểm tra đăng nhập
-const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+import axios from "axios";
+const checkAuthentication = async () => {
+  try {
+    // Call the check-in API to verify the JWT
+    axios.get("/checkin", { withCredentials: true });
+  } catch (error) {
+    console.error("Authentication check failed:", error);
+  }
 
-if (!isAuthenticated) {
-  window.location.href = "/index1.html";
-}
+};
 // Tạo một root duy nhất
-createRoot(document.getElementById("root")).render(
+checkAuthentication().then(()=>{createRoot(document.getElementById("root")).render(
   <StrictMode>
     <App />
   </StrictMode>
 );
+});

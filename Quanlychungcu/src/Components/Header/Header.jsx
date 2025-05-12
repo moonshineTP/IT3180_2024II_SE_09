@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import './Header.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBell, faEnvelope, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
 
 function Header() {
   const [greeting, setGreeting] = useState('');
@@ -36,7 +37,16 @@ function Header() {
 
     return () => clearInterval(intervalId); // Cleanup on unmount
   }, []);
-
+  const handleLogout = async () => {
+    try {
+      // Call the logout API
+      await axios.post('/api/auth/logout', {}, { withCredentials: true });
+      // Redirect to the login page
+      window.location.href = '/index1.html';
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
   return (
     <div id="header">
       <span className="item" style={{ background: headerGradient }}>
@@ -65,13 +75,13 @@ function Header() {
           <button className="icon-button notification-button" title="Thông báo">
             <FontAwesomeIcon icon={faBell} />
           </button>
-          <button className="icon-button message-button" title="Tin nhắn">
-            <FontAwesomeIcon icon={faEnvelope} />
+          <button className="icon-button message-button" title="Tài khoản">
+            <FontAwesomeIcon icon={faUser} />
           </button>
           <button
             className="icon-button logout-button"
             title="Đăng xuất"
-            onClick={() => (window.location.href = "/index1.html")}
+            onClick={handleLogout}
           >
             <FontAwesomeIcon icon={faSignOutAlt} />
           </button>

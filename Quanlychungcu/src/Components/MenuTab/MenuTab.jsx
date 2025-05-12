@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+
 import "./MenuTab.css";
 
 export default function MenuTab({ activeTab, setActiveTab }) {

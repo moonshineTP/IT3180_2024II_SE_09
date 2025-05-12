@@ -327,6 +327,18 @@
             <div class="input-wrapper">
               <input
                 type="text"
+                id="register-username"
+                placeholder=" "
+                autocomplete="off"
+              />
+              <label for="register-username">Tên đăng nhập</label>
+            </div>
+            <span class="error-message" id="register-username-error"></span>
+          </div>
+          <div class="form-group">
+            <div class="input-wrapper">
+              <input
+                type="text"
                 id="register-email"
                 placeholder=" "
                 autocomplete="off"
@@ -514,6 +526,28 @@ function hideLoading() {
       checkbox2.addEventListener("change", syncCheckbox);
       checkbox3.addEventListener("change", syncCheckbox);
       // hiệu ứng sai thông tin nhập liệu
+      function alertUsername(responseData, form) {
+        let ID = form + "-username",
+          IDerror = form + "-username-error";
+
+        const usernameInput = document.getElementById(ID);
+        const usernameLabel = document.querySelector("label[for=" + ID + "]");
+        const usernameError = document.getElementById(IDerror);
+
+        // Thêm hiệu ứng lỗi
+        usernameInput.classList.add("invalid-border");
+        usernameLabel?.classList.add("invalid-border", "invalid-font");
+        usernameError.textContent = responseData;
+        usernameError.classList.add("visible");
+
+        // Xóa hiệu ứng khi focus
+        const removeError = () => {
+          usernameInput.classList.remove("invalid-border");
+          usernameLabel?.classList.remove("invalid-border", "invalid-font");
+          usernameError.classList.remove("visible");
+        };
+        usernameInput.addEventListener("focus", removeError, { once: true });
+      }
       function alertEmail(responseData, form) {
         let ID = form + "-email",
           IDerror = form + "-email-error";
@@ -583,8 +617,6 @@ function hideLoading() {
                 document.getElementById("loading-text").textContent = "Đăng nhập thành công! Đang chuyển hướng...";
                 localStorage.setItem("token", data.Token);
                 localStorage.setItem("isAuthenticated", "true");
-                localStorage.setItem("email", email);
-                
                 // Chuyển hướng sau 1 giây
                 setTimeout(() => {
                     window.location.href = "/index.html";
@@ -609,7 +641,7 @@ function hideLoading() {
       async function Register() {
         const email = document.getElementById("register-email").value;
         const newPassword = document.getElementById("register-password").value;
-
+        const username = document.getElementById("register-username").value;
         try {
           document.getElementById("loading-text").textContent = "Loading...";
           showLoading();
@@ -622,6 +654,7 @@ function hideLoading() {
               body: JSON.stringify({
                 password: newPassword,
                 email: email,
+                username: username,
               }),
             }
           );
@@ -630,7 +663,7 @@ function hideLoading() {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
           const data = await response.json();
-          if (data.emailStatus === "Successful!" && data.passwordStatus === "Successful!") {
+          if (data.emailStatus === "Successful!" && data.passwordStatus === "Successful!"&&data.usernameStatus === "Successful!") {
                 document.getElementById("loading-text").textContent = "Đăng ký thành công! Vui lòng xác nhận qua email.";
                 // Chuyển hướng sau 1 giây
                 setTimeout(() => {
@@ -640,6 +673,7 @@ function hideLoading() {
                 document.getElementById("loading-text").textContent = "Đăng ký thất bại!";
                 if (data.emailStatus !== "Successful!") alertEmail(data.emailStatus, "register");
                 if (data.passwordStatus !== "Successful!") alertPassword(data.passwordStatus, "register");
+                if (data.usernameStatus !== "Successful!") alertUsername(data.usernameStatus, "register");
             }
             
             return data;
