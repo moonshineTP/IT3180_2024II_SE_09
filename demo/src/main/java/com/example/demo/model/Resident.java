@@ -5,6 +5,9 @@ import java.time.LocalDate;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+
+import java.util.ArrayList;
+import java.util.List;
 @Entity
 @Table(name = "residents")
 public class Resident {
@@ -69,6 +72,12 @@ public class Resident {
     @JoinColumn(name = "linking_email", referencedColumnName = "email", nullable = true)
     @OnDelete(action = OnDeleteAction.SET_NULL) // Cần thư viện Hibernate
     private Account account;
+
+    @OneToMany(mappedBy = "resident", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<receiveNotification> receiveNotifications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "resident", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<IncludeInComplaints> includeInComplaints = new ArrayList<>();
     // Getters and Setters
     public String getResident_id() {
         return resident_id;
