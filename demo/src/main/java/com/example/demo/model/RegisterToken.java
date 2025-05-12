@@ -1,8 +1,6 @@
-package com.example.demo;
+package com.example.demo.model;
 
 import jakarta.persistence.Entity;
-import java.util.Date;
-
 @Entity
 public class RegisterToken extends AuthToken {
 }

@@ -1,15 +1,17 @@
-package com.example.demo; // Thay bằng package của bạn
+package com.example.demo.repository; // Thay bằng package của bạn
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import com.example.demo.model.PasswordResetToken;
+
 import java.util.Date;
-import java.util.Optional;
 
 @Repository
-public interface RegisterTokenRepository extends JpaRepository<RegisterToken, Long> {
+public interface PasswordResetTokenRepository extends JpaRepository<PasswordResetToken, Long> {
 
     // Tìm token bằng chuỗi token
-    RegisterToken findByToken(String token);
+    PasswordResetToken findByToken(String token);
 
     // Xóa token theo email (dùng khi tạo token mới cho cùng 1 email)
     void deleteByEmail(String email);
