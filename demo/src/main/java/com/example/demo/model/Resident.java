@@ -48,9 +48,6 @@ public class Resident {
 
     @Column(name = "apartment_number")
     private String apartmentNumber;
-    
-    @Column(name = "floor_number")
-    private String floorNumber;
 
     @Column(name = "is_household_owner")
     private Boolean isHouseholdOwner;
@@ -220,11 +217,5 @@ public class Resident {
 
     public void setAccount(Account account) {
         this.account = account;
-    }
-    public String getFloorNumber() {
-        return floorNumber;
-    }
-    public void setFloorNumber(String floorNumber) {
-        this.floorNumber = floorNumber;
     }
 }

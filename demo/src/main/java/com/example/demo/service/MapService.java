@@ -20,7 +20,6 @@ public class MapService {
         dto.setPlaceOfBirth(resident.getPlaceOfBirth());
         dto.setOccupation(resident.getOccupation());
         dto.setApartmentNumber(resident.getApartmentNumber());
-        dto.setFloorNumber(resident.getFloorNumber());
         dto.setRelationshipWithOwner(resident.getRelationshipWithOwner());
         dto.setMoveInDate(resident.getMoveInDate());
         dto.setMoveOutDate(resident.getMoveOutDate());

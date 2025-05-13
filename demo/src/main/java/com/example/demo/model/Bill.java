@@ -2,8 +2,6 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "bills")
@@ -26,8 +24,6 @@ public class Bill {
 
     @Column(name = "amount", nullable = false)
     private Double amount; // Amount of money for the bill
-    @OneToMany(mappedBy = "feeHousehold", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Bill> bills = new ArrayList<>();
 
     // Getters and Setters
     public Long getId() {
@@ -68,11 +64,5 @@ public class Bill {
 
     public void setAmount(Double amount) {
         this.amount = amount;
-    }
-    public List<Bill> getBills() {
-        return bills;
-    }
-    public void setBills(List<Bill> bills) {
-        this.bills = bills;
     }
 }

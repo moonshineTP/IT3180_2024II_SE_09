@@ -2,6 +2,8 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "household_fees")
@@ -22,6 +24,8 @@ public class Fee {
 
     private String supervisor;
 
+    @OneToMany(mappedBy = "fee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FeeHousehold> feeHouseholds = new ArrayList<>();
     // Getters & Setters
 
     public String getFeeId() {
@@ -78,5 +82,11 @@ public class Fee {
 
     public void setSupervisor(String supervisor) {
         this.supervisor = supervisor;
+    }
+    public List<FeeHousehold> getFeeHouseholds() {
+        return feeHouseholds;
+    }
+    public void setFeeHouseholds(List<FeeHousehold> feeHouseholds) {
+        this.feeHouseholds = feeHouseholds;
     }
 }

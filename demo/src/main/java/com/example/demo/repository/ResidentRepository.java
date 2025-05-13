@@ -14,7 +14,7 @@ public interface ResidentRepository extends JpaRepository<Resident, String> {
 
     boolean existsByEmailAndResident_idNot(String email, String residentId);
 
-    boolean existsByApartmentNumberAndFloorNumberAndIsHouseholdOwnerTrueAndResident_idNot(
-        String apartmentNumber, String floorNumber, String residentId
+    boolean existsByApartmentNumberAndIsHouseholdOwnerTrueAndResident_idNot(
+        String apartmentNumber, String residentId
     );
 }

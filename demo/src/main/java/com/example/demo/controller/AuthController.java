@@ -62,7 +62,7 @@ public class AuthController {
         }
 
         // Tạo JWT và thêm vào cookie
-        String token = jwtUtils.generateToken(account.getEmail());
+        String token = jwtUtils.generateToken(account.getEmail(),60*60*24);
         authService.addJwtToCookie(token, httpResponse); // Thêm cookie vào response
 
         response.put("passwordStatus", "Successful!");

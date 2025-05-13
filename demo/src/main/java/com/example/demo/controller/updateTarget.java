@@ -194,12 +194,9 @@ public class updateTarget {
         if (residentDTO.getApartmentNumber() != null) {
             resident.setApartmentNumber(residentDTO.getApartmentNumber());
         }
-        if (residentDTO.getFloorNumber() != null) {
-            resident.setFloorNumber(residentDTO.getFloorNumber());
-        }
         if (residentDTO.getIsHouseholdOwner() != null) {
             // Ensure there is only one household owner in the apartment
-            if (residentDTO.getIsHouseholdOwner() && residentRepository.existsByApartmentNumberAndFloorNumberAndIsHouseholdOwnerTrueAndResident_idNot(resident.getApartmentNumber(),resident.getFloorNumber(), resident.getResident_id())) {
+            if (residentDTO.getIsHouseholdOwner() && residentRepository.existsByApartmentNumberAndIsHouseholdOwnerTrueAndResident_idNot(resident.getApartmentNumber(), resident.getResident_id())) {
                 return ResponseEntity.badRequest().body("There can only be one household owner in an apartment");
             }
             resident.setIsHouseholdOwner(residentDTO.getIsHouseholdOwner());
@@ -387,7 +384,6 @@ public class updateTarget {
         resident.setEmail(null);
         resident.setOccupation(null);
         resident.setApartmentNumber(null);
-        resident.setFloorNumber(null);
         resident.setIsHouseholdOwner(false);
         resident.setRelationshipWithOwner(null);
         resident.setMoveInDate(null);
