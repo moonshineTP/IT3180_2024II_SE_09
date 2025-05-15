@@ -27,9 +27,14 @@ import com.example.demo.repository.DonationRepository;
 import com.example.demo.model.Notification;
 import com.example.demo.repository.NotificationRepository;
 import com.example.demo.repository.ComplaintRepository;
+import com.example.demo.repository.receiveNotificationRepository;
+import com.example.demo.repository.interactNotificationRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequestMapping("/api/GetList")
@@ -43,10 +48,15 @@ public class GetList {
     private DonationRepository donationRepository;
     private NotificationRepository notificationRepository;
     private ComplaintRepository complaintsRepository;
+    private receiveNotificationRepository receiveNotificationRepository;
+    private interactNotificationRepository interactNotificationRepository;
     // Constructor injection for AccountRepository
     public GetList(AccountRepository accountRepository, ResidentRepository residentRepository, VehicleRepository vehicleRepository, 
             MapService mapService, FeeRepository feeRepository, DonationRepository donationRepository, 
-            NotificationRepository notificationRepository, ComplaintRepository complaintsRepository) {
+            NotificationRepository notificationRepository, ComplaintRepository complaintsRepository, receiveNotificationRepository receiveNotificationRepository, 
+            interactNotificationRepository interactNotificationRepository) {
+        this.interactNotificationRepository = interactNotificationRepository;
+        this.receiveNotificationRepository = receiveNotificationRepository;
         this.notificationRepository = notificationRepository;
         this.vehicleRepository = vehicleRepository;
         this.residentRepository = residentRepository;
@@ -160,5 +170,49 @@ public class GetList {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(complaintsDTOs);
+    }
+    @PostMapping("/getprivateNotification")
+    public ResponseEntity<?> getConcernedNotification(Authentication authentication) {
+        // Get the currently authenticated user's email
+        String currentEmail = authentication.getName();
+        Account currentAccount = accountRepository.findByEmail(currentEmail);
+
+        // Fetch concerned notifications for the current user through the interactNotification table
+        List<Notification> privateNotifications = receiveNotificationRepository.findNotificationsByAccount(currentAccount);
+
+        if (privateNotifications.isEmpty()) {
+            return ResponseEntity.ok("No private notifications found for the current user");
+        }
+
+        // Map notifications to NotificationDTO
+        List<NotificationDTO> notificationDTOs = privateNotifications.stream()
+                .map(notification -> mapService.mapToNotificationDTO(notification, false))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(notificationDTOs);
+    }
+    @PostMapping("/filterConcernedNotifications")
+    public ResponseEntity<?> filterConcernedNotifications(@RequestBody List<NotificationDTO> notificationDTOs, Authentication authentication) {
+        // Get the currently authenticated user's email
+        String currentEmail = authentication.getName();
+
+        // Extract notification IDs from the input list
+        List<String> notificationIds = notificationDTOs.stream()
+                .map(NotificationDTO::getAnnouncementId)
+                .collect(Collectors.toList());
+
+        // Fetch notifications with interactType="concerned" for the current user
+        List<Notification> concernedNotifications = interactNotificationRepository.findConcernedNotificationsByUserEmailAndNotificationIds(currentEmail, notificationIds);
+
+        if (concernedNotifications.isEmpty()) {
+            return ResponseEntity.ok("No concerned notifications found for the current user");
+        }
+
+        // Map notifications to NotificationDTO
+        List<NotificationDTO> filteredNotificationDTOs = concernedNotifications.stream()
+                .map(notification -> mapService.mapToNotificationDTO(notification, false))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(filteredNotificationDTOs);
     }
 }

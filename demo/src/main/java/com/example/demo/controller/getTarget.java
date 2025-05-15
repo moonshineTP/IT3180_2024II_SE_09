@@ -200,5 +200,4 @@ public class getTarget {
         }
         return ResponseEntity.ok(mapService.mapToComplaintsDTO(complaint, true));
     }
-    
 }

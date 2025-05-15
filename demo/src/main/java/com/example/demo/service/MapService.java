@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import org.aspectj.weaver.ast.Not;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.model.Account;
@@ -110,6 +109,18 @@ public class MapService {
     }
     public ComplaintsDTO mapToComplaintsDTO(Complaints complaints, boolean full) {
         ComplaintsDTO responseDTO = new ComplaintsDTO();
+        if(complaints.getResident() != null) {
+            responseDTO.setResidentId(complaints.getResident().getResident_id());
+            responseDTO.setResidentName(complaints.getResident().getFullName());
+            responseDTO.setApartmentNumber(complaints.getResident().getApartmentNumber());
+            responseDTO.setAvt(complaints.getResident().getAvatar());
+        }
+        else {
+            responseDTO.setResidentId(null);
+            responseDTO.setResidentName(null);
+            responseDTO.setApartmentNumber(null);
+            responseDTO.setAvt(null);
+        }
         responseDTO.setComplaintId(complaints.getComplaintId());
         responseDTO.setTitle(complaints.getTitle());
         responseDTO.setSubmittedAt(complaints.getSubmittedAt());

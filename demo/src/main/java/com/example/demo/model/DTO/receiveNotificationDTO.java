@@ -1,6 +1,5 @@
 package com.example.demo.model.DTO;
 
-import jakarta.persistence.*;
 public class receiveNotificationDTO {
     private Long id; // Unique identifier for the record
     private String residentId; // Reference to the Resident entity
