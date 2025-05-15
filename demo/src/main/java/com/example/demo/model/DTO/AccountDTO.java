@@ -3,7 +3,6 @@ package com.example.demo.model.DTO;
 import java.time.LocalDateTime;
 
 public class AccountDTO {
-    private Long id;
     private String username;
     private String email; // Optional, based on role
     private String role;
@@ -12,15 +11,6 @@ public class AccountDTO {
     private LocalDateTime createdDate;
     private LocalDateTime lastVisit;
     private String resident_id; // Include resident_id if the account is linked to a resident
-
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getUsername() {
         return username;

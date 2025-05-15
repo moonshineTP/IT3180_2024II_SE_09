@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "include_in_complaints", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"resident_id", "complaint_id"})
+        @UniqueConstraint(columnNames = {"complaint_id", "resident_id"})
 })
 public class IncludeInComplaints {
 

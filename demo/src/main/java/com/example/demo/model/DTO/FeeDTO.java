@@ -1,13 +1,13 @@
-package com.example.demo.model;
+package com.example.demo.model.DTO;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import com.example.demo.model.FeeHousehold;
 
 @Entity
 @Table(name = "household_fees")
-public class Fee {
+public class FeeDTO {
 
     @Id
     private String feeId;
@@ -15,8 +15,7 @@ public class Fee {
     private String feeName;
 
     private String feeType;
-    @Lob
-    @Column(columnDefinition = "TEXT")
+
     private String note;
 
     private LocalDateTime createdAt;
@@ -24,9 +23,6 @@ public class Fee {
     private LocalDateTime updatedAt;
 
     private String supervisor;
-
-    @OneToMany(mappedBy = "fee", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FeeHousehold> feeHouseholds = new ArrayList<>();
     // Getters & Setters
 
     public String getFeeId() {
@@ -83,11 +79,5 @@ public class Fee {
 
     public void setSupervisor(String supervisor) {
         this.supervisor = supervisor;
-    }
-    public List<FeeHousehold> getFeeHouseholds() {
-        return feeHouseholds;
-    }
-    public void setFeeHouseholds(List<FeeHousehold> feeHouseholds) {
-        this.feeHouseholds = feeHouseholds;
     }
 }

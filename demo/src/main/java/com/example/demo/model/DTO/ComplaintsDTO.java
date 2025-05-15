@@ -1,31 +1,23 @@
-package com.example.demo.model;
+package com.example.demo.model.DTO;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.ArrayList;
-
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 
 
-@Entity
-@Table(name = "complaints")
-public class Complaints {
+public class ComplaintsDTO {
     
-    @Id
     private String complaintId;
 
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "resident_id", referencedColumnName = "resident_id", nullable = true)
-    @OnDelete(action = OnDeleteAction.SET_NULL)
-    private Resident resident;
+    private String residentId;
+
+    private String residentName;
+
+    private String apartmentNumber;
+
+    private byte[] avt;
 
     private String title;
 
-    @Lob
-    @Column(columnDefinition = "TEXT")
     private String description;
 
     private LocalDateTime submittedAt;
@@ -37,13 +29,6 @@ public class Complaints {
     private String staffId; // người xử lý khiếu nại
 
     private String priority; // "Low", "Medium", "High", "not_urgent"
-    @OneToMany(mappedBy = "complaint", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<IncludeInComplaints> includeInComplaints = new ArrayList<>();
-    @OneToMany(mappedBy = "complaint", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<responseComplaints> responseComplaints = new ArrayList<>();
-    @OneToMany(mappedBy = "complaint", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<interactComplaint> interactComplaints = new ArrayList<>();
-
 
     // Getters and Setters
 
@@ -54,11 +39,13 @@ public class Complaints {
     public void setComplaintId(String complaintId) {
         this.complaintId = complaintId;
     }
-    public Resident getResident() {
-        return resident;
+
+    public String getResidentId() {
+        return residentId;
     }
-    public void setResident(Resident resident) {
-        this.resident = resident;
+
+    public void setResidentId(String residentId) {
+        this.residentId = residentId;
     }
 
     public String getTitle() {
@@ -114,5 +101,23 @@ public class Complaints {
 
     public void setPriority(String priority) {
         this.priority = priority;
+    }
+    public String getResidentName() {
+        return residentName;
+    }
+    public void setResidentName(String residentName) {
+        this.residentName = residentName;
+    }
+    public String getApartmentNumber() {
+        return apartmentNumber;
+    }
+    public void setApartmentNumber(String apartmentNumber) {
+        this.apartmentNumber = apartmentNumber;
+    }
+    public byte[] getAvt() {
+        return avt;
+    }
+    public void setAvt(byte[] avt) {
+        this.avt = avt;
     }
 }

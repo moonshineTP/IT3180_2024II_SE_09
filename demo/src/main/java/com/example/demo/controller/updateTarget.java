@@ -3,12 +3,23 @@ package com.example.demo.controller;
 import com.example.demo.model.DTO.AccountDTO;
 import com.example.demo.model.DTO.ResidentDTO;
 import com.example.demo.model.DTO.VehicleDTO;
+import com.example.demo.model.DTO.FeeDTO;
+import com.example.demo.model.DTO.DonationDTO;
+import com.example.demo.model.DTO.ComplaintsDTO;
 import com.example.demo.model.Account;
+import com.example.demo.model.Bill;
 import com.example.demo.model.Resident;
 import com.example.demo.model.Vehicle;
+import com.example.demo.model.Fee;
+import com.example.demo.model.Donation;
+import com.example.demo.model.Complaints;
 import com.example.demo.repository.AccountRepository;
 import com.example.demo.repository.ResidentRepository;
 import com.example.demo.repository.VehicleRepository;
+import com.example.demo.repository.FeeRepository;
+import com.example.demo.repository.DonationRepository;
+import com.example.demo.repository.BillRepository;
+import com.example.demo.repository.ComplaintRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.time.LocalDateTime;
 
 
 @RestController
@@ -31,6 +43,17 @@ public class updateTarget {
 
     @Autowired
     private VehicleRepository vehicleRepository;
+    @Autowired
+    private FeeRepository feeRepository;
+
+    @Autowired
+    private DonationRepository donationRepository;
+
+    @Autowired
+    private BillRepository billRepository;
+
+    @Autowired
+    private ComplaintRepository complaintRepository;
 
     @PutMapping("/changeaccount")
     public ResponseEntity<?> updateAccount(
@@ -90,7 +113,6 @@ public class updateTarget {
                 account.setUsername(accountDTO.getUsername());
             }
         }
-
         // Save the updated account
         accountRepository.save(account);
 
@@ -347,6 +369,264 @@ public class updateTarget {
 
         return ResponseEntity.ok("Vehicle deleted successfully");
     }
+    @PostMapping("/changeFee")
+    public ResponseEntity<?> updateFee(@RequestBody FeeDTO feeDTO, Authentication authentication) {
+        // Check if the user is authenticated
+        if (authentication == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+
+        // Get the currently authenticated user's role
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+
+        // Only admins are allowed to update fees
+        if (!"admin".equals(currentUserRole)) {
+            return ResponseEntity.status(403).body("You do not have permission to update fees");
+        }
+
+        // Validate the fee_id in the DTO
+        if (feeDTO.getFeeId() == null || feeDTO.getFeeId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Fee ID is required");
+        }
+
+        // Find the fee by fee_id
+        Fee fee = feeRepository.findByFeeId(feeDTO.getFeeId());
+        if (fee == null) {
+            return ResponseEntity.badRequest().body("Fee not found");
+        }
+
+        // Update fields if they are not null in the DTO
+        if (feeDTO.getFeeName() != null) {
+            fee.setFeeName(feeDTO.getFeeName());
+        }
+        if (feeDTO.getFeeType() != null) {
+            fee.setFeeType(feeDTO.getFeeType());
+        }
+        if (feeDTO.getNote() != null) {
+            fee.setNote(feeDTO.getNote());
+        }
+        if (feeDTO.getSupervisor() != null) {
+            fee.setSupervisor(feeDTO.getSupervisor());
+        }
+        fee.setUpdatedAt(LocalDateTime.now()); // Update the timestamp
+        // Save the updated fee
+        feeRepository.save(fee);
+
+        return ResponseEntity.ok("Fee updated successfully");
+    }
+
+
+    @DeleteMapping("/deletefee")
+    public ResponseEntity<?> deleteFeeById(@RequestBody FeeDTO feeDTO, Authentication authentication) {
+        // Get the currently authenticated user's role
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+
+        // Only admins are allowed to delete fees
+        if (!"admin".equals(currentUserRole)) {
+            return ResponseEntity.status(403).body("You do not have permission to delete fees");
+        }
+        // Validate the feeId in the DTO
+        String feeId = feeDTO.getFeeId();
+        // Validate the feeId
+        if (feeId == null || feeId.isEmpty()) {
+            return ResponseEntity.badRequest().body("Fee ID is required");
+        }
+
+        // Find the fee by feeId
+        Fee fee = feeRepository.findByFeeId(feeId);
+        if (fee == null) {
+            return ResponseEntity.badRequest().body("Fee not found");
+        }
+
+        // Delete all bills associated with FeeHousehold entries for this Fee
+        List<Bill> billsToDelete = billRepository.findByFeeHousehold_Fee(fee);
+        billRepository.deleteAll(billsToDelete);
+
+        // Delete the fee
+        feeRepository.delete(fee);
+
+        return ResponseEntity.ok("Fee and associated bills deleted successfully");
+    }
+
+    @PostMapping("/changedonation")
+    public ResponseEntity<?> updateDonation(@RequestBody DonationDTO donationDTO, Authentication authentication) {
+        // Check if the user is authenticated
+        if (authentication == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+
+        // Get the currently authenticated user's role
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+
+        // Only admins are allowed to update donations
+        if (!"admin".equals(currentUserRole)) {
+            return ResponseEntity.status(403).body("You do not have permission to update donations");
+        }
+
+        // Validate the donationId in the DTO
+        if (donationDTO.getId() == null || donationDTO.getId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Donation ID is required");
+        }
+
+        // Find the donation by donationId
+        Donation donation = donationRepository.findDonationById(donationDTO.getId());
+        if (donation == null) {
+            return ResponseEntity.badRequest().body("Donation not found");
+        }
+
+        // Update fields if they are not null in the DTO
+        if (donationDTO.getDonationName() != null) {
+            donation.setDonationName(donationDTO.getDonationName());
+        }
+        if (donationDTO.getFounder() != null) {
+            donation.setFounder(donationDTO.getFounder());
+        }
+        if (donationDTO.getContent() != null) {
+            donation.setContent(donationDTO.getContent());
+        }
+        if (donationDTO.getAccumulatedMoney() == 0) {
+            donation.setAccumulatedMoney(donationDTO.getAccumulatedMoney());
+        }
+        if (donationDTO.getStatus() != null) {
+            donation.setStatus(donationDTO.getStatus());
+        }
+        // Save the updated donation
+        donationRepository.save(donation);
+
+        return ResponseEntity.ok("Donation updated successfully");
+    }
+
+    @DeleteMapping("/deletedonation")
+    public ResponseEntity<?> deleteDonationById(@RequestBody DonationDTO donationDTO, Authentication authentication) {
+        // Get the currently authenticated user's role
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+
+        // Only admins are allowed to delete donations
+        if (!"admin".equals(currentUserRole)) {
+            return ResponseEntity.status(403).body("You do not have permission to delete donations");
+        }
+
+        // Validate the donationId in the DTO
+        String donationId = donationDTO.getId();
+        // Validate the donationId
+        if (donationId == null || donationId.isEmpty()) {
+            return ResponseEntity.badRequest().body("Donation ID is required");
+        }
+
+        // Find the donation by donationId
+        Donation donation = donationRepository.findDonationById(donationId);
+        if (donation == null) {
+            return ResponseEntity.badRequest().body("Donation not found");
+        }
+        
+        // Delete the donation
+        donationRepository.delete(donation);
+
+        return ResponseEntity.ok("Donation deleted successfully");
+    }
+    @PostMapping("/changecomplaints")
+    public ResponseEntity<?> updateComplaints(@RequestBody ComplaintsDTO complaintDTO, Authentication authentication) {
+        // Check if the user is authenticated
+        if (authentication == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+
+        // Get the currently authenticated user's role
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+
+        // Only admins are allowed to update complaints
+        if (!"admin".equals(currentUserRole)||"resident".equals(currentUserRole)) {
+            return ResponseEntity.status(403).body("You do not have permission to update complaints");
+        }
+
+        // Validate the complaintId in the DTO
+        if (complaintDTO.getComplaintId() == null || complaintDTO.getComplaintId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Complaint ID is required");
+        }
+
+        // Find the complaint by complaintId
+        Complaints complaint = complaintRepository.findComplaintById(complaintDTO.getComplaintId());
+        if (complaint == null) {
+            return ResponseEntity.badRequest().body("Complaint not found");
+        }
+
+        // Update fields if they are not null in the DTO
+        if (complaintDTO.getTitle() != null) {
+            complaint.setTitle(complaintDTO.getTitle());
+        }
+        if (complaintDTO.getDescription() != null) {
+            complaint.setDescription(complaintDTO.getDescription());
+        }
+        if("admin".equals(currentUserRole)){
+            if (complaintDTO.getStatus() != null) {
+                complaint.setStatus(complaintDTO.getStatus());
+            }
+            if (complaintDTO.getProcessedAt() != null) {
+                complaint.setProcessedAt(complaintDTO.getProcessedAt());
+            }
+            if (complaintDTO.getStaffId() != null) {
+                complaint.setStaffId(complaintDTO.getStaffId());
+            }
+            if(complaintDTO.getPriority() != null) {
+                complaint.setPriority(complaintDTO.getPriority());
+            }
+        } else return ResponseEntity.status(403).body("You do not have permission to update the status of this complaint");
+        // Save the updated complaint
+        complaintRepository.save(complaint);
+
+        return ResponseEntity.ok("Complaint updated successfully");
+    }
+    @DeleteMapping("/deletecomplaints")
+    public ResponseEntity<?> deleteComplaintById(@RequestBody ComplaintsDTO complaintDTO, Authentication authentication) {
+        // Get the currently authenticated user's role
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+        String currentEmail = authentication.getName();
+
+        // Validate the complaintId in the DTO
+        String complaintId = complaintDTO.getComplaintId();
+        // Validate the complaintId
+        if (complaintId == null || complaintId.isEmpty()) {
+            return ResponseEntity.badRequest().body("Complaint ID is required");
+        }
+
+        // Find the complaint by complaintId
+        Complaints complaint = complaintRepository.findComplaintById(complaintId);
+        if (complaint == null) {
+            return ResponseEntity.badRequest().body("Complaint not found");
+        }
+
+        // Only admins are allowed to delete complaints
+        if ("guest".equals(currentUserRole)) {
+            return ResponseEntity.status(403).body("You do not have permission to delete complaints");
+        }
+        if("resident".equals(currentUserRole)) {
+            if (!complaint.getResident().getAccount().getEmail().equals(currentEmail)) {
+                return ResponseEntity.status(403).body("You do not have permission to delete this complaint");
+            }
+        }
+        // Delete the complaint
+        complaintRepository.delete(complaint);
+
+        return ResponseEntity.ok("Complaint deleted successfully");
+    }
     @PostMapping("/createresident")
     public ResponseEntity<?> createResident(@RequestBody ResidentDTO residentDTO, Authentication authentication) {
         // Get the currently authenticated user's role
@@ -373,23 +653,6 @@ public class updateTarget {
         // Create a new resident with default values
         Resident resident = new Resident();
         resident.setResident_id(residentDTO.getResident_id());
-        resident.setFullName(null);
-        resident.setGender(null);
-        resident.setDateOfBirth(null);
-        resident.setPlaceOfBirth(null);
-        resident.setIdentityNumber(null);
-        resident.setCccdIssueDate(null);
-        resident.setCccdExpiryDate(null);
-        resident.setPhoneNumber(null);
-        resident.setEmail(null);
-        resident.setOccupation(null);
-        resident.setApartmentNumber(null);
-        resident.setIsHouseholdOwner(false);
-        resident.setRelationshipWithOwner(null);
-        resident.setMoveInDate(null);
-        resident.setMoveOutDate(null);
-        resident.setAvatar(null);
-
         // Save the new resident
         residentRepository.save(resident);
 
@@ -425,19 +688,110 @@ public class updateTarget {
         // Create a new vehicle with default values
         Vehicle vehicle = new Vehicle();
         vehicle.setLicensePlate(vehicleDTO.getLicensePlate());
-        vehicle.setResident(null);
-        vehicle.setVehicleType(null);
-        vehicle.setBrand(null);
-        vehicle.setModel(null);
-        vehicle.setColor(null);
-        vehicle.setRegistrationDate(null);
-        vehicle.setParkingSlot(null);
-        vehicle.setImage(null);
-        vehicle.setNote(null);
-
         // Save the new vehicle
         vehicleRepository.save(vehicle);
 
         return ResponseEntity.ok("Vehicle created successfully");
+    }
+    @PostMapping("/createfee")
+    public ResponseEntity<?> createFee(@RequestBody FeeDTO feeDTO, Authentication authentication) {
+        // Get the currently authenticated user's role
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+
+        // Only admins are allowed to create fees
+        if (!"admin".equals(currentUserRole)) {
+            return ResponseEntity.status(403).body("You do not have permission to create fees");
+        }
+
+        // Validate the feeId in the DTO
+        if (feeDTO.getFeeId() == null || feeDTO.getFeeId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Fee ID is required");
+        }
+
+        // Check if a fee with the same ID already exists
+        if (feeRepository.findByFeeId(feeDTO.getFeeId()) != null) {
+            return ResponseEntity.badRequest().body("Fee with the given ID already exists");
+        }
+
+        // Create a new fee with default values
+        Fee fee = new Fee();
+        fee.setFeeId(feeDTO.getFeeId());
+        fee.setCreatedAt(LocalDateTime.now());
+        // Save the new fee
+        feeRepository.save(fee);
+
+        return ResponseEntity.ok("Fee created successfully");
+    }
+    @PostMapping("/createdonation")
+    public ResponseEntity<?> createDonation(@RequestBody DonationDTO donationDTO, Authentication authentication) {
+        // Get the currently authenticated user's role
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+
+        // Only admins are allowed to create donations
+        if (!"admin".equals(currentUserRole)) {
+            return ResponseEntity.status(403).body("You do not have permission to create donations");
+        }
+
+        // Validate the donationId in the DTO
+        if (donationDTO.getId() == null || donationDTO.getId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Donation ID is required");
+        }
+
+        // Check if a donation with the same ID already exists
+        if (donationRepository.findDonationById(donationDTO.getId()) != null) {
+            return ResponseEntity.badRequest().body("Donation with the given ID already exists");
+        }
+
+        // Create a new donation with default values
+        Donation donation = new Donation();
+        donation.setId(donationDTO.getId());
+        // Save the new donation
+        donationRepository.save(donation);
+
+        return ResponseEntity.ok("Donation created successfully");
+    }
+    @PostMapping("/createcomplaints")
+    public ResponseEntity<?> createComplaints(@RequestBody ComplaintsDTO complaintDTO, Authentication authentication) {
+        // Get the currently authenticated user's role
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+
+        String currentEmail = authentication.getName();
+
+        // Only admins are allowed to create complaints
+        if (!"resident".equals(currentUserRole)) {
+            return ResponseEntity.status(403).body("You do not have permission to create complaints");
+        }
+
+        Account account = accountRepository.findByEmail(currentEmail);
+
+        Resident resident = account.getResident();
+
+        // Validate the complaintId in the DTO
+        if (complaintDTO.getComplaintId() == null || complaintDTO.getComplaintId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Complaint ID is required");
+        }
+
+        // Check if a complaint with the same ID already exists
+        if (complaintRepository.findComplaintById(complaintDTO.getComplaintId()) != null) {
+            return ResponseEntity.badRequest().body("Complaint with the given ID already exists");
+        }
+
+        // Create a new complaint with default values
+        Complaints complaint = new Complaints();
+        complaint.setComplaintId(complaintDTO.getComplaintId());
+        complaint.setResident(resident);
+        // Save the new complaint
+        complaintRepository.save(complaint);
+
+        return ResponseEntity.ok("Complaint created successfully");
     }
 }

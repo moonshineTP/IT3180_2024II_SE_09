@@ -1,13 +1,22 @@
 package com.example.demo.service;
 
+import org.aspectj.weaver.ast.Not;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.model.Account;
+import com.example.demo.model.Donation;
+import com.example.demo.model.Fee;
 import com.example.demo.model.Resident;
 import com.example.demo.model.Vehicle;
+import com.example.demo.model.Complaints;
+import com.example.demo.model.Notification;
 import com.example.demo.model.DTO.AccountDTO;
+import com.example.demo.model.DTO.FeeDTO;
 import com.example.demo.model.DTO.ResidentDTO;
 import com.example.demo.model.DTO.VehicleDTO;
+import com.example.demo.model.DTO.DonationDTO;
+import com.example.demo.model.DTO.ComplaintsDTO;
+import com.example.demo.model.DTO.NotificationDTO;
 @Service 
 public class MapService {
     // Helper method to map Resident to ResidentDTO based on role
@@ -64,7 +73,6 @@ public class MapService {
     // Helper method to map Account to AccountDTO
     public AccountDTO mapToAccountDTO(Account account, boolean full) {
         AccountDTO dto = new AccountDTO();
-        dto.setId(account.getId());
         dto.setUsername(account.getUsername());
         if (full) {
             dto.setEmail(account.getEmail());
@@ -78,5 +86,49 @@ public class MapService {
             dto.setResident_id(account.getResident().getResident_id());
         }
         return dto;
+    }
+    public FeeDTO mapToFeeDTO(Fee fee, boolean full) {
+        FeeDTO responseDTO = new FeeDTO();
+        responseDTO.setFeeId(fee.getFeeId());
+        responseDTO.setFeeName(fee.getFeeName());
+        responseDTO.setFeeType(fee.getFeeType());
+        responseDTO.setCreatedAt(fee.getCreatedAt());
+        responseDTO.setUpdatedAt(fee.getUpdatedAt());
+        responseDTO.setSupervisor(fee.getSupervisor());
+        if(full) responseDTO.setNote(fee.getNote());
+        return responseDTO;
+    }
+    public DonationDTO mapToDonationDTO(Donation donation, boolean full) {
+        DonationDTO responseDTO = new DonationDTO();
+        responseDTO.setId(donation.getId());
+        responseDTO.setDonationName(donation.getDonationName());
+        responseDTO.setFounder(donation.getFounder());
+        responseDTO.setAccumulatedMoney(donation.getAccumulatedMoney());
+        responseDTO.setStatus(donation.getStatus());
+        if(full) responseDTO.setContent(donation.getContent());
+        return responseDTO;
+    }
+    public ComplaintsDTO mapToComplaintsDTO(Complaints complaints, boolean full) {
+        ComplaintsDTO responseDTO = new ComplaintsDTO();
+        responseDTO.setComplaintId(complaints.getComplaintId());
+        responseDTO.setTitle(complaints.getTitle());
+        responseDTO.setSubmittedAt(complaints.getSubmittedAt());
+        responseDTO.setStatus(complaints.getStatus());
+        responseDTO.setProcessedAt(complaints.getProcessedAt());
+        responseDTO.setStaffId(complaints.getStaffId());
+        if(full) responseDTO.setDescription(complaints.getDescription());
+        return responseDTO;
+    }
+    public NotificationDTO mapToNotificationDTO(Notification notification, boolean full) {
+        NotificationDTO responseDTO = new NotificationDTO();
+        responseDTO.setAnnouncementId(notification.getAnnouncementId());
+        responseDTO.setTitle(notification.getTitle());
+        responseDTO.setCreatedAt(notification.getCreatedAt());
+        responseDTO.setUpdatedAt(notification.getUpdatedAt());
+        responseDTO.setCreatorName(notification.getCreatorName());
+        responseDTO.setType(notification.getType());
+        responseDTO.setSendto(notification.getSendto());
+        if(full) responseDTO.setContent(notification.getContent());
+        return responseDTO;
     }
 }

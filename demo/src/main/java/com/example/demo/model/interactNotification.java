@@ -9,7 +9,9 @@ import java.time.LocalDateTime;
  */
 
 @Entity
-@Table(name = "interact_notifications")
+@Table(name = "interact_notifications", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"notification_id", "type_interact", "email_of_interact_user"})
+})
 public class interactNotification {
 
     @Id

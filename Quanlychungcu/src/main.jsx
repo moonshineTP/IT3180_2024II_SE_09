@@ -5,7 +5,7 @@ import axios from "axios";
 const checkAuthentication = async () => {
   try {
     // Call the check-in API to verify the JWT
-    axios.get("/checkin", { withCredentials: true });
+    await axios.get("/checkin", { withCredentials: true });
   } catch (error) {
     console.error("Authentication check failed:", error);
   }

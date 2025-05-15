@@ -1,26 +1,11 @@
-package com.example.demo.model;
-
-import jakarta.persistence.*;
+package com.example.demo.model.DTO;
 import java.time.LocalDate;
-
-@Entity
-@Table(name = "fee_households")
-public class FeeHousehold {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false, updatable = false)
+public class FeeHouseholdDTO {
     private Long id; // Unique identifier for the record
-
-    @Column(name = "apartment_number", nullable = false)
     private String apartmentNumber; // Apartment number
-
-    @ManyToOne
-    @JoinColumn(name = "fee_id", nullable = false)
-    private Fee fee; // Reference to the Fee entity
-
-    @Column(name = "starting_day", nullable = false)
+    private String feeID; // Reference to the Fee entity
     private LocalDate startingDay; // The starting day for the fee
+
     // Getters and Setters
     public Long getId() {
         return id;
@@ -38,14 +23,6 @@ public class FeeHousehold {
         this.apartmentNumber = apartmentNumber;
     }
 
-    public Fee getFee() {
-        return fee;
-    }
-
-    public void setFee(Fee fee) {
-        this.fee = fee;
-    }
-
     public LocalDate getStartingDay() {
         return startingDay;
     }
@@ -53,4 +30,11 @@ public class FeeHousehold {
     public void setStartingDay(LocalDate startingDay) {
         this.startingDay = startingDay;
     }
+    public String getFeeID() {
+        return feeID;
+    }
+    public void setFeeID(String feeID) {
+        this.feeID = feeID;
+    }
 }
+

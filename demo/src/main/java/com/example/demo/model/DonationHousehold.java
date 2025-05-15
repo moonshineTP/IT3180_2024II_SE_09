@@ -1,8 +1,6 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "donation_households")
@@ -21,9 +19,7 @@ public class DonationHousehold {
     private Donation donation; // The donation this household contributed to
 
     @Column(name = "donated_money", nullable = false)
-    private Double donatedMoney = 0.0; // The amount of money donated (default is 0)
-    @OneToMany(mappedBy = "donation", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DonationHousehold> donations = new ArrayList<>();
+    private Integer donatedMoney = 0; // The amount of money donated (default is 0)
 
 
     // Getters and Setters
@@ -51,11 +47,11 @@ public class DonationHousehold {
         this.donation = donation;
     }
 
-    public Double getDonatedMoney() {
+    public Integer getDonatedMoney() {
         return donatedMoney;
     }
 
-    public void setDonatedMoney(Double donatedMoney) {
+    public void setDonatedMoney(Integer donatedMoney) {
         this.donatedMoney = donatedMoney;
     }
 }

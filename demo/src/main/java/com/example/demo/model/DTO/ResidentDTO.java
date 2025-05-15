@@ -15,7 +15,6 @@ public class ResidentDTO {
     private String email;
     private String occupation;
     private String apartmentNumber;
-    private String floorNumber;
     private Boolean isHouseholdOwner;
     private String relationshipWithOwner;
     private LocalDate moveInDate;
@@ -175,11 +174,5 @@ public class ResidentDTO {
 
     public void setLinkingUsername(String linkingUsername) {
         this.linkingUsername = linkingUsername;
-    }
-    public String getFloorNumber() {
-        return floorNumber;
-    }
-    public void setFloorNumber(String floorNumber) {
-        this.floorNumber = floorNumber;
     }
 }

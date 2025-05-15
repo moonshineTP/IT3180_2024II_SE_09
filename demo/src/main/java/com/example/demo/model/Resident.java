@@ -16,7 +16,7 @@ public class Resident {
     @Column(name = "resident_id", nullable = false, updatable = false)
     private String resident_id;
 
-    @Column(name = "full_name", nullable = false)
+    @Column(name = "full_name")
     private String fullName;
 
     @Column(name = "gender")

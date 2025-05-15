@@ -15,8 +15,8 @@ import jakarta.persistence.*;
 @Table(name = "accounts")
 public class Account {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(length = 100)
+    private String email;
 
     @CreationTimestamp
     @Column(name = "created_date", updatable = false)
@@ -27,9 +27,6 @@ public class Account {
 
     @Column(nullable = false, length = 100)
     private String password;
-
-    @Column(length = 100)
-    private String email;
 
     @Column(nullable = false)
     private String role = "guest"; // Mặc định là guest
@@ -60,8 +57,6 @@ public class Account {
     // ---------------------------
     // Getter & Setter
     // ---------------------------
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }

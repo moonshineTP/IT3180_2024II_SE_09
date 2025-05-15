@@ -1,33 +1,21 @@
-package com.example.demo.model;
+package com.example.demo.model.DTO;
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
+import com.example.demo.model.FeeHousehold;
+public class BillDTO {
 
-@Entity
-@Table(name = "bills")
-public class Bill {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false, updatable = false)
     private Long id; // Unique identifier for the bill
 
-    @ManyToOne
-    @JoinColumn(name = "fee_household_id", nullable = false)
     private FeeHousehold feeHousehold; // Reference to the FeeHousehold entity
 
-    @Column(name = "starting_date", nullable = false)
     private LocalDate startingDate; // Starting date of the bill
 
-    @Column(name = "due_date", nullable = false)
     private LocalDate dueDate; // Due date of the bill
 
-    @Column(name = "amount", nullable = false)
     private long amount; // Amount of money for the bill
 
-    @Column(name = "status", nullable = false)
     private String status; // Status of the bill (e.g., paid, unpaid)
-    @Column(name = "paying_date", nullable = false)
+
     private LocalDate payingDate; // Date when the bill was paid
 
     // Getters and Setters
@@ -69,5 +57,17 @@ public class Bill {
 
     public void setAmount(Long amount) {
         this.amount = amount;
+    }
+    public String getStatus() {
+        return status;
+    }
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    public LocalDate getPayingDate() {
+        return payingDate;
+    }
+    public void setPayingDate(LocalDate payingDate) {
+        this.payingDate = payingDate;
     }
 }

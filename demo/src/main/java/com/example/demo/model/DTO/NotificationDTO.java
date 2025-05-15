@@ -1,23 +1,11 @@
-package com.example.demo.model;
+package com.example.demo.model.DTO;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-@Entity
-@Table(name = "announcements")
-public class Notification {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+public class NotificationDTO {
     private String announcementId;
-
     private String title;
     private String type;
     private String sendto;
-
-    @Lob
-    @Column(columnDefinition = "TEXT")
     private String content;
 
     private LocalDateTime createdAt;
@@ -25,13 +13,6 @@ public class Notification {
     private LocalDateTime updatedAt;
 
     private String creatorName;
-
-    @OneToMany(mappedBy = "notification", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<responseNotification> responseNotifications = new ArrayList<>();
-    @OneToMany(mappedBy = "notification", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<interactNotification> interactNotifications = new ArrayList<>();
-    @OneToMany(mappedBy = "notification", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<receiveNotification> receiveNotifications = new ArrayList<>();
 
     // Getters and Setters
 
@@ -95,4 +76,3 @@ public class Notification {
         this.sendto = sendto;
     }
 }
-

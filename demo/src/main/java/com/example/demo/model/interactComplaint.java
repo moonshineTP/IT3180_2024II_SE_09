@@ -9,7 +9,9 @@ import java.time.LocalDateTime;
  */
 
 @Entity
-@Table(name = "interact_complaints")
+@Table(name = "interact_complaints",uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"complaint_id","star_number_rating","user_email"})
+})
 public class interactComplaint {
 
     @Id

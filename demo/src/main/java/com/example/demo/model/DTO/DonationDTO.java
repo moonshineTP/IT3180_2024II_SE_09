@@ -1,34 +1,17 @@
-package com.example.demo.model;
+package com.example.demo.model.DTO;
+public class DonationDTO {
 
-import java.util.ArrayList;
-import java.util.List;
-
-import jakarta.persistence.*;
-
-@Entity
-@Table(name = "donations")
-public class Donation {
-
-    @Id
     private String Id; // Unique identifier for the donation
 
-    @Column(name = "donation_name")
     private String donationName; // Name of the donation
 
-    @Column(name = "founder")
     private String founder; // Founder of the donation
-    @Lob
-    @Column(name = "content", columnDefinition = "TEXT")
+
     private String content; // Content/description of the donation
 
-    @Column(name = "accumulated_money")
     private long accumulatedMoney = 0; // Total accumulated money (default is 0)
 
-    @Column(name = "status")
-    private String status = "open"; // Status of the donation (open/closed)
-
-    @OneToMany(mappedBy = "donation", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DonationHousehold> donations = new ArrayList<>();
+    private String status; // Status of the donation (open/closed)
 
     // Getters and Setters
     public String getId() {
