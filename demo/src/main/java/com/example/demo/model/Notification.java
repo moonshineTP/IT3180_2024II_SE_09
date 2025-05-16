@@ -94,5 +94,23 @@ public class Notification {
     public void setSendto(String sendto) {
         this.sendto = sendto;
     }
+    public List<responseNotification> getResponseNotifications() {
+        return responseNotifications;
+    }
+    public void setResponseNotifications(List<responseNotification> responseNotifications) {
+        this.responseNotifications = responseNotifications;
+    }
+    public List<interactNotification> getInteractNotifications() {
+        return interactNotifications;
+    }
+    public void setInteractNotifications(List<interactNotification> interactNotifications) {
+        this.interactNotifications = interactNotifications;
+    }
+    public List<receiveNotification> getReceiveNotifications() {
+        return receiveNotifications;
+    }
+    public void setReceiveNotifications(List<receiveNotification> receiveNotifications) {
+        this.receiveNotifications = receiveNotifications;
+    }
 }
 

@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "bills")
+@Table(name = "bills", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"fee_household_id", "starting_date"})
+})
 public class Bill {
 
     @Id
@@ -69,5 +71,17 @@ public class Bill {
 
     public void setAmount(Long amount) {
         this.amount = amount;
+    }
+    public String getStatus() {
+        return status;
+    }
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    public LocalDate getPayingDate() {
+        return payingDate;
+    }
+    public void setPayingDate(LocalDate payingDate) {
+        this.payingDate = payingDate;
     }
 }

@@ -3,7 +3,8 @@ package com.example.demo.model.DTO;
 import java.time.LocalDateTime;
 public class responseNotificationDTO {
     private Long id; // Unique identifier for the response
-    private String accountId; // Reference to the Account entity (email of the user)
+    private String userRole;
+    private String userName; // Name of the user
     private String responseContent; // Content of the response
     private LocalDateTime responseTime; // Time of the response
     private String notificationId; // Reference to the Notification entity
@@ -34,17 +35,22 @@ public class responseNotificationDTO {
     public void setResponseTime(LocalDateTime responseTime) {
         this.responseTime = responseTime;
     }
-
-    public String getAccountId() {
-        return accountId;
-    }
-    public void setAccountId(String accountId) {
-        this.accountId = accountId;
-    }
     public String getNotificationId() {
         return notificationId;
     }
     public void setNotificationId(String notificationId) {
         this.notificationId = notificationId;
+    }
+    public String getUserRole() {
+        return userRole;
+    }
+    public void setUserRole(String userRole) {
+        this.userRole = userRole;
+    }
+    public String getUserName() {
+        return userName;
+    }
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

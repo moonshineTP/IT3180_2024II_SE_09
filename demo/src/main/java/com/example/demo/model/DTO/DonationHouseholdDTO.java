@@ -3,7 +3,8 @@ public class DonationHouseholdDTO {
     private Long id; // Unique identifier for the record
     private String apartmentNumber; // Apartment number
     private String donation_id; // The donation this household contributed to
-    private long donatedMoney = 0; // The amount of money donated (default is 0)
+    private String donationName;
+    private Integer donatedMoney = 0; // The amount of money donated (default is 0)
 
 
     // Getters and Setters
@@ -22,11 +23,11 @@ public class DonationHouseholdDTO {
     public void setApartmentNumber(String apartmentNumber) {
         this.apartmentNumber = apartmentNumber;
     }
-    public long getDonatedMoney() {
+    public Integer getDonatedMoney() {
         return donatedMoney;
     }
 
-    public void setDonatedMoney(long donatedMoney) {
+    public void setDonatedMoney(Integer donatedMoney) {
         this.donatedMoney = donatedMoney;
     }
     public String getDonation_id() {
@@ -34,5 +35,11 @@ public class DonationHouseholdDTO {
     }
     public void setDonation_id(String donation_id) {
         this.donation_id = donation_id;
+    }
+    public String getDonationName() {
+        return donationName;
+    }
+    public void setDonationName(String donationName) {
+        this.donationName = donationName;
     }
 }

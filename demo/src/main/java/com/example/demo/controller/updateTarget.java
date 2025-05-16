@@ -4,15 +4,26 @@ import com.example.demo.model.DTO.AccountDTO;
 import com.example.demo.model.DTO.ResidentDTO;
 import com.example.demo.model.DTO.VehicleDTO;
 import com.example.demo.model.DTO.FeeDTO;
+import com.example.demo.model.DTO.FeeHouseholdDTO;
 import com.example.demo.model.DTO.DonationDTO;
+import com.example.demo.model.DTO.DonationHouseholdDTO;
 import com.example.demo.model.DTO.ComplaintsDTO;
 import com.example.demo.model.Account;
 import com.example.demo.model.Bill;
 import com.example.demo.model.Resident;
 import com.example.demo.model.Vehicle;
 import com.example.demo.model.Fee;
+import com.example.demo.model.FeeHousehold;
+import com.example.demo.model.Notification;
 import com.example.demo.model.Donation;
+import com.example.demo.model.DonationHousehold;
 import com.example.demo.model.Complaints;
+import com.example.demo.model.interactComplaint;
+import com.example.demo.model.DTO.interactComplaintDTO;
+import com.example.demo.model.interactNotification;
+import com.example.demo.model.responseNotification;
+import com.example.demo.model.DTO.responseNotificationDTO;
+import com.example.demo.model.DTO.interactNotificationDTO;
 import com.example.demo.repository.AccountRepository;
 import com.example.demo.repository.ResidentRepository;
 import com.example.demo.repository.VehicleRepository;
@@ -20,14 +31,22 @@ import com.example.demo.repository.FeeRepository;
 import com.example.demo.repository.DonationRepository;
 import com.example.demo.repository.BillRepository;
 import com.example.demo.repository.ComplaintRepository;
+import com.example.demo.repository.FeeHouseholdRepository;
+import com.example.demo.repository.DonationHouseholdRepository;
+import com.example.demo.repository.interactComplaintRepository;
+import com.example.demo.repository.interactNotificationRepository;
+import com.example.demo.repository.NotificationRepository;
+import com.example.demo.repository.responseNotificationRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.time.LocalDateTime;
+
 
 
 @RestController
@@ -54,6 +73,18 @@ public class updateTarget {
 
     @Autowired
     private ComplaintRepository complaintRepository;
+    @Autowired
+    private NotificationRepository notificationRepository;
+    @Autowired
+    private FeeHouseholdRepository feeHouseholdRepository;
+    @Autowired
+    private DonationHouseholdRepository donationHouseholdRepository;
+    @Autowired
+    private interactComplaintRepository interactComplaintRepository;
+    @Autowired
+    private interactNotificationRepository interactNotificationRepository;
+    @Autowired
+    private responseNotificationRepository responseNotificationRepository;
 
     @PutMapping("/changeaccount")
     public ResponseEntity<?> updateAccount(
@@ -274,11 +305,6 @@ public class updateTarget {
     }
     @PutMapping("/changevehicle")
     public ResponseEntity<?> updateVehicle(@RequestBody VehicleDTO vehicleDTO, Authentication authentication) {
-        // Check if the user is authenticated
-        if (authentication == null) {
-            return ResponseEntity.status(401).body("Unauthorized");
-        }
-
         // Get the currently authenticated user's role
         String currentUserRole = authentication.getAuthorities().stream()
                 .map(grantedAuthority -> grantedAuthority.getAuthority())
@@ -793,5 +819,163 @@ public class updateTarget {
         complaintRepository.save(complaint);
 
         return ResponseEntity.ok("Complaint created successfully");
+    }
+    @PreAuthorize("hasRole('admin')")
+    @PostMapping("/createFeeHousehold")
+    public ResponseEntity<?> createFeeHousehold(@RequestBody FeeHouseholdDTO feeHouseholdDTO, Authentication authentication) {
+        // Validate the feeId and apartmentNumber in the DTO
+        if (feeHouseholdDTO.getFeeID() == null || feeHouseholdDTO.getFeeID().isEmpty()) {
+            return ResponseEntity.badRequest().body("Fee ID is required");
+        }
+        if (feeHouseholdDTO.getApartmentNumber() == null || feeHouseholdDTO.getApartmentNumber().isEmpty()) {
+            return ResponseEntity.badRequest().body("Apartment number is required");
+        }
+
+        // Find the Fee by feeId
+        Fee fee = feeRepository.findByFeeId(feeHouseholdDTO.getFeeID());
+        if (fee == null) {
+            return ResponseEntity.badRequest().body("Fee not found");
+        }
+
+        // Check if a FeeHousehold with the same apartmentNumber and fee already exists
+        if (feeHouseholdRepository.findByApartmentNumberAndFeeId(feeHouseholdDTO.getApartmentNumber(), feeHouseholdDTO.getFeeID()) != null) {
+            return ResponseEntity.badRequest().body("FeeHousehold with the given apartment number and fee already exists");
+        }
+
+        // Create a new FeeHousehold
+        FeeHousehold feeHousehold = new FeeHousehold();
+        feeHousehold.setApartmentNumber(feeHouseholdDTO.getApartmentNumber());
+        feeHousehold.setFee(fee);
+        feeHousehold.setStartingDay(feeHouseholdDTO.getStartingDay());
+
+        // Save the new FeeHousehold
+        feeHouseholdRepository.save(feeHousehold);
+
+        return ResponseEntity.ok("FeeHousehold created successfully");
+    }
+    @PreAuthorize("hasRole('admin')")
+    @PostMapping("/createDonationHousehold")
+    public ResponseEntity<?> createDonationHousehold(@RequestBody DonationHouseholdDTO donationHouseholdDTO, Authentication authentication) {
+        // Validate the donationId and apartmentNumber in the DTO
+        if (donationHouseholdDTO.getDonation_id() == null || donationHouseholdDTO.getDonation_id().isEmpty()) {
+            return ResponseEntity.badRequest().body("Donation ID is required");
+        }
+        if (donationHouseholdDTO.getApartmentNumber() == null || donationHouseholdDTO.getApartmentNumber().isEmpty()) {
+            return ResponseEntity.badRequest().body("Apartment number is required");
+        }
+
+        // Find the Donation by donationId
+        Donation donation = donationRepository.findDonationById(donationHouseholdDTO.getDonation_id());
+        if (donation == null) {
+            return ResponseEntity.badRequest().body("Donation not found");
+        }
+
+        // Check if a DonationHousehold with the same apartmentNumber and donation already exists
+        if (donationHouseholdRepository.findByApartmentNumberAndDonation(donationHouseholdDTO.getApartmentNumber(), donation) != null) {
+            return ResponseEntity.badRequest().body("DonationHousehold with the given apartment number and donation already exists");
+        }
+
+        // Create a new DonationHousehold
+        DonationHousehold donationHousehold = new DonationHousehold();
+        donationHousehold.setApartmentNumber(donationHouseholdDTO.getApartmentNumber());
+        donationHousehold.setDonation(donation);
+        donationHousehold.setDonatedMoney(donationHouseholdDTO.getDonatedMoney());
+
+        // Update the accumulated money of the donation
+        donation.setAccumulatedMoney(donation.getAccumulatedMoney() + donationHouseholdDTO.getDonatedMoney());
+
+        // Save the new DonationHousehold
+        donationHouseholdRepository.save(donationHousehold);
+
+        // Save the updated Donation
+        donationRepository.save(donation);
+
+        return ResponseEntity.ok("DonationHousehold created successfully");
+    }
+    @PostMapping("/createInteractComplaints")
+    public ResponseEntity<?> createInteractComplaint(@RequestBody interactComplaintDTO interactComplaintsDTO, Authentication authentication) {
+        String currentEmail = authentication.getName();
+        Account account = accountRepository.findByEmail(currentEmail);
+        // Validate the complaintId and residentId in the DTO
+        if (interactComplaintsDTO.getComplaintId() == null || interactComplaintsDTO.getComplaintId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Complaint ID is required");
+        }
+        // Find the complaint by complaintId
+        Complaints complaint = complaintRepository.findComplaintById(interactComplaintsDTO.getComplaintId());
+        if (complaint == null) {
+            return ResponseEntity.badRequest().body("Complaint not found");
+        }
+        // Check if an InteractComplaints with the same complaintId and account already exists
+        if (interactComplaintRepository.findByComplaintAndAccount(complaint, account) != null) {
+            return ResponseEntity.badRequest().body("InteractComplaints with the given complaint ID and account already exists");
+        }
+        // Create a new InteractComplaints
+        interactComplaint interactComplaints = new interactComplaint();
+        interactComplaints.setComplaint(complaint);
+        interactComplaints.setStarNumberRating(interactComplaintsDTO.getStarNumberRating());
+        interactComplaints.setResponseTime(LocalDateTime.now());
+        interactComplaints.setAccount(account);
+
+        // Save the new InteractComplaints
+        interactComplaintRepository.save(interactComplaints);
+        return ResponseEntity.ok("InteractComplaints created successfully");
+    }
+    @PostMapping("/createInteractNotification")
+    public ResponseEntity<?> createInteractNotification(@RequestBody interactNotificationDTO interactNotificationDTO, Authentication authentication) {
+        String currentEmail = authentication.getName();
+        Account account = accountRepository.findByEmail(currentEmail);
+        // Validate the complaintId and residentId in the DTO
+        if (interactNotificationDTO.getNotificationId() == null || interactNotificationDTO.getNotificationId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Complaint ID is required");
+        }
+        // Find the complaint by complaintId
+        Notification noti = notificationRepository.findByAnnoucementId(interactNotificationDTO.getNotificationId());
+        if (noti == null) {
+            return ResponseEntity.badRequest().body("Complaint not found");
+        }
+        // Check if an InteractComplaints with the same complaintId and account already exists
+        if (interactNotificationRepository.findbyNotificationAndAccount(noti, account) != null) {
+            return ResponseEntity.badRequest().body("InteractComplaints with the given complaint ID and account already exists");
+        }
+        // Create a new InteractComplaints
+        interactNotification interact = new interactNotification();
+        interact.setNotification(noti);
+        interact.setTypeInteract(interactNotificationDTO.getTypeInteract());
+        interact.setResponseTime(LocalDateTime.now());
+        interact.setAccount(account);
+
+        // Save the new InteractComplaints
+        interactNotificationRepository.save(interact);
+        return ResponseEntity.ok("InteractComplaints created successfully");
+    }
+    @PostMapping("/createresponseNotification")
+    public ResponseEntity<?> createResponseNotification(@RequestBody responseNotificationDTO responseNotificationDTO, Authentication authentication) {
+        String currentEmail = authentication.getName();
+        Account account = accountRepository.findByEmail(currentEmail);
+        // Validate the notificationId in the DTO
+        if (responseNotificationDTO.getNotificationId() == null || responseNotificationDTO.getNotificationId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Notification ID is required");
+        }
+        // Find the notification by notificationId
+        Notification notification = notificationRepository.findByAnnoucementId(responseNotificationDTO.getNotificationId());
+        if (notification == null) {
+            return ResponseEntity.badRequest().body("Notification not found");
+        }
+        // Check if a response notification with the same notificationId and account already exists
+        if (responseNotificationRepository.findByNotificationAndAccount(notification, account) != null) {
+            return ResponseEntity.badRequest().body("Response notification with the given notification ID and account already exists");
+        }
+
+        // Create a new response notification with default values
+        responseNotification responseNotification = new responseNotification();
+        responseNotification.setResponseContent(responseNotificationDTO.getResponseContent());
+        responseNotification.setResponseTime(LocalDateTime.now());
+        responseNotification.setAccount(account);
+        responseNotification.setNotification(notification);
+
+        // Save the new response notification
+        responseNotificationRepository.save(responseNotification);
+
+        return ResponseEntity.ok("Response notification created successfully");
     }
 }

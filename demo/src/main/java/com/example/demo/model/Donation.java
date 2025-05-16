@@ -28,7 +28,7 @@ public class Donation {
     private String status = "open"; // Status of the donation (open/closed)
 
     @OneToMany(mappedBy = "donation", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DonationHousehold> donations = new ArrayList<>();
+    private List<DonationHousehold> donationHouseholds = new ArrayList<>();
 
     // Getters and Setters
     public String getId() {
@@ -77,5 +77,11 @@ public class Donation {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+    public List<DonationHousehold> getDonationHouseholds() {
+        return donationHouseholds;
+    }
+    public void setDonationHouseholds(List<DonationHousehold> donationHouseholds) {
+        this.donationHouseholds = donationHouseholds;
     }
 }

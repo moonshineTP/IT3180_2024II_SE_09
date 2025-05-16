@@ -1,13 +1,13 @@
 package com.example.demo.model.DTO;
 
 import java.time.LocalDate;
-import com.example.demo.model.FeeHousehold;
 public class BillDTO {
 
     private Long id; // Unique identifier for the bill
 
-    private FeeHousehold feeHousehold; // Reference to the FeeHousehold entity
-
+    private String feeId;
+    private String feeName; // Name of the fee
+    private String apartmentNumber; // Apartment number associated with the bill
     private LocalDate startingDate; // Starting date of the bill
 
     private LocalDate dueDate; // Due date of the bill
@@ -25,14 +25,6 @@ public class BillDTO {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public FeeHousehold getFeeHousehold() {
-        return feeHousehold;
-    }
-
-    public void setFeeHousehold(FeeHousehold feeHousehold) {
-        this.feeHousehold = feeHousehold;
     }
 
     public LocalDate getStartingDate() {
@@ -69,5 +61,23 @@ public class BillDTO {
     }
     public void setPayingDate(LocalDate payingDate) {
         this.payingDate = payingDate;
+    }
+    public String getFeeId() {
+        return feeId;
+    }
+    public void setFeeId(String feeId) {
+        this.feeId = feeId;
+    }
+    public String getFeeName() {
+        return feeName;
+    }
+    public void setFeeName(String feeName) {
+        this.feeName = feeName;
+    }
+    public String getApartmentNumber() {
+        return apartmentNumber;
+    }
+    public void setApartmentNumber(String apartmentNumber) {
+        this.apartmentNumber = apartmentNumber;
     }
 }

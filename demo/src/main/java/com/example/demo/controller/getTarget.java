@@ -1,21 +1,37 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.DTO.AccountDTO;
+import com.example.demo.model.DTO.BillDTO;
 import com.example.demo.model.DTO.ComplaintsDTO;
 import com.example.demo.model.DTO.DonationDTO;
+import com.example.demo.model.DTO.DonationHouseholdDTO;
 import com.example.demo.model.DTO.FeeDTO;
+import com.example.demo.model.DTO.FeeHouseholdDTO;
+import com.example.demo.model.DTO.IncludeInComplaintsDTO;
 import com.example.demo.model.DTO.NotificationDTO;
 import com.example.demo.model.DTO.VehicleDTO;
+import com.example.demo.model.DTO.receiveNotificationDTO;
+import com.example.demo.model.DTO.responseComplaintsDTO;
+import com.example.demo.model.DTO.responseNotificationDTO;
 import com.example.demo.model.Account;
+import com.example.demo.model.Bill;
 import com.example.demo.model.Complaints;
 import com.example.demo.model.Donation;
+import com.example.demo.model.DonationHousehold;
 import com.example.demo.model.Fee;
+import com.example.demo.model.FeeHousehold;
+import com.example.demo.model.IncludeInComplaints;
 import com.example.demo.model.Vehicle;
+import com.example.demo.model.receiveNotification;
+import com.example.demo.model.responseComplaints;
 import com.example.demo.model.Notification;
 import com.example.demo.model.Resident;
 import com.example.demo.repository.AccountRepository;
+import com.example.demo.repository.BillRepository;
+import com.example.demo.model.responseNotification;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +46,9 @@ import com.example.demo.repository.FeeRepository;
 import com.example.demo.repository.DonationRepository;
 import com.example.demo.repository.NotificationRepository;
 import com.example.demo.repository.ComplaintRepository;
+import com.example.demo.repository.FeeHouseholdRepository;
+import com.example.demo.repository.DonationHouseholdRepository;
+import com.example.demo.repository.receiveNotificationRepository;
 
 
 
@@ -54,6 +73,14 @@ public class getTarget {
     private NotificationRepository notificationRepository;
     @Autowired
     private ComplaintRepository complaintsRepository;
+    @Autowired
+    private FeeHouseholdRepository feeHouseholdRepository;
+    @Autowired
+    private BillRepository billRepository;
+    @Autowired
+    private DonationHouseholdRepository donationHouseholdRepository;
+    @Autowired
+    private receiveNotificationRepository receiveNotificationRepository;
 
     @PostMapping("/account")
     public ResponseEntity<?> getAccount(@RequestBody AccountDTO requestDTO, Authentication authentication) {
@@ -171,8 +198,14 @@ public class getTarget {
         return ResponseEntity.ok(mapService.mapToDonationDTO(donation, true));
     }
     @PostMapping("/getNotification")
-    public ResponseEntity<?> getNotification(@RequestBody NotificationDTO notificationDTO) {
+    public ResponseEntity<?> getNotification(@RequestBody NotificationDTO notificationDTO,Authentication authentication) {
         // Validate the notificationId in the DTO
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+        String currentEmail = authentication.getName();
+        Account account = accountRepository.findByEmail(currentEmail);
         if (notificationDTO.getAnnouncementId() == null || notificationDTO.getAnnouncementId().isEmpty()) {
             return ResponseEntity.badRequest().body("Notification ID is required");
         }
@@ -182,7 +215,19 @@ public class getTarget {
         if (notification == null) {
             return ResponseEntity.badRequest().body("Notification not found");
         }
+        if("guest".equals(currentUserRole)){
+            return ResponseEntity.badRequest().body("You are not allowed to access this resource");
+        }
+        if ("resident".equals(currentUserRole)) {
+        // Find the resident associated with the current account
+        Resident resident = account.getResident();
 
+        // Check if the pair of resident and notification exists in the receiveNotification table
+        boolean exists = receiveNotificationRepository.existsByResidentAndNotification(resident, notification);
+        if (!exists) {
+            return ResponseEntity.badRequest().body("You are not authorized to access this notification");
+        }
+    }
         return ResponseEntity.ok(mapService.mapToNotificationDTO(notification, true));
     }
     
@@ -199,5 +244,331 @@ public class getTarget {
             return ResponseEntity.badRequest().body("Complaint not found");
         }
         return ResponseEntity.ok(mapService.mapToComplaintsDTO(complaint, true));
+    }
+    @PostMapping("/getFeeHouseholds")
+    public ResponseEntity<?> getFeeHouseholds(@RequestBody FeeDTO feeDTO) {
+        // Validate the feeId in the DTO
+        if (feeDTO.getFeeId() == null || feeDTO.getFeeId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Fee ID is required");
+        }
+
+        // Find the fee by feeId
+        Fee fee = feeRepository.findByFeeId(feeDTO.getFeeId());
+        if (fee == null) {
+            return ResponseEntity.badRequest().body("Fee not found");
+        }
+
+        // Get the list of FeeHousehold entities associated with the Fee
+        List<FeeHousehold> feeHouseholds = fee.getFeeHouseholds();
+
+        // Map FeeHousehold entities to FeeHouseholdDTO
+        List<FeeHouseholdDTO> feeHouseholdDTOs = feeHouseholds.stream()
+                .map(feeHousehold -> {
+                    FeeHouseholdDTO dto = new FeeHouseholdDTO();
+                    dto.setApartmentNumber(feeHousehold.getApartmentNumber());
+                    dto.setStartingDay(feeHousehold.getStartingDay());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(feeHouseholdDTOs);
+    }
+    @PostMapping("/getFeeHouseholds")
+    public ResponseEntity<?> getFeeHousehold(@RequestBody FeeDTO feeDTO) {
+        // Validate the feeId in the DTO
+        if (feeDTO.getFeeId() == null || feeDTO.getFeeId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Fee ID is required");
+        }
+
+        // Find the fee by feeId
+        Fee fee = feeRepository.findByFeeId(feeDTO.getFeeId());
+        if (fee == null) {
+            return ResponseEntity.badRequest().body("Fee not found");
+        }
+
+        // Get the list of FeeHousehold entities associated with the Fee
+        List<FeeHousehold> feeHouseholds = fee.getFeeHouseholds();
+
+        // Map FeeHousehold entities to FeeHouseholdDTO
+        List<FeeHouseholdDTO> feeHouseholdDTOs = feeHouseholds.stream()
+                .map(feeHousehold -> {
+                    FeeHouseholdDTO dto = new FeeHouseholdDTO();
+                    dto.setApartmentNumber(feeHousehold.getApartmentNumber());
+                    dto.setStartingDay(feeHousehold.getStartingDay());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(feeHouseholdDTOs);
+    }
+    @PostMapping("/getBills")
+    public ResponseEntity<?> getBills(@RequestBody FeeHouseholdDTO feeHouseholdDTO) {
+        // Validate the feeId and apartmentNumber in the DTO
+        if (feeHouseholdDTO.getApartmentNumber() == null || feeHouseholdDTO.getApartmentNumber().isEmpty()) {
+            return ResponseEntity.badRequest().body("Apartment number is required");
+        }
+        if (feeHouseholdDTO.getFeeID() == null || feeHouseholdDTO.getFeeID().isEmpty()) {
+            return ResponseEntity.badRequest().body("Fee ID is required");
+        }
+
+        // Find the FeeHousehold by apartmentNumber and feeId
+        FeeHousehold feeHousehold = feeHouseholdRepository.findByApartmentNumberAndFeeId(
+                feeHouseholdDTO.getApartmentNumber(), feeHouseholdDTO.getFeeID());
+        if (feeHousehold == null) {
+            return ResponseEntity.badRequest().body("FeeHousehold not found for the given apartment number and fee ID");
+        }
+
+        // Find the bills by FeeHousehold
+        List<Bill> bills = billRepository.findByFeeHousehold(feeHousehold);
+        if (bills.isEmpty()) {
+            return ResponseEntity.ok("No bills found for the given FeeHousehold");
+        }
+
+        // Map Bill entities to BillDTO
+        List<BillDTO> billDTOs = bills.stream()
+                .map(bill -> {
+                    BillDTO dto = new BillDTO();
+                    dto.setId(bill.getId());
+                    dto.setStartingDate(bill.getStartingDate());
+                    dto.setDueDate(bill.getDueDate());
+                    dto.setAmount(bill.getAmount());
+                    dto.setStatus(bill.getStatus());
+                    dto.setPayingDate(bill.getPayingDate());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(billDTOs);
+    }
+    @PostMapping("/getDonationHouseholds")
+    public ResponseEntity<?> getDonationHouseholds(@RequestBody DonationDTO donationDTO) {
+        // Validate the donationId in the DTO
+        if (donationDTO.getId() == null || donationDTO.getId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Donation ID is required");
+        }
+
+        // Find the donation by donationId
+        Donation donation = donationRepository.findDonationById(donationDTO.getId());
+        if (donation == null) {
+            return ResponseEntity.badRequest().body("Donation not found");
+        }
+
+        // Get the list of DonationHousehold entities associated with the Donation
+        List<DonationHousehold> donationHouseholds = donation.getDonationHouseholds();
+
+        // Map DonationHousehold entities to DonationHouseholdDTO
+        List<DonationHouseholdDTO> donationHouseholdDTOs = donationHouseholds.stream()
+                .map(donationHousehold -> {
+                    DonationHouseholdDTO dto = new DonationHouseholdDTO();
+                    dto.setApartmentNumber(donationHousehold.getApartmentNumber());
+                    dto.setDonatedMoney(donationHousehold.getDonatedMoney());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(donationHouseholdDTOs);
+    }
+    @PostMapping("/getBillByApartment")
+    public ResponseEntity<?> getBillDetails(@RequestBody BillDTO billDTO) {
+        // Validate the apartmentNumber in the DTO
+        if (billDTO.getApartmentNumber() == null || billDTO.getApartmentNumber().isEmpty()) {
+            return ResponseEntity.badRequest().body("Apartment number is required");
+        }
+
+        // Find the bills by apartmentNumber
+        List<Bill> bills = billRepository.findByApartmentNumber(billDTO.getApartmentNumber());
+        if (bills.isEmpty()) {
+            return ResponseEntity.ok("No bills found for the given apartment number");
+        }
+
+        // Map Bill entities to BillDTO (excluding apartmentNumber)
+        List<BillDTO> billDTOs = bills.stream()
+                .map(bill -> {
+                    BillDTO dto = new BillDTO();
+                    dto.setFeeId(bill.getFeeHousehold().getFee().getFeeId());
+                    dto.setFeeName(bill.getFeeHousehold().getFee().getFeeName());
+                    dto.setStartingDate(bill.getStartingDate());
+                    dto.setDueDate(bill.getDueDate());
+                    dto.setAmount(bill.getAmount());
+                    dto.setStatus(bill.getStatus());
+                    dto.setPayingDate(bill.getPayingDate());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(billDTOs);
+    }
+    @PostMapping("/getDonationByApartment")
+    public ResponseEntity<?> getDonationByApartment(@RequestBody DonationHouseholdDTO donationHouseholdDTO) {
+        // Validate the apartmentNumber in the DTO
+        if (donationHouseholdDTO.getApartmentNumber() == null || donationHouseholdDTO.getApartmentNumber().isEmpty()) {
+            return ResponseEntity.badRequest().body("Apartment number is required");
+        }
+
+        // Find the DonationHousehold records by apartmentNumber
+        List<DonationHousehold> donationHouseholds = donationHouseholdRepository.findByApartmentNumber(donationHouseholdDTO.getApartmentNumber());
+        if (donationHouseholds.isEmpty()) {
+            return ResponseEntity.ok("No donations found for the given apartment number");
+        }
+
+        // Map DonationHousehold entities to DonationDTO
+        List<DonationHouseholdDTO> donationDTOs = donationHouseholds.stream()
+                .map(donationHousehold -> {
+                    DonationHouseholdDTO dto = new DonationHouseholdDTO();
+                    dto.setDonation_id(donationHousehold.getDonation().getId());
+                    dto.setDonationName(donationHousehold.getDonation().getDonationName());
+                    dto.setDonatedMoney(donationHousehold.getDonatedMoney());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(donationDTOs);
+    }
+    @PostMapping("/getPrivateAccount")
+    public ResponseEntity<?> getPrivateAccount(Authentication authentication) {
+        // Get the current user's email from authentication
+        String currentEmail = authentication.getName();
+        Account account = accountRepository.findByEmail(currentEmail);
+        if (account == null) {
+            return ResponseEntity.badRequest().body("Account not found");
+        }
+        // Always include private info for the owner
+        AccountDTO accountDTO = mapService.mapToAccountDTO(account, true);
+        return ResponseEntity.ok(accountDTO);
+    }
+    @PostMapping("/getResponseComplaints")
+    public ResponseEntity<?> getResponseComplaints(@RequestBody ComplaintsDTO complaintsDTO) {
+        // Validate the complaintId in the DTO
+        if (complaintsDTO.getComplaintId() == null || complaintsDTO.getComplaintId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Complaint ID is required");
+        }
+
+        // Find the complaint by ID
+        Complaints complaint = complaintsRepository.findById(complaintsDTO.getComplaintId()).orElse(null);
+        if (complaint == null) {
+            return ResponseEntity.badRequest().body("Complaint not found");
+        }
+        List<responseComplaints> responses = complaint.getResponseComplaints();
+        if (responses.isEmpty()) {
+            return ResponseEntity.ok("No responses found for the given complaint");
+        }
+        // Map responseComplaints entities to DTO
+        List<responseComplaintsDTO> responseDTOs = responses.stream()
+                .map(response -> {
+                    responseComplaintsDTO dto = new responseComplaintsDTO();
+                    dto.setId(response.getId());
+                    dto.setUserRole(response.getAccount().getRole());
+                    dto.setUserName(response.getAccount().getUsername());
+                    dto.setResponseTime(response.getResponseTime());
+                    dto.setResponseContent(response.getResponseContent());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responseDTOs);
+    }
+    @PostMapping("/getResponseNotification")
+    public ResponseEntity<?> getResponseNotification(@RequestBody NotificationDTO notificationDTO) {
+        // Validate the notificationId in the DTO
+        if (notificationDTO.getAnnouncementId() == null || notificationDTO.getAnnouncementId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Notification ID is required");
+        }
+
+        // Find the notification by ID
+        Notification notification = notificationRepository.findById(notificationDTO.getAnnouncementId()).orElse(null);
+        if (notification == null) {
+            return ResponseEntity.badRequest().body("Notification not found");
+        }
+        List<responseNotification> responses = notification.getResponseNotifications();
+        if (responses.isEmpty()) {
+            return ResponseEntity.ok("No responses found for the given notification");
+        }
+        // Map responseComplaints entities to DTO
+        List<responseNotificationDTO> responseDTOs = responses.stream()
+                .map(response -> {
+                    responseNotificationDTO dto = new responseNotificationDTO();
+                    dto.setId(response.getId());
+                    dto.setUserRole(response.getAccount().getRole());
+                    dto.setUserName(response.getAccount().getUsername());
+                    dto.setResponseTime(response.getResponseTime());
+                    dto.setResponseContent(response.getResponseContent());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responseDTOs);
+        }
+    @PostMapping("/getReceiveResidents")
+    public ResponseEntity<?> getReceiveResidents(@RequestBody NotificationDTO notificationDTO, Authentication authentication) {
+        // Validate the notificationId in the DTO
+        if (notificationDTO.getAnnouncementId() == null || notificationDTO.getAnnouncementId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Notification ID is required");
+        }
+
+        // Find the notification by ID
+        Notification notification = notificationRepository.findById(notificationDTO.getAnnouncementId()).orElse(null);
+        if (notification == null) {
+            return ResponseEntity.badRequest().body("Notification not found");
+        }
+
+        // Get current user info
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+        String currentEmail = authentication.getName();
+
+        // Get all receiveNotification records for this notification
+        List<receiveNotification> receiveNotifications = notification.getReceiveNotifications();
+        if (receiveNotifications == null || receiveNotifications.isEmpty()) {
+            return ResponseEntity.ok("No receive notifications found for the given notification");
+        }
+
+        // Check if current user is admin or a receiver
+        boolean isReceiver = receiveNotifications.stream()
+                .anyMatch(rn -> rn.getResident().getAccount().getEmail().equals(currentEmail));
+        if (!"admin".equalsIgnoreCase(currentUserRole) && !isReceiver) {
+            return ResponseEntity.status(403).body("You do not have permission to view this list");
+        }
+
+        // Map to DTO (only id and residentID)
+        List<receiveNotificationDTO> resultDTOs = receiveNotifications.stream()
+                .map(rn -> {
+                    receiveNotificationDTO dto = new receiveNotificationDTO();
+                    dto.setId(rn.getId());
+                    dto.setResidentId(rn.getResident().getResident_id());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(resultDTOs);
+    }
+    @PostMapping("/getIncludeResidents")
+    public ResponseEntity<?> getIncludeResidents(@RequestBody ComplaintsDTO complaintsDTO) {
+        // Validate the complaintId in the DTO
+        if (complaintsDTO.getComplaintId() == null || complaintsDTO.getComplaintId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Complaint ID is required");
+        }
+
+        // Find the complaint by ID
+        Complaints complaint = complaintsRepository.findById(complaintsDTO.getComplaintId()).orElse(null);
+        if (complaint == null) {
+            return ResponseEntity.badRequest().body("Complaint not found");
+        }
+
+        // Get the list of IncludeInComplaints entities associated with the complaint
+        List<IncludeInComplaints> includeList = complaint.getIncludeInComplaints();
+        if (includeList == null || includeList.isEmpty()) {
+            return ResponseEntity.ok("No residents included for the given complaint");
+        }
+
+        // Map IncludeInComplaints entities to IncludeInComplaintsDTO (only residentID and ID)
+        List<IncludeInComplaintsDTO> resultDTOs = includeList.stream()
+                .map(inc -> {
+                    IncludeInComplaintsDTO dto = new IncludeInComplaintsDTO();
+                    dto.setId(inc.getId());
+                    dto.setResidentId(inc.getResident().getResident_id());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(resultDTOs);
     }
 }

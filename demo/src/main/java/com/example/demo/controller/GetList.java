@@ -159,6 +159,25 @@ public class GetList {
 
         return ResponseEntity.ok(notificationDTOs);
     }
+    @PostMapping("/private-notifications")
+    public ResponseEntity<List<NotificationDTO>> getPrivateNotifications(Authentication authentication) {
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+        if(!"admin".equals(currentUserRole)) {
+            return ResponseEntity.status(403).body(List.of());
+        }
+        // Fetch notifications where sendto is "private" and recipient is the current user
+        List<Notification> notifications = notificationRepository.findBySendto("private");
+
+        // Map notifications to NotificationDTO (excluding content if needed)
+        List<NotificationDTO> notificationDTOs = notifications.stream()
+                .map(notification -> mapService.mapToNotificationDTO(notification, false))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(notificationDTOs);
+    }
     @GetMapping("/complaints")
     public ResponseEntity<List<ComplaintsDTO>> getAllComplaints() {
         // Fetch all complaints

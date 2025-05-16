@@ -68,4 +68,11 @@ public class interactNotification {
     public void setResponseTime(LocalDateTime responseTime) {
         this.responseTime = responseTime;
     }
+
+    public Notification getNotification() {
+        return notification;
+    }
+    public void setNotification(Notification notification) {
+        this.notification = notification;
+    }
 }
