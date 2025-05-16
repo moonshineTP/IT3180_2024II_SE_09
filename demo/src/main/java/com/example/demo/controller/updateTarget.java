@@ -8,8 +8,10 @@ import com.example.demo.model.DTO.FeeHouseholdDTO;
 import com.example.demo.model.DTO.DonationDTO;
 import com.example.demo.model.DTO.DonationHouseholdDTO;
 import com.example.demo.model.DTO.ComplaintsDTO;
+import com.example.demo.model.DTO.BillDTO;
 import com.example.demo.model.Account;
 import com.example.demo.model.Bill;
+
 import com.example.demo.model.Resident;
 import com.example.demo.model.Vehicle;
 import com.example.demo.model.Fee;
@@ -24,6 +26,8 @@ import com.example.demo.model.interactNotification;
 import com.example.demo.model.responseNotification;
 import com.example.demo.model.DTO.responseNotificationDTO;
 import com.example.demo.model.DTO.interactNotificationDTO;
+import com.example.demo.model.responseComplaints;
+import com.example.demo.model.DTO.responseComplaintsDTO;
 import com.example.demo.repository.AccountRepository;
 import com.example.demo.repository.ResidentRepository;
 import com.example.demo.repository.VehicleRepository;
@@ -37,6 +41,7 @@ import com.example.demo.repository.interactComplaintRepository;
 import com.example.demo.repository.interactNotificationRepository;
 import com.example.demo.repository.NotificationRepository;
 import com.example.demo.repository.responseNotificationRepository;
+import com.example.demo.repository.responseComplaintsRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -85,6 +90,8 @@ public class updateTarget {
     private interactNotificationRepository interactNotificationRepository;
     @Autowired
     private responseNotificationRepository responseNotificationRepository;
+    @Autowired
+    private responseComplaintsRepository responseComplaintsRepository;
 
     @PutMapping("/changeaccount")
     public ResponseEntity<?> updateAccount(
@@ -854,6 +861,31 @@ public class updateTarget {
         return ResponseEntity.ok("FeeHousehold created successfully");
     }
     @PreAuthorize("hasRole('admin')")
+    @DeleteMapping("/deleteFeeHousehold")
+    public ResponseEntity<?> deleteFeeHousehold(@RequestBody FeeHouseholdDTO feeHouseholdDTO, Authentication authentication) {
+        // Validate the feeId and apartmentNumber in the DTO
+        if (feeHouseholdDTO.getFeeID() == null || feeHouseholdDTO.getFeeID().isEmpty()) {
+            return ResponseEntity.badRequest().body("Fee ID is required");
+        }
+        if (feeHouseholdDTO.getApartmentNumber() == null || feeHouseholdDTO.getApartmentNumber().isEmpty()) {
+            return ResponseEntity.badRequest().body("Apartment number is required");
+        }
+        // Find the Fee by feeId
+        Fee fee = feeRepository.findByFeeId(feeHouseholdDTO.getFeeID());
+        if (fee == null) {
+            return ResponseEntity.badRequest().body("Fee not found");
+        }
+        FeeHousehold feeHousehold = feeHouseholdRepository.findByApartmentNumberAndFeeId(feeHouseholdDTO.getApartmentNumber(), feeHouseholdDTO.getFeeID());
+        // Check if a FeeHousehold with the same apartmentNumber and fee already exists
+        if (feeHousehold == null) {
+            return ResponseEntity.badRequest().body("FeeHousehold with the given apartment number and fee no exists");
+        }
+        // Save the new FeeHousehold
+        feeHouseholdRepository.delete(feeHousehold);
+
+        return ResponseEntity.ok("FeeHousehold created successfully");
+    }
+    @PreAuthorize("hasRole('admin')")
     @PostMapping("/createDonationHousehold")
     public ResponseEntity<?> createDonationHousehold(@RequestBody DonationHouseholdDTO donationHouseholdDTO, Authentication authentication) {
         // Validate the donationId and apartmentNumber in the DTO
@@ -863,33 +895,54 @@ public class updateTarget {
         if (donationHouseholdDTO.getApartmentNumber() == null || donationHouseholdDTO.getApartmentNumber().isEmpty()) {
             return ResponseEntity.badRequest().body("Apartment number is required");
         }
-
         // Find the Donation by donationId
         Donation donation = donationRepository.findDonationById(donationHouseholdDTO.getDonation_id());
         if (donation == null) {
             return ResponseEntity.badRequest().body("Donation not found");
         }
-
         // Check if a DonationHousehold with the same apartmentNumber and donation already exists
         if (donationHouseholdRepository.findByApartmentNumberAndDonation(donationHouseholdDTO.getApartmentNumber(), donation) != null) {
             return ResponseEntity.badRequest().body("DonationHousehold with the given apartment number and donation already exists");
         }
-
         // Create a new DonationHousehold
         DonationHousehold donationHousehold = new DonationHousehold();
         donationHousehold.setApartmentNumber(donationHouseholdDTO.getApartmentNumber());
         donationHousehold.setDonation(donation);
         donationHousehold.setDonatedMoney(donationHouseholdDTO.getDonatedMoney());
-
         // Update the accumulated money of the donation
         donation.setAccumulatedMoney(donation.getAccumulatedMoney() + donationHouseholdDTO.getDonatedMoney());
-
         // Save the new DonationHousehold
         donationHouseholdRepository.save(donationHousehold);
-
-        // Save the updated Donation
+        // Save the updated donation
         donationRepository.save(donation);
-
+        return ResponseEntity.ok("DonationHousehold created successfully");
+    }
+    @PreAuthorize("hasRole('admin')")
+    @DeleteMapping("/deleteDonationHousehold")
+    public ResponseEntity<?> deleteDonationHousehold(@RequestBody DonationHouseholdDTO donationHouseholdDTO, Authentication authentication) {
+        // Validate the donationId and apartmentNumber in the DTO
+        if (donationHouseholdDTO.getDonation_id() == null || donationHouseholdDTO.getDonation_id().isEmpty()) {
+            return ResponseEntity.badRequest().body("Donation ID is required");
+        }
+        if (donationHouseholdDTO.getApartmentNumber() == null || donationHouseholdDTO.getApartmentNumber().isEmpty()) {
+            return ResponseEntity.badRequest().body("Apartment number is required");
+        }
+        // Find the Donation by donationId
+        Donation donation = donationRepository.findDonationById(donationHouseholdDTO.getDonation_id());
+        if (donation == null) {
+            return ResponseEntity.badRequest().body("Donation not found");
+        }
+        DonationHousehold donationHousehold = donationHouseholdRepository.findByApartmentNumberAndDonation(donationHouseholdDTO.getApartmentNumber(), donation);
+        // Check if a DonationHousehold with the same apartmentNumber and donation already exists
+        if (donationHousehold == null) {
+            return ResponseEntity.badRequest().body("DonationHousehold with the given apartment number and donation already exists");
+        }
+        // Update the accumulated money of the donation
+        donation.setAccumulatedMoney(donation.getAccumulatedMoney() - donationHouseholdDTO.getDonatedMoney());
+        // Save the new DonationHousehold
+        donationHouseholdRepository.delete(donationHousehold);
+        // Save the updated donation
+        donationRepository.save(donation);
         return ResponseEntity.ok("DonationHousehold created successfully");
     }
     @PostMapping("/createInteractComplaints")
@@ -906,7 +959,7 @@ public class updateTarget {
             return ResponseEntity.badRequest().body("Complaint not found");
         }
         // Check if an InteractComplaints with the same complaintId and account already exists
-        if (interactComplaintRepository.findByComplaintAndAccount(complaint, account) != null) {
+        if (interactComplaintRepository.findByComplaintAndStarNumberRatingAndAccount(complaint,interactComplaintsDTO.getStarNumberRating(), account) != null) {
             return ResponseEntity.badRequest().body("InteractComplaints with the given complaint ID and account already exists");
         }
         // Create a new InteractComplaints
@@ -918,6 +971,28 @@ public class updateTarget {
 
         // Save the new InteractComplaints
         interactComplaintRepository.save(interactComplaints);
+        return ResponseEntity.ok("InteractComplaints created successfully");
+    }
+    @DeleteMapping("/deleteInteractComplaints")
+    public ResponseEntity<?> deleteInteractComplaint(@RequestBody interactComplaintDTO interactComplaintsDTO, Authentication authentication) {
+        String currentEmail = authentication.getName();
+        Account account = accountRepository.findByEmail(currentEmail);
+        // Validate the complaintId and residentId in the DTO
+        if (interactComplaintsDTO.getComplaintId() == null || interactComplaintsDTO.getComplaintId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Complaint ID is required");
+        }
+        // Find the complaint by complaintId
+        Complaints complaint = complaintRepository.findComplaintById(interactComplaintsDTO.getComplaintId());
+        if (complaint == null) {
+            return ResponseEntity.badRequest().body("Complaint not found");
+        }
+        interactComplaint interactComplaints = interactComplaintRepository.findByComplaintAndStarNumberRatingAndAccount(complaint,interactComplaintsDTO.getStarNumberRating(), account);
+        // Check if an InteractComplaints with the same complaintId and account already exists
+        if (interactComplaints == null) {
+            return ResponseEntity.badRequest().body("InteractComplaints with the given complaint ID and account no exists");
+        }
+        // Save the new InteractComplaints
+        interactComplaintRepository.delete(interactComplaints);
         return ResponseEntity.ok("InteractComplaints created successfully");
     }
     @PostMapping("/createInteractNotification")
@@ -934,7 +1009,7 @@ public class updateTarget {
             return ResponseEntity.badRequest().body("Complaint not found");
         }
         // Check if an InteractComplaints with the same complaintId and account already exists
-        if (interactNotificationRepository.findbyNotificationAndAccount(noti, account) != null) {
+        if (interactNotificationRepository.findByNotificationAndTypeInteractAndAccount(noti,interactNotificationDTO.getTypeInteract(), account) != null) {
             return ResponseEntity.badRequest().body("InteractComplaints with the given complaint ID and account already exists");
         }
         // Create a new InteractComplaints
@@ -946,6 +1021,28 @@ public class updateTarget {
 
         // Save the new InteractComplaints
         interactNotificationRepository.save(interact);
+        return ResponseEntity.ok("InteractComplaints created successfully");
+    }
+    @DeleteMapping("/deleteInteractNotification")
+    public ResponseEntity<?> deleteInteractNotification(@RequestBody interactNotificationDTO interactNotificationDTO, Authentication authentication) {
+        String currentEmail = authentication.getName();
+        Account account = accountRepository.findByEmail(currentEmail);
+        // Validate the complaintId and residentId in the DTO
+        if (interactNotificationDTO.getNotificationId() == null || interactNotificationDTO.getNotificationId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Complaint ID is required");
+        }
+        // Find the complaint by complaintId
+        Notification noti = notificationRepository.findByAnnoucementId(interactNotificationDTO.getNotificationId());
+        if (noti == null) {
+            return ResponseEntity.badRequest().body("Complaint not found");
+        }
+        interactNotification interact = interactNotificationRepository.findByNotificationAndTypeInteractAndAccount(noti,interactNotificationDTO.getTypeInteract(), account);
+        // Check if an InteractComplaints with the same complaintId and account already exists
+        if (interact == null) {
+            return ResponseEntity.badRequest().body("InteractComplaints with the given complaint ID and account already exists");
+        }
+        // Save the new InteractComplaints
+        interactNotificationRepository.delete(interact);
         return ResponseEntity.ok("InteractComplaints created successfully");
     }
     @PostMapping("/createresponseNotification")
@@ -961,21 +1058,140 @@ public class updateTarget {
         if (notification == null) {
             return ResponseEntity.badRequest().body("Notification not found");
         }
-        // Check if a response notification with the same notificationId and account already exists
-        if (responseNotificationRepository.findByNotificationAndAccount(notification, account) != null) {
-            return ResponseEntity.badRequest().body("Response notification with the given notification ID and account already exists");
-        }
-
         // Create a new response notification with default values
-        responseNotification responseNotification = new responseNotification();
-        responseNotification.setResponseContent(responseNotificationDTO.getResponseContent());
-        responseNotification.setResponseTime(LocalDateTime.now());
-        responseNotification.setAccount(account);
-        responseNotification.setNotification(notification);
+        responseNotification response = new responseNotification();
+        response.setResponseContent(responseNotificationDTO.getResponseContent());
+        response.setResponseTime(LocalDateTime.now());
+        response.setAccount(account);
+        response.setNotification(notification);
 
         // Save the new response notification
-        responseNotificationRepository.save(responseNotification);
+        responseNotificationRepository.save(response);
 
         return ResponseEntity.ok("Response notification created successfully");
+    }
+    @PostMapping("/deleteresponseNotification")
+    public ResponseEntity<?> deleteResponseNotification(@RequestBody responseNotificationDTO responseNotificationDTO, Authentication authentication) {
+        String currentEmail = authentication.getName();
+        Account account = accountRepository.findByEmail(currentEmail);
+        if(responseNotificationDTO.getUserName() != account.getUsername()){
+            return ResponseEntity.status(403).body("You do not have permission to delete this response notification");
+        }
+        responseNotification response = responseNotificationRepository.findById(responseNotificationDTO.getId()).orElse(null);
+        if(response == null) {
+            return ResponseEntity.badRequest().body("Response notification not found");
+        }
+        responseNotificationRepository.delete(response);
+
+        return ResponseEntity.ok("Response notification created successfully");
+    }
+    @PostMapping("/createresponseComplaint")
+    public ResponseEntity<?> createResponseComplaint(@RequestBody responseComplaintsDTO responseComplaintDTO, Authentication authentication) {
+        String currentEmail = authentication.getName();
+        Account account = accountRepository.findByEmail(currentEmail);
+
+        // Validate the complaintId in the DTO
+        if (responseComplaintDTO.getComplaintId() == null || responseComplaintDTO.getComplaintId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Complaint ID is required");
+        }
+
+        // Find the complaint by complaintId
+        Complaints complaint = complaintRepository.findComplaintById(responseComplaintDTO.getComplaintId());
+        if (complaint == null) {
+            return ResponseEntity.badRequest().body("Complaint not found");
+        }
+
+        // Check if a response complaint with the same complaintId and account already exists
+        if (responseComplaintsRepository.findByComplaintAndAccount(complaint, account) != null) {
+            return ResponseEntity.badRequest().body("Response complaint with the given complaint ID and account already exists");
+        }
+
+        // Create a new response complaint with default values
+        responseComplaints response = new responseComplaints();
+        response.setResponseContent(responseComplaintDTO.getResponseContent());
+        response.setResponseTime(LocalDateTime.now());
+        response.setAccount(account);
+        response.setComplaint(complaint);
+
+        // Save the new response complaint
+        responseComplaintsRepository.save(response);
+
+        return ResponseEntity.ok("Response complaint created successfully");
+    }
+    @PostMapping("/deleteresponseComplaint")
+    public ResponseEntity<?> deleteResponseComplaint(@RequestBody responseComplaintsDTO responseComplaintDTO, Authentication authentication) {
+        String currentEmail = authentication.getName();
+        Account account = accountRepository.findByEmail(currentEmail);
+        if(responseComplaintDTO.getUserName() != account.getUsername()){
+            return ResponseEntity.status(403).body("You do not have permission to delete this response complaint");
+        }
+        responseComplaints response = responseComplaintsRepository.findById(responseComplaintDTO.getId()).orElse(null);
+        if(response == null) {
+            return ResponseEntity.badRequest().body("Response complaint not found");
+        }
+        responseComplaintsRepository.delete(response);
+
+        return ResponseEntity.ok("Response complaint created successfully");
+    }
+    @PostMapping("/createBill")
+    public ResponseEntity<?> createBill(@RequestBody BillDTO billDTO, Authentication authentication) {
+        // Get the currently authenticated user's role
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+        // Only admins are allowed to create bills
+        if (!"admin".equals(currentUserRole)) {
+            return ResponseEntity.status(403).body("You do not have permission to create bills");
+        }
+        // Validate the feeId and apartmentNumber in the DTO
+        if (billDTO.getFeeId() == null || billDTO.getFeeId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Fee ID is required");
+        }
+        if (billDTO.getApartmentNumber() == null || billDTO.getApartmentNumber().isEmpty()) {
+            return ResponseEntity.badRequest().body("Apartment number is required");
+        }
+        // Find the FeeHousehold by feeId and apartmentNumber
+        FeeHousehold feeHousehold = feeHouseholdRepository.findByApartmentNumberAndFeeId(billDTO.getApartmentNumber(), billDTO.getFeeId());
+        if (feeHousehold == null) {
+            return ResponseEntity.badRequest().body("FeeHousehold not found");
+        }
+        // Check if a Bill with the same startingDate and FeeHousehold already exists
+        if (billRepository.findByStartingDateAndFeeHousehold(billDTO.getStartingDate(), feeHousehold) != null) {
+            return ResponseEntity.badRequest().body("Bill with the same starting date and FeeHousehold already exists");
+        }
+        // Create a new Bill with default values
+        Bill bill = new Bill();
+        bill.setFeeHousehold(feeHousehold);
+        bill.setAmount(billDTO.getAmount());
+        bill.setStartingDate(billDTO.getStartingDate());
+        bill.setDueDate(billDTO.getDueDate());
+        bill.setStatus(billDTO.getStatus());
+        bill.setPayingDate(billDTO.getPayingDate());
+        // Save the new Bill
+        billRepository.save(bill);
+
+        return ResponseEntity.ok("Bill created successfully");
+    }
+    @PostMapping("/deleteBill")
+    public ResponseEntity<?> deleteBill(@RequestBody BillDTO billDTO, Authentication authentication) {
+        // Get the currently authenticated user's role
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+        // Only admins are allowed to delete bills
+        if (!"admin".equals(currentUserRole)) {
+            return ResponseEntity.status(403).body("You do not have permission to delete bills");
+        }
+        // Find the Bill by startingDate and FeeHousehold
+        Bill bill = billRepository.findById(billDTO.getId()).orElse(null);
+        if (bill == null) {
+            return ResponseEntity.badRequest().body("Bill not found");
+        }
+        // Delete the Bill
+        billRepository.delete(bill);
+
+        return ResponseEntity.ok("Bill deleted successfully");
     }
 }

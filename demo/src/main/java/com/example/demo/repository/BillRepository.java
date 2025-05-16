@@ -15,4 +15,5 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
     List<Bill> findByFeeHousehold(FeeHousehold feeHousehold);
     @Query("SELECT b FROM Bill b WHERE b.feeHousehold.apartmentNumber = :apartmentNumber")
     List<Bill> findByApartmentNumber(String apartmentNumber);
+    Bill findByStartingDateAndFeeHousehold(java.time.LocalDate startingDate, FeeHousehold feeHousehold);
 }

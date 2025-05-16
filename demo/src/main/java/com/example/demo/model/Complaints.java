@@ -115,4 +115,22 @@ public class Complaints {
     public void setPriority(String priority) {
         this.priority = priority;
     }
+    public List<IncludeInComplaints> getIncludeInComplaints() {
+        return includeInComplaints;
+    }
+    public void setIncludeInComplaints(List<IncludeInComplaints> includeInComplaints) {
+        this.includeInComplaints = includeInComplaints;
+    }
+    public List<responseComplaints> getResponseComplaints() {
+        return responseComplaints;
+    }
+    public void setResponseComplaints(List<responseComplaints> responseComplaints) {
+        this.responseComplaints = responseComplaints;
+    }
+    public List<interactComplaint> getInteractComplaints() {
+        return interactComplaints;
+    }
+    public void setInteractComplaints(List<interactComplaint> interactComplaints) {
+        this.interactComplaints = interactComplaints;
+    }
 }

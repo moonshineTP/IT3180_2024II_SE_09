@@ -195,9 +195,12 @@ public class GetList {
         // Get the currently authenticated user's email
         String currentEmail = authentication.getName();
         Account currentAccount = accountRepository.findByEmail(currentEmail);
-
+        Resident currentResident = currentAccount.getResident();
+        if (currentResident == null) {
+            return ResponseEntity.status(403).body("User is not a resident");
+        }
         // Fetch concerned notifications for the current user through the interactNotification table
-        List<Notification> privateNotifications = receiveNotificationRepository.findNotificationsByAccount(currentAccount);
+        List<Notification> privateNotifications = receiveNotificationRepository.findNotificationsByResident(currentResident);
 
         if (privateNotifications.isEmpty()) {
             return ResponseEntity.ok("No private notifications found for the current user");
