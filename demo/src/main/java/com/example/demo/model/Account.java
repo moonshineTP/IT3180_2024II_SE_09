@@ -15,7 +15,7 @@ import jakarta.persistence.*;
 @Table(name = "accounts")
 public class Account {
     @Id
-    @Column(length = 100)
+    @Column(length = 100,unique = true)
     private String email;
 
     @CreationTimestamp
@@ -43,10 +43,10 @@ public class Account {
     private Resident resident;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<interactNotification> interactNotifications = new ArrayList<>();
+    private List<InteractNotification> interactNotifications = new ArrayList<>();
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<responseNotification> responseNotifications = new ArrayList<>();
+    private List<ResponseNotification> responseNotifications = new ArrayList<>();
     // ---------------------------
     // Constructors
     // ---------------------------

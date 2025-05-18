@@ -19,6 +19,7 @@ import com.example.demo.model.DTO.ResidentDTO;
 import com.example.demo.model.DTO.VehicleDTO;
 import com.example.demo.model.Resident;
 import com.example.demo.model.Vehicle;
+import com.example.demo.model.InteractNotification;
 import com.example.demo.repository.ResidentRepository;
 import com.example.demo.repository.VehicleRepository;
 import com.example.demo.service.MapService;
@@ -27,13 +28,15 @@ import com.example.demo.repository.DonationRepository;
 import com.example.demo.model.Notification;
 import com.example.demo.repository.NotificationRepository;
 import com.example.demo.repository.ComplaintRepository;
-import com.example.demo.repository.receiveNotificationRepository;
-import com.example.demo.repository.interactNotificationRepository;
+import com.example.demo.repository.ReceiveNotificationRepository;
+import com.example.demo.repository.InteractNotificationRepository;
+import com.example.demo.repository.IncludeInComplaintsRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import java.util.Set;
 
 
 @RestController
@@ -48,13 +51,15 @@ public class GetList {
     private DonationRepository donationRepository;
     private NotificationRepository notificationRepository;
     private ComplaintRepository complaintsRepository;
-    private receiveNotificationRepository receiveNotificationRepository;
-    private interactNotificationRepository interactNotificationRepository;
+    private ReceiveNotificationRepository receiveNotificationRepository;
+    private InteractNotificationRepository interactNotificationRepository;
+    private IncludeInComplaintsRepository includeInComplaintsRepository;
     // Constructor injection for AccountRepository
     public GetList(AccountRepository accountRepository, ResidentRepository residentRepository, VehicleRepository vehicleRepository, 
             MapService mapService, FeeRepository feeRepository, DonationRepository donationRepository, 
-            NotificationRepository notificationRepository, ComplaintRepository complaintsRepository, receiveNotificationRepository receiveNotificationRepository, 
-            interactNotificationRepository interactNotificationRepository) {
+            NotificationRepository notificationRepository, ComplaintRepository complaintsRepository, ReceiveNotificationRepository receiveNotificationRepository, 
+            InteractNotificationRepository interactNotificationRepository, IncludeInComplaintsRepository includeInComplaintsRepository) {
+        this.includeInComplaintsRepository = includeInComplaintsRepository;
         this.interactNotificationRepository = interactNotificationRepository;
         this.receiveNotificationRepository = receiveNotificationRepository;
         this.notificationRepository = notificationRepository;
@@ -236,5 +241,63 @@ public class GetList {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(filteredNotificationDTOs);
+    }
+    @PostMapping("/filterNotReadNotifications")
+    public ResponseEntity<?> filterNotReadNotifications(@RequestBody List<NotificationDTO> notificationDTOs, Authentication authentication) {
+        String currentEmail = authentication.getName();
+
+        // Extract notification IDs from the input list
+        List<String> notificationIds = notificationDTOs.stream()
+                .map(NotificationDTO::getAnnouncementId)
+                .collect(Collectors.toList());
+
+        // Fetch all interactNotifications for this user and these notifications
+        List<InteractNotification> userInteractions = interactNotificationRepository
+                .findByAccountEmailAndNotificationIds(currentEmail, notificationIds);
+
+        // Build a set of notificationIds that have typeInteract = "read" for this user
+        Set<String> readNotificationIds = userInteractions.stream()
+                .filter(in -> "read".equalsIgnoreCase(in.getTypeInteract()))
+                .map(in -> in.getNotification().getAnnouncementId())
+                .collect(Collectors.toSet());
+
+        // Filter input notifications: keep only those NOT in the readNotificationIds set
+        List<NotificationDTO> notReadNotificationDTOs = notificationDTOs.stream()
+                .filter(dto -> !readNotificationIds.contains(dto.getAnnouncementId()))
+                .collect(Collectors.toList());
+
+        if (notReadNotificationDTOs.isEmpty()) {
+            return ResponseEntity.ok("No not-read notifications found for the current user");
+        }
+
+        return ResponseEntity.ok(notReadNotificationDTOs);
+    }
+    @PostMapping("/filterIncludedComplaints")
+    public ResponseEntity<?> filterIncludedComplaints(@RequestBody List<ComplaintsDTO> complaintsDTOs, Authentication authentication) {
+        String currentEmail = authentication.getName();
+        Account account = accountRepository.findByEmail(currentEmail);
+        if (account == null || account.getResident() == null) {
+            return ResponseEntity.status(403).body("User is not a resident");
+        }
+        Resident resident = account.getResident();
+
+        // Extract complaint IDs from the input list
+        List<String> complaintIds = complaintsDTOs.stream()
+                .map(ComplaintsDTO::getComplaintId)
+                .collect(Collectors.toList());
+
+        // Fetch complaints where the user is included
+        List<Complaints> includedComplaints = includeInComplaintsRepository.findIncludedComplaintsByResidentAndComplaintIds(resident, complaintIds);
+
+        if (includedComplaints.isEmpty()) {
+            return ResponseEntity.ok("No complaints included for the current user");
+        }
+
+        // Map to DTOs
+        List<ComplaintsDTO> result = includedComplaints.stream()
+                .map(complaint -> mapService.mapToComplaintsDTO(complaint, false))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(result);
     }
 }

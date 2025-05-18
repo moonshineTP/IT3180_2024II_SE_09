@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "interact_notifications", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"notification_id", "type_interact", "email_of_interact_user"})
 })
-public class interactNotification {
+public class InteractNotification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

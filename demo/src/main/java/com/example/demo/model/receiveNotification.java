@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 @Table(name = "receive_notifications", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"resident_id", "notification_id"})
 })
-public class receiveNotification {
+public class ReceiveNotification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

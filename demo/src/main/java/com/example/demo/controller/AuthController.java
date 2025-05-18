@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.time.LocalDateTime;
 import java.util.Date;
 @RestController
 @RequestMapping("/api/auth")
@@ -60,12 +62,17 @@ public class AuthController {
             response.put("passwordStatus", "Mật khẩu không trùng khớp!");
             return ResponseEntity.badRequest().body(response);
         }
-
+        if(account.getBan().equals("Inactive")) {
+            response.put("passwordStatus", "Tài khoản đã bị ban!");
+            response.put("emailStatus", "Tài khoản đã bị ban!");
+            return ResponseEntity.badRequest().body(response);
+        }
         // Tạo JWT và thêm vào cookie
         String token = jwtUtils.generateToken(account.getEmail(),60*60*24);
         authService.addJwtToCookie(token, httpResponse); // Thêm cookie vào response
 
         response.put("passwordStatus", "Successful!");
+        account.setStatus("Online");
         return ResponseEntity.ok(response);
     }
     @PostMapping("/request-register")
@@ -108,7 +115,6 @@ public class AuthController {
         user.setEmail(resetToken.getEmail());
         userRepository.save(user);
         RtokenRepository.delete(resetToken);
-
         return ResponseEntity.ok("Đăng kí thành công");
     }
     @PostMapping("/request-reset")
@@ -151,8 +157,13 @@ public class AuthController {
         return ResponseEntity.ok("Đổi mật khẩu thành công");
     }
     @PostMapping("/logout")
-    public ResponseEntity<?> handleLogout(HttpServletResponse httpResponse) {
+    public ResponseEntity<?> handleLogout(HttpServletResponse httpResponse, Authentication authentication) {
         // Xóa cookie jwt
+        String currentEmail = authentication.getName();
+        Account account = userRepository.findByEmail(currentEmail);
+        account.setStatus("Offline");
+        account.setLastVisit(LocalDateTime.now());
+        userRepository.save(account);
         Cookie cookie = new Cookie("jwt", null);
         cookie.setHttpOnly(true);
         cookie.setPath("/");

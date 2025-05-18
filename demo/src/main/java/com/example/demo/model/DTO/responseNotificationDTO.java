@@ -1,7 +1,7 @@
 package com.example.demo.model.DTO;
 
 import java.time.LocalDateTime;
-public class responseNotificationDTO {
+public class ResponseNotificationDTO {
     private Long id; // Unique identifier for the response
     private String userRole;
     private String userName; // Name of the user

@@ -21,7 +21,7 @@ public class MapService {
     // Helper method to map Resident to ResidentDTO based on role
     public ResidentDTO mapToResidentDTO(Resident resident, boolean full) {
         ResidentDTO dto = new ResidentDTO();
-        dto.setResident_id(resident.getResident_id());
+        dto.setResident_id(resident.getResidentId());
         dto.setFullName(resident.getFullName());
         dto.setGender(resident.getGender());
         dto.setDateOfBirth(resident.getDateOfBirth());
@@ -58,7 +58,7 @@ public class MapService {
     public VehicleDTO mapToVehicleDTO(Vehicle vehicle) {
         VehicleDTO dto = new VehicleDTO();
         dto.setLicensePlate(vehicle.getLicensePlate());
-        dto.setResidentId(vehicle.getResident() != null ? vehicle.getResident().getResident_id() : null);
+        dto.setResidentId(vehicle.getResident() != null ? vehicle.getResident().getResidentId() : null);
         dto.setVehicleType(vehicle.getVehicleType());
         dto.setBrand(vehicle.getBrand());
         dto.setModel(vehicle.getModel());
@@ -82,13 +82,13 @@ public class MapService {
         dto.setCreatedDate(account.getCreatedDate());
         dto.setLastVisit(account.getLastVisit());
         if (account.getResident() != null) {
-            dto.setResident_id(account.getResident().getResident_id());
+            dto.setResident_id(account.getResident().getResidentId());
         }
         return dto;
     }
     public FeeDTO mapToFeeDTO(Fee fee, boolean full) {
         FeeDTO responseDTO = new FeeDTO();
-        responseDTO.setFeeId(fee.getFeeId());
+        responseDTO.setId(fee.getId());
         responseDTO.setFeeName(fee.getFeeName());
         responseDTO.setFeeType(fee.getFeeType());
         responseDTO.setCreatedAt(fee.getCreatedAt());
@@ -110,7 +110,7 @@ public class MapService {
     public ComplaintsDTO mapToComplaintsDTO(Complaints complaints, boolean full) {
         ComplaintsDTO responseDTO = new ComplaintsDTO();
         if(complaints.getResident() != null) {
-            responseDTO.setResidentId(complaints.getResident().getResident_id());
+            responseDTO.setResidentId(complaints.getResident().getResidentId());
             responseDTO.setResidentName(complaints.getResident().getFullName());
             responseDTO.setApartmentNumber(complaints.getResident().getApartmentNumber());
             responseDTO.setAvt(complaints.getResident().getAvatar());

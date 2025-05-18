@@ -10,9 +10,11 @@ import com.example.demo.model.DTO.FeeHouseholdDTO;
 import com.example.demo.model.DTO.IncludeInComplaintsDTO;
 import com.example.demo.model.DTO.NotificationDTO;
 import com.example.demo.model.DTO.VehicleDTO;
-import com.example.demo.model.DTO.receiveNotificationDTO;
-import com.example.demo.model.DTO.responseComplaintsDTO;
-import com.example.demo.model.DTO.responseNotificationDTO;
+import com.example.demo.model.DTO.InteractComplaintDTO;
+import com.example.demo.model.DTO.InteractNotificationDTO;
+import com.example.demo.model.DTO.ReceiveNotificationDTO;
+import com.example.demo.model.DTO.ResponseComplaintsDTO;
+import com.example.demo.model.DTO.ResponseNotificationDTO;
 import com.example.demo.model.Account;
 import com.example.demo.model.Bill;
 import com.example.demo.model.Complaints;
@@ -22,13 +24,15 @@ import com.example.demo.model.Fee;
 import com.example.demo.model.FeeHousehold;
 import com.example.demo.model.IncludeInComplaints;
 import com.example.demo.model.Vehicle;
-import com.example.demo.model.receiveNotification;
-import com.example.demo.model.responseComplaints;
+import com.example.demo.model.InteractComplaint;
+import com.example.demo.model.InteractNotification;
+import com.example.demo.model.ReceiveNotification;
+import com.example.demo.model.ResponseComplaints;
 import com.example.demo.model.Notification;
 import com.example.demo.model.Resident;
 import com.example.demo.repository.AccountRepository;
 import com.example.demo.repository.BillRepository;
-import com.example.demo.model.responseNotification;
+import com.example.demo.model.ResponseNotification;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,7 +52,7 @@ import com.example.demo.repository.NotificationRepository;
 import com.example.demo.repository.ComplaintRepository;
 import com.example.demo.repository.FeeHouseholdRepository;
 import com.example.demo.repository.DonationHouseholdRepository;
-import com.example.demo.repository.receiveNotificationRepository;
+import com.example.demo.repository.ReceiveNotificationRepository;
 
 
 
@@ -80,7 +84,7 @@ public class getTarget {
     @Autowired
     private DonationHouseholdRepository donationHouseholdRepository;
     @Autowired
-    private receiveNotificationRepository receiveNotificationRepository;
+    private ReceiveNotificationRepository receiveNotificationRepository;
 
     @PostMapping("/account")
     public ResponseEntity<?> getAccount(@RequestBody AccountDTO requestDTO, Authentication authentication) {
@@ -113,7 +117,7 @@ public class getTarget {
                 .orElse("guest");
         String currentEmail = authentication.getName();
         if(requestDTO.getResident_id() != null) {
-            Resident resident = residentRepository.findByResident_id(requestDTO.getResident_id());
+            Resident resident = residentRepository.findByResidentId(requestDTO.getResident_id());
             if (resident==null) {
                 return ResponseEntity.badRequest().body("Resident not found");
             }
@@ -158,7 +162,7 @@ public class getTarget {
         List<ResidentDTO> residentDTOs = residents.stream()
                 .map(resident -> {
                     ResidentDTO dto = new ResidentDTO();
-                    dto.setResident_id(resident.getResident_id());
+                    dto.setResident_id(resident.getResidentId());
                     dto.setFullName(resident.getFullName());
                     dto.setAvatar(resident.getAvatar());
                     return dto;
@@ -170,12 +174,12 @@ public class getTarget {
     @PostMapping("/getFee")
     public ResponseEntity<?> getFee(@RequestBody FeeDTO feeDTO) {
         // Validate the feeId in the DTO
-        if (feeDTO.getFeeId() == null || feeDTO.getFeeId().isEmpty()) {
+        if (feeDTO.getId() == null || feeDTO.getId().isEmpty()) {
             return ResponseEntity.badRequest().body("Fee ID is required");
         }
 
         // Find the fee by feeId
-        Fee fee = feeRepository.findByFeeId(feeDTO.getFeeId());
+        Fee fee = feeRepository.findFeeById(feeDTO.getId());
         if (fee == null) {
             return ResponseEntity.badRequest().body("Fee not found");
         }
@@ -248,40 +252,12 @@ public class getTarget {
     @PostMapping("/getFeeHouseholds")
     public ResponseEntity<?> getFeeHouseholds(@RequestBody FeeDTO feeDTO) {
         // Validate the feeId in the DTO
-        if (feeDTO.getFeeId() == null || feeDTO.getFeeId().isEmpty()) {
+        if (feeDTO.getId() == null || feeDTO.getId().isEmpty()) {
             return ResponseEntity.badRequest().body("Fee ID is required");
         }
 
         // Find the fee by feeId
-        Fee fee = feeRepository.findByFeeId(feeDTO.getFeeId());
-        if (fee == null) {
-            return ResponseEntity.badRequest().body("Fee not found");
-        }
-
-        // Get the list of FeeHousehold entities associated with the Fee
-        List<FeeHousehold> feeHouseholds = fee.getFeeHouseholds();
-
-        // Map FeeHousehold entities to FeeHouseholdDTO
-        List<FeeHouseholdDTO> feeHouseholdDTOs = feeHouseholds.stream()
-                .map(feeHousehold -> {
-                    FeeHouseholdDTO dto = new FeeHouseholdDTO();
-                    dto.setApartmentNumber(feeHousehold.getApartmentNumber());
-                    dto.setStartingDay(feeHousehold.getStartingDay());
-                    return dto;
-                })
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(feeHouseholdDTOs);
-    }
-    @PostMapping("/getFeeHouseholds")
-    public ResponseEntity<?> getFeeHousehold(@RequestBody FeeDTO feeDTO) {
-        // Validate the feeId in the DTO
-        if (feeDTO.getFeeId() == null || feeDTO.getFeeId().isEmpty()) {
-            return ResponseEntity.badRequest().body("Fee ID is required");
-        }
-
-        // Find the fee by feeId
-        Fee fee = feeRepository.findByFeeId(feeDTO.getFeeId());
+        Fee fee = feeRepository.findFeeById(feeDTO.getId());
         if (fee == null) {
             return ResponseEntity.badRequest().body("Fee not found");
         }
@@ -385,7 +361,7 @@ public class getTarget {
         List<BillDTO> billDTOs = bills.stream()
                 .map(bill -> {
                     BillDTO dto = new BillDTO();
-                    dto.setFeeId(bill.getFeeHousehold().getFee().getFeeId());
+                    dto.setFeeId(bill.getFeeHousehold().getFee().getId());
                     dto.setFeeName(bill.getFeeHousehold().getFee().getFeeName());
                     dto.setStartingDate(bill.getStartingDate());
                     dto.setDueDate(bill.getDueDate());
@@ -447,14 +423,14 @@ public class getTarget {
         if (complaint == null) {
             return ResponseEntity.badRequest().body("Complaint not found");
         }
-        List<responseComplaints> responses = complaint.getResponseComplaints();
+        List<ResponseComplaints> responses = complaint.getResponseComplaints();
         if (responses.isEmpty()) {
             return ResponseEntity.ok("No responses found for the given complaint");
         }
         // Map responseComplaints entities to DTO
-        List<responseComplaintsDTO> responseDTOs = responses.stream()
+        List<ResponseComplaintsDTO> responseDTOs = responses.stream()
                 .map(response -> {
-                    responseComplaintsDTO dto = new responseComplaintsDTO();
+                    ResponseComplaintsDTO dto = new ResponseComplaintsDTO();
                     dto.setId(response.getId());
                     dto.setUserRole(response.getAccount().getRole());
                     dto.setUserName(response.getAccount().getUsername());
@@ -477,14 +453,14 @@ public class getTarget {
         if (notification == null) {
             return ResponseEntity.badRequest().body("Notification not found");
         }
-        List<responseNotification> responses = notification.getResponseNotifications();
+        List<ResponseNotification> responses = notification.getResponseNotifications();
         if (responses.isEmpty()) {
             return ResponseEntity.ok("No responses found for the given notification");
         }
         // Map responseComplaints entities to DTO
-        List<responseNotificationDTO> responseDTOs = responses.stream()
+        List<ResponseNotificationDTO> responseDTOs = responses.stream()
                 .map(response -> {
-                    responseNotificationDTO dto = new responseNotificationDTO();
+                    ResponseNotificationDTO dto = new ResponseNotificationDTO();
                     dto.setId(response.getId());
                     dto.setUserRole(response.getAccount().getRole());
                     dto.setUserName(response.getAccount().getUsername());
@@ -516,7 +492,7 @@ public class getTarget {
         String currentEmail = authentication.getName();
 
         // Get all receiveNotification records for this notification
-        List<receiveNotification> receiveNotifications = notification.getReceiveNotifications();
+        List<ReceiveNotification> receiveNotifications = notification.getReceiveNotifications();
         if (receiveNotifications == null || receiveNotifications.isEmpty()) {
             return ResponseEntity.ok("No receive notifications found for the given notification");
         }
@@ -529,11 +505,11 @@ public class getTarget {
         }
 
         // Map to DTO (only id and residentID)
-        List<receiveNotificationDTO> resultDTOs = receiveNotifications.stream()
+        List<ReceiveNotificationDTO> resultDTOs = receiveNotifications.stream()
                 .map(rn -> {
-                    receiveNotificationDTO dto = new receiveNotificationDTO();
+                    ReceiveNotificationDTO dto = new ReceiveNotificationDTO();
                     dto.setId(rn.getId());
-                    dto.setResidentId(rn.getResident().getResident_id());
+                    dto.setResidentId(rn.getResident().getResidentId());
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -564,7 +540,85 @@ public class getTarget {
                 .map(inc -> {
                     IncludeInComplaintsDTO dto = new IncludeInComplaintsDTO();
                     dto.setId(inc.getId());
-                    dto.setResidentId(inc.getResident().getResident_id());
+                    dto.setResidentId(inc.getResident().getResidentId());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(resultDTOs);
+    }
+    @PostMapping("/getInteractNotification")
+    public ResponseEntity<?> getInteractNotification(@RequestBody InteractNotificationDTO interactNotificationDTO) {
+        // Validate input
+        if (interactNotificationDTO.getNotificationId() == null || interactNotificationDTO.getNotificationId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Notification ID is required");
+        }
+        if (interactNotificationDTO.getTypeInteract() == null || interactNotificationDTO.getTypeInteract().isEmpty()) {
+            return ResponseEntity.badRequest().body("TypeInteract is required");
+        }
+
+        // Find the notification by ID
+        Notification notification = notificationRepository.findByAnnouncementId(interactNotificationDTO.getNotificationId());
+        if (notification == null) {
+            return ResponseEntity.badRequest().body("Notification not found");
+        }
+
+        // Get all interactNotification records for this notification and typeInteract
+        List<InteractNotification> interactList = notification.getInteractNotifications().stream()
+                .filter(in -> interactNotificationDTO.getTypeInteract().equals(in.getTypeInteract()))
+                .collect(Collectors.toList());
+
+        if (interactList.isEmpty()) {
+            return ResponseEntity.ok("No interact notifications found for the given notification and typeInteract");
+        }
+
+        // Map to DTO (only id, userName, userRole)
+        List<InteractNotificationDTO> resultDTOs = interactList.stream()
+                .map(in -> {
+                    InteractNotificationDTO dto = new InteractNotificationDTO();
+                    dto.setId(in.getId());
+                    dto.setUserName(in.getAccount().getUsername());
+                    dto.setUserRole(in.getAccount().getRole());
+                    dto.setResponseTime(in.getResponseTime());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(resultDTOs);
+    }
+    @PostMapping("/getInteractComplaints")
+    public ResponseEntity<?> getInteractComplaints(@RequestBody InteractComplaintDTO interactComplaintDTO) {
+        // Validate input
+        if (interactComplaintDTO.getComplaintId() == null || interactComplaintDTO.getComplaintId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Complaint ID is required");
+        }
+        if (interactComplaintDTO.getStarNumberRating() == null) {
+            return ResponseEntity.badRequest().body("Star rating is required");
+        }
+
+        // Find the complaint by ID
+        Complaints complaint = complaintsRepository.findById(interactComplaintDTO.getComplaintId()).orElse(null);
+        if (complaint == null) {
+            return ResponseEntity.badRequest().body("Complaint not found");
+        }
+
+        // Get all interactComplaint records for this complaint and starRating
+        List<InteractComplaint> interactList = complaint.getInteractComplaints().stream()
+                .filter(ic -> interactComplaintDTO.getStarNumberRating().equals(ic.getStarNumberRating()))
+                .collect(Collectors.toList());
+
+        if (interactList.isEmpty()) {
+            return ResponseEntity.ok("No interact complaints found for the given complaint and star rating");
+        }
+
+        // Map to DTO (only id, userName, userRole)
+        List<InteractComplaintDTO> resultDTOs = interactList.stream()
+                .map(ic -> {
+                    InteractComplaintDTO dto = new InteractComplaintDTO();
+                    dto.setId(ic.getId());
+                    dto.setUserName(ic.getAccount().getUsername());
+                    dto.setUserRole(ic.getAccount().getRole());
+                    dto.setResponseTime(ic.getResponseTime());
                     return dto;
                 })
                 .collect(Collectors.toList());

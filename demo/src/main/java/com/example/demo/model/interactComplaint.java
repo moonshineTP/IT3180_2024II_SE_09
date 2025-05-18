@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "interact_complaints",uniqueConstraints = {
         @UniqueConstraint(columnNames = {"complaint_id","star_number_rating","user_email"})
 })
-public class interactComplaint {
+public class InteractComplaint {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +34,7 @@ public class interactComplaint {
     private LocalDateTime responseTime; // Time of the interaction
 
     // Default constructor
-    public interactComplaint() {}
+    public InteractComplaint() {}
 
     // Getters and Setters
     public Long getId() {

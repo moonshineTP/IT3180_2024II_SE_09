@@ -2,7 +2,7 @@ package com.example.demo.model.DTO;
 
 import java.time.LocalDateTime;
 
-public class interactComplaintDTO {
+public class InteractComplaintDTO {
     private Long id; // Unique identifier for the interaction
 
     private Integer starNumberRating; // Star rating (0 to 5)

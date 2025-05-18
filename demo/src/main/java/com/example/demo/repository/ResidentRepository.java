@@ -7,17 +7,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.demo.model.Resident;
 
 public interface ResidentRepository extends JpaRepository<Resident, String> {
+    Resident findByResidentId(String residentId); // Sửa thành findByResidentId
 
-    Resident findByResident_id(String id);
+    boolean existsByIdentityNumberAndResidentIdNot(String identityNumber, String residentId);
 
-    boolean existsByIdentityNumberAndResident_idNot(String identityNumber, String residentId);
+    boolean existsByPhoneNumberAndResidentIdNot(String phoneNumber, String residentId);
 
-    boolean existsByPhoneNumberAndResident_idNot(String phoneNumber, String residentId);
+    boolean existsByEmailAndResidentIdNot(String email, String residentId);
 
-    boolean existsByEmailAndResident_idNot(String email, String residentId);
-
-    boolean existsByApartmentNumberAndIsHouseholdOwnerTrueAndResident_idNot(
+    boolean existsByApartmentNumberAndIsHouseholdOwnerTrueAndResidentIdNot(
         String apartmentNumber, String residentId
     );
+
     List<Resident> findByApartmentNumber(String apartmentNumber);
 }

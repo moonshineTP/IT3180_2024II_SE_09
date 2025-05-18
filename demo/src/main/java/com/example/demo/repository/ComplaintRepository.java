@@ -5,5 +5,5 @@ import com.example.demo.model.Complaints;
 
 public interface ComplaintRepository extends JpaRepository<Complaints, String> {
     // Custom method to find a Complaint by its ID (if needed)
-    Complaints findComplaintById(String id);
+    Complaints findByComplaintId(String complaintId);
 }

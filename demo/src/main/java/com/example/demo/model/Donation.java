@@ -10,6 +10,7 @@ import jakarta.persistence.*;
 public class Donation {
 
     @Id
+    @Column(length = 100, unique = true)
     private String Id; // Unique identifier for the donation
 
     @Column(name = "donation_name")

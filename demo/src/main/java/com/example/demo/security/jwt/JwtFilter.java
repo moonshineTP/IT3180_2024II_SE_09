@@ -15,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtils jwtUtils;
@@ -53,7 +54,13 @@ public class JwtFilter extends OncePerRequestFilter {
             if (jwtUtils.validateToken(token)) {
                 String email = jwtUtils.getEmailFromToken(token);
                  // Load user details and set authentication
-                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                UserDetails userDetails;
+                try {
+                    userDetails = userDetailsService.loadUserByUsername(email);
+                } catch (UsernameNotFoundException ex) {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Account removed");
+                    return;
+                }
                 UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);

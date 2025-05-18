@@ -9,7 +9,7 @@ import java.util.List;
 public class Notification {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(length = 100, unique = true)
     private String announcementId;
 
     private String title;
@@ -27,11 +27,11 @@ public class Notification {
     private String creatorName;
 
     @OneToMany(mappedBy = "notification", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<responseNotification> responseNotifications = new ArrayList<>();
+    private List<ResponseNotification> responseNotifications = new ArrayList<>();
     @OneToMany(mappedBy = "notification", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<interactNotification> interactNotifications = new ArrayList<>();
+    private List<InteractNotification> interactNotifications = new ArrayList<>();
     @OneToMany(mappedBy = "notification", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<receiveNotification> receiveNotifications = new ArrayList<>();
+    private List<ReceiveNotification> receiveNotifications = new ArrayList<>();
 
     // Getters and Setters
 
@@ -94,22 +94,22 @@ public class Notification {
     public void setSendto(String sendto) {
         this.sendto = sendto;
     }
-    public List<responseNotification> getResponseNotifications() {
+    public List<ResponseNotification> getResponseNotifications() {
         return responseNotifications;
     }
-    public void setResponseNotifications(List<responseNotification> responseNotifications) {
+    public void setResponseNotifications(List<ResponseNotification> responseNotifications) {
         this.responseNotifications = responseNotifications;
     }
-    public List<interactNotification> getInteractNotifications() {
+    public List<InteractNotification> getInteractNotifications() {
         return interactNotifications;
     }
-    public void setInteractNotifications(List<interactNotification> interactNotifications) {
+    public void setInteractNotifications(List<InteractNotification> interactNotifications) {
         this.interactNotifications = interactNotifications;
     }
-    public List<receiveNotification> getReceiveNotifications() {
+    public List<ReceiveNotification> getReceiveNotifications() {
         return receiveNotifications;
     }
-    public void setReceiveNotifications(List<receiveNotification> receiveNotifications) {
+    public void setReceiveNotifications(List<ReceiveNotification> receiveNotifications) {
         this.receiveNotifications = receiveNotifications;
     }
 }

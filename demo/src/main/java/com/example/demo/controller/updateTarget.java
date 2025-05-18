@@ -5,6 +5,7 @@ import com.example.demo.model.DTO.ResidentDTO;
 import com.example.demo.model.DTO.VehicleDTO;
 import com.example.demo.model.DTO.FeeDTO;
 import com.example.demo.model.DTO.FeeHouseholdDTO;
+import com.example.demo.model.DTO.IncludeInComplaintsDTO;
 import com.example.demo.model.DTO.DonationDTO;
 import com.example.demo.model.DTO.DonationHouseholdDTO;
 import com.example.demo.model.DTO.ComplaintsDTO;
@@ -16,18 +17,21 @@ import com.example.demo.model.Resident;
 import com.example.demo.model.Vehicle;
 import com.example.demo.model.Fee;
 import com.example.demo.model.FeeHousehold;
+import com.example.demo.model.IncludeInComplaints;
 import com.example.demo.model.Notification;
 import com.example.demo.model.Donation;
 import com.example.demo.model.DonationHousehold;
 import com.example.demo.model.Complaints;
-import com.example.demo.model.interactComplaint;
-import com.example.demo.model.DTO.interactComplaintDTO;
-import com.example.demo.model.interactNotification;
-import com.example.demo.model.responseNotification;
-import com.example.demo.model.DTO.responseNotificationDTO;
-import com.example.demo.model.DTO.interactNotificationDTO;
-import com.example.demo.model.responseComplaints;
-import com.example.demo.model.DTO.responseComplaintsDTO;
+import com.example.demo.model.InteractComplaint;
+import com.example.demo.model.DTO.InteractComplaintDTO;
+import com.example.demo.model.InteractNotification;
+import com.example.demo.model.ReceiveNotification;
+import com.example.demo.model.ResponseNotification;
+import com.example.demo.model.DTO.ResponseNotificationDTO;
+import com.example.demo.model.DTO.InteractNotificationDTO;
+import com.example.demo.model.DTO.ReceiveNotificationDTO;
+import com.example.demo.model.ResponseComplaints;
+import com.example.demo.model.DTO.ResponseComplaintsDTO;
 import com.example.demo.repository.AccountRepository;
 import com.example.demo.repository.ResidentRepository;
 import com.example.demo.repository.VehicleRepository;
@@ -37,11 +41,13 @@ import com.example.demo.repository.BillRepository;
 import com.example.demo.repository.ComplaintRepository;
 import com.example.demo.repository.FeeHouseholdRepository;
 import com.example.demo.repository.DonationHouseholdRepository;
-import com.example.demo.repository.interactComplaintRepository;
-import com.example.demo.repository.interactNotificationRepository;
+import com.example.demo.repository.InteractComplaintRepository;
+import com.example.demo.repository.InteractNotificationRepository;
+import com.example.demo.repository.ReceiveNotificationRepository;
 import com.example.demo.repository.NotificationRepository;
-import com.example.demo.repository.responseNotificationRepository;
-import com.example.demo.repository.responseComplaintsRepository;
+import com.example.demo.repository.ResponseNotificationRepository;
+import com.example.demo.repository.ResponseComplaintsRepository;
+import com.example.demo.repository.IncludeInComplaintsRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -85,14 +91,17 @@ public class updateTarget {
     @Autowired
     private DonationHouseholdRepository donationHouseholdRepository;
     @Autowired
-    private interactComplaintRepository interactComplaintRepository;
+    private InteractComplaintRepository interactComplaintRepository;
     @Autowired
-    private interactNotificationRepository interactNotificationRepository;
+    private InteractNotificationRepository interactNotificationRepository;
     @Autowired
-    private responseNotificationRepository responseNotificationRepository;
+    private ResponseNotificationRepository responseNotificationRepository;
     @Autowired
-    private responseComplaintsRepository responseComplaintsRepository;
-
+    private ResponseComplaintsRepository responseComplaintsRepository;
+    @Autowired
+    private ReceiveNotificationRepository receiveNotificationRepository;
+    @Autowired
+    private IncludeInComplaintsRepository includeInComplaintsRepository;
     @PutMapping("/changeaccount")
     public ResponseEntity<?> updateAccount(
             @RequestBody AccountDTO accountDTO,
@@ -129,7 +138,7 @@ public class updateTarget {
                 account.setRole(accountDTO.getRole());
             }
             if (accountDTO.getResident_id() != null) {
-                Resident resident = residentRepository.findByResident_id(accountDTO.getResident_id());
+                Resident resident = residentRepository.findByResidentId(accountDTO.getResident_id());
                 if (resident!=null) {
                     // Check if the resident is already linked to another account
                     if (resident.getAccount() != null) {
@@ -204,7 +213,7 @@ public class updateTarget {
         }
 
         // Find the resident by resident_id
-        Resident resident = residentRepository.findByResident_id(residentDTO.getResident_id());
+        Resident resident = residentRepository.findByResidentId(residentDTO.getResident_id());
         if (resident == null) {
             return ResponseEntity.badRequest().body("Resident not found");
         }
@@ -223,7 +232,7 @@ public class updateTarget {
         }
         if (residentDTO.getIdentityNumber() != null) {
             // Ensure identityNumber is unique
-            if (residentRepository.existsByIdentityNumberAndResident_idNot(residentDTO.getIdentityNumber(), resident.getResident_id())) {
+            if (residentRepository.existsByIdentityNumberAndResidentIdNot(residentDTO.getIdentityNumber(), resident.getResidentId())) {
                 return ResponseEntity.badRequest().body("Identity number must be unique");
             }
             resident.setIdentityNumber(residentDTO.getIdentityNumber());
@@ -236,14 +245,14 @@ public class updateTarget {
         }
         if (residentDTO.getPhoneNumber() != null) {
             // Ensure phoneNumber is unique
-            if (residentRepository.existsByPhoneNumberAndResident_idNot(residentDTO.getPhoneNumber(), resident.getResident_id())) {
+            if (residentRepository.existsByPhoneNumberAndResidentIdNot(residentDTO.getPhoneNumber(), resident.getResidentId())) {
                 return ResponseEntity.badRequest().body("Phone number must be unique");
             }
             resident.setPhoneNumber(residentDTO.getPhoneNumber());
         }
         if (residentDTO.getEmail() != null) {
             // Ensure email is unique
-            if (residentRepository.existsByEmailAndResident_idNot(residentDTO.getEmail(), resident.getResident_id())) {
+            if (residentRepository.existsByEmailAndResidentIdNot(residentDTO.getEmail(), resident.getResidentId())) {
                 return ResponseEntity.badRequest().body("Email must be unique");
             }
             resident.setEmail(residentDTO.getEmail());
@@ -256,7 +265,7 @@ public class updateTarget {
         }
         if (residentDTO.getIsHouseholdOwner() != null) {
             // Ensure there is only one household owner in the apartment
-            if (residentDTO.getIsHouseholdOwner() && residentRepository.existsByApartmentNumberAndIsHouseholdOwnerTrueAndResident_idNot(resident.getApartmentNumber(), resident.getResident_id())) {
+            if (residentDTO.getIsHouseholdOwner() && residentRepository.existsByApartmentNumberAndIsHouseholdOwnerTrueAndResidentIdNot(resident.getApartmentNumber(), resident.getResidentId())) {
                 return ResponseEntity.badRequest().body("There can only be one household owner in an apartment");
             }
             resident.setIsHouseholdOwner(residentDTO.getIsHouseholdOwner());
@@ -294,7 +303,7 @@ public class updateTarget {
         }
 
         // Find the resident by resident_id
-        Resident resident = residentRepository.findByResident_id(residentId);
+        Resident resident = residentRepository.findByResidentId(residentId);
         if (resident == null) {
             return ResponseEntity.badRequest().body("Resident not found");
         }
@@ -366,7 +375,7 @@ public class updateTarget {
         }
         // Check if the resident_id is provided and find the resident
         if (vehicleDTO.getResidentId() != null) {
-            Resident resident = residentRepository.findByResident_id(vehicleDTO.getResidentId());
+            Resident resident = residentRepository.findByResidentId(vehicleDTO.getResidentId());
             if (resident == null) {
                 return ResponseEntity.badRequest().body("Resident not found");
             }
@@ -421,12 +430,12 @@ public class updateTarget {
         }
 
         // Validate the fee_id in the DTO
-        if (feeDTO.getFeeId() == null || feeDTO.getFeeId().isEmpty()) {
+        if (feeDTO.getId() == null || feeDTO.getId().isEmpty()) {
             return ResponseEntity.badRequest().body("Fee ID is required");
         }
 
         // Find the fee by fee_id
-        Fee fee = feeRepository.findByFeeId(feeDTO.getFeeId());
+        Fee fee = feeRepository.findFeeById(feeDTO.getId());
         if (fee == null) {
             return ResponseEntity.badRequest().body("Fee not found");
         }
@@ -465,14 +474,14 @@ public class updateTarget {
             return ResponseEntity.status(403).body("You do not have permission to delete fees");
         }
         // Validate the feeId in the DTO
-        String feeId = feeDTO.getFeeId();
+        String feeId = feeDTO.getId();
         // Validate the feeId
         if (feeId == null || feeId.isEmpty()) {
             return ResponseEntity.badRequest().body("Fee ID is required");
         }
 
         // Find the fee by feeId
-        Fee fee = feeRepository.findByFeeId(feeId);
+        Fee fee = feeRepository.findFeeById(feeId);
         if (fee == null) {
             return ResponseEntity.badRequest().body("Fee not found");
         }
@@ -593,7 +602,7 @@ public class updateTarget {
         }
 
         // Find the complaint by complaintId
-        Complaints complaint = complaintRepository.findComplaintById(complaintDTO.getComplaintId());
+        Complaints complaint = complaintRepository.findByComplaintId(complaintDTO.getComplaintId());
         if (complaint == null) {
             return ResponseEntity.badRequest().body("Complaint not found");
         }
@@ -641,7 +650,7 @@ public class updateTarget {
         }
 
         // Find the complaint by complaintId
-        Complaints complaint = complaintRepository.findComplaintById(complaintId);
+        Complaints complaint = complaintRepository.findByComplaintId(complaintId);
         if (complaint == null) {
             return ResponseEntity.badRequest().body("Complaint not found");
         }
@@ -679,13 +688,13 @@ public class updateTarget {
         }
 
         // Check if a resident with the same ID already exists
-        if (residentRepository.findByResident_id(residentDTO.getResident_id()) != null) {
+        if (residentRepository.findByResidentId(residentDTO.getResident_id()) != null) {
             return ResponseEntity.badRequest().body("Resident with the given ID already exists");
         }
 
         // Create a new resident with default values
         Resident resident = new Resident();
-        resident.setResident_id(residentDTO.getResident_id());
+        resident.setResidentId(residentDTO.getResident_id());
         // Save the new resident
         residentRepository.save(resident);
 
@@ -740,18 +749,18 @@ public class updateTarget {
         }
 
         // Validate the feeId in the DTO
-        if (feeDTO.getFeeId() == null || feeDTO.getFeeId().isEmpty()) {
+        if (feeDTO.getId() == null || feeDTO.getId().isEmpty()) {
             return ResponseEntity.badRequest().body("Fee ID is required");
         }
 
         // Check if a fee with the same ID already exists
-        if (feeRepository.findByFeeId(feeDTO.getFeeId()) != null) {
+        if (feeRepository.findById(feeDTO.getId()) != null) {
             return ResponseEntity.badRequest().body("Fee with the given ID already exists");
         }
 
         // Create a new fee with default values
         Fee fee = new Fee();
-        fee.setFeeId(feeDTO.getFeeId());
+        fee.setId(feeDTO.getId());
         fee.setCreatedAt(LocalDateTime.now());
         // Save the new fee
         feeRepository.save(fee);
@@ -814,7 +823,7 @@ public class updateTarget {
         }
 
         // Check if a complaint with the same ID already exists
-        if (complaintRepository.findComplaintById(complaintDTO.getComplaintId()) != null) {
+        if (complaintRepository.findByComplaintId(complaintDTO.getComplaintId()) != null) {
             return ResponseEntity.badRequest().body("Complaint with the given ID already exists");
         }
 
@@ -839,7 +848,7 @@ public class updateTarget {
         }
 
         // Find the Fee by feeId
-        Fee fee = feeRepository.findByFeeId(feeHouseholdDTO.getFeeID());
+        Fee fee = feeRepository.findFeeById(feeHouseholdDTO.getFeeID());
         if (fee == null) {
             return ResponseEntity.badRequest().body("Fee not found");
         }
@@ -871,7 +880,7 @@ public class updateTarget {
             return ResponseEntity.badRequest().body("Apartment number is required");
         }
         // Find the Fee by feeId
-        Fee fee = feeRepository.findByFeeId(feeHouseholdDTO.getFeeID());
+        Fee fee = feeRepository.findFeeById(feeHouseholdDTO.getFeeID());
         if (fee == null) {
             return ResponseEntity.badRequest().body("Fee not found");
         }
@@ -946,7 +955,7 @@ public class updateTarget {
         return ResponseEntity.ok("DonationHousehold created successfully");
     }
     @PostMapping("/createInteractComplaints")
-    public ResponseEntity<?> createInteractComplaint(@RequestBody interactComplaintDTO interactComplaintsDTO, Authentication authentication) {
+    public ResponseEntity<?> createInteractComplaint(@RequestBody InteractComplaintDTO interactComplaintsDTO, Authentication authentication) {
         String currentEmail = authentication.getName();
         Account account = accountRepository.findByEmail(currentEmail);
         // Validate the complaintId and residentId in the DTO
@@ -954,7 +963,7 @@ public class updateTarget {
             return ResponseEntity.badRequest().body("Complaint ID is required");
         }
         // Find the complaint by complaintId
-        Complaints complaint = complaintRepository.findComplaintById(interactComplaintsDTO.getComplaintId());
+        Complaints complaint = complaintRepository.findByComplaintId(interactComplaintsDTO.getComplaintId());
         if (complaint == null) {
             return ResponseEntity.badRequest().body("Complaint not found");
         }
@@ -963,7 +972,7 @@ public class updateTarget {
             return ResponseEntity.badRequest().body("InteractComplaints with the given complaint ID and account already exists");
         }
         // Create a new InteractComplaints
-        interactComplaint interactComplaints = new interactComplaint();
+        InteractComplaint interactComplaints = new InteractComplaint();
         interactComplaints.setComplaint(complaint);
         interactComplaints.setStarNumberRating(interactComplaintsDTO.getStarNumberRating());
         interactComplaints.setResponseTime(LocalDateTime.now());
@@ -974,7 +983,7 @@ public class updateTarget {
         return ResponseEntity.ok("InteractComplaints created successfully");
     }
     @DeleteMapping("/deleteInteractComplaints")
-    public ResponseEntity<?> deleteInteractComplaint(@RequestBody interactComplaintDTO interactComplaintsDTO, Authentication authentication) {
+    public ResponseEntity<?> deleteInteractComplaint(@RequestBody InteractComplaintDTO interactComplaintsDTO, Authentication authentication) {
         String currentEmail = authentication.getName();
         Account account = accountRepository.findByEmail(currentEmail);
         // Validate the complaintId and residentId in the DTO
@@ -982,11 +991,11 @@ public class updateTarget {
             return ResponseEntity.badRequest().body("Complaint ID is required");
         }
         // Find the complaint by complaintId
-        Complaints complaint = complaintRepository.findComplaintById(interactComplaintsDTO.getComplaintId());
+        Complaints complaint = complaintRepository.findByComplaintId(interactComplaintsDTO.getComplaintId());
         if (complaint == null) {
             return ResponseEntity.badRequest().body("Complaint not found");
         }
-        interactComplaint interactComplaints = interactComplaintRepository.findByComplaintAndStarNumberRatingAndAccount(complaint,interactComplaintsDTO.getStarNumberRating(), account);
+        InteractComplaint interactComplaints = interactComplaintRepository.findByComplaintAndStarNumberRatingAndAccount(complaint,interactComplaintsDTO.getStarNumberRating(), account);
         // Check if an InteractComplaints with the same complaintId and account already exists
         if (interactComplaints == null) {
             return ResponseEntity.badRequest().body("InteractComplaints with the given complaint ID and account no exists");
@@ -996,7 +1005,7 @@ public class updateTarget {
         return ResponseEntity.ok("InteractComplaints created successfully");
     }
     @PostMapping("/createInteractNotification")
-    public ResponseEntity<?> createInteractNotification(@RequestBody interactNotificationDTO interactNotificationDTO, Authentication authentication) {
+    public ResponseEntity<?> createInteractNotification(@RequestBody InteractNotificationDTO interactNotificationDTO, Authentication authentication) {
         String currentEmail = authentication.getName();
         Account account = accountRepository.findByEmail(currentEmail);
         // Validate the complaintId and residentId in the DTO
@@ -1004,7 +1013,7 @@ public class updateTarget {
             return ResponseEntity.badRequest().body("Complaint ID is required");
         }
         // Find the complaint by complaintId
-        Notification noti = notificationRepository.findByAnnoucementId(interactNotificationDTO.getNotificationId());
+        Notification noti = notificationRepository.findByAnnouncementId(interactNotificationDTO.getNotificationId());
         if (noti == null) {
             return ResponseEntity.badRequest().body("Complaint not found");
         }
@@ -1013,7 +1022,7 @@ public class updateTarget {
             return ResponseEntity.badRequest().body("InteractComplaints with the given complaint ID and account already exists");
         }
         // Create a new InteractComplaints
-        interactNotification interact = new interactNotification();
+        InteractNotification interact = new InteractNotification();
         interact.setNotification(noti);
         interact.setTypeInteract(interactNotificationDTO.getTypeInteract());
         interact.setResponseTime(LocalDateTime.now());
@@ -1024,7 +1033,7 @@ public class updateTarget {
         return ResponseEntity.ok("InteractComplaints created successfully");
     }
     @DeleteMapping("/deleteInteractNotification")
-    public ResponseEntity<?> deleteInteractNotification(@RequestBody interactNotificationDTO interactNotificationDTO, Authentication authentication) {
+    public ResponseEntity<?> deleteInteractNotification(@RequestBody InteractNotificationDTO interactNotificationDTO, Authentication authentication) {
         String currentEmail = authentication.getName();
         Account account = accountRepository.findByEmail(currentEmail);
         // Validate the complaintId and residentId in the DTO
@@ -1032,11 +1041,11 @@ public class updateTarget {
             return ResponseEntity.badRequest().body("Complaint ID is required");
         }
         // Find the complaint by complaintId
-        Notification noti = notificationRepository.findByAnnoucementId(interactNotificationDTO.getNotificationId());
+        Notification noti = notificationRepository.findByAnnouncementId(interactNotificationDTO.getNotificationId());
         if (noti == null) {
             return ResponseEntity.badRequest().body("Complaint not found");
         }
-        interactNotification interact = interactNotificationRepository.findByNotificationAndTypeInteractAndAccount(noti,interactNotificationDTO.getTypeInteract(), account);
+        InteractNotification interact = interactNotificationRepository.findByNotificationAndTypeInteractAndAccount(noti,interactNotificationDTO.getTypeInteract(), account);
         // Check if an InteractComplaints with the same complaintId and account already exists
         if (interact == null) {
             return ResponseEntity.badRequest().body("InteractComplaints with the given complaint ID and account already exists");
@@ -1046,7 +1055,7 @@ public class updateTarget {
         return ResponseEntity.ok("InteractComplaints created successfully");
     }
     @PostMapping("/createresponseNotification")
-    public ResponseEntity<?> createResponseNotification(@RequestBody responseNotificationDTO responseNotificationDTO, Authentication authentication) {
+    public ResponseEntity<?> createResponseNotification(@RequestBody ResponseNotificationDTO responseNotificationDTO, Authentication authentication) {
         String currentEmail = authentication.getName();
         Account account = accountRepository.findByEmail(currentEmail);
         // Validate the notificationId in the DTO
@@ -1054,12 +1063,12 @@ public class updateTarget {
             return ResponseEntity.badRequest().body("Notification ID is required");
         }
         // Find the notification by notificationId
-        Notification notification = notificationRepository.findByAnnoucementId(responseNotificationDTO.getNotificationId());
+        Notification notification = notificationRepository.findByAnnouncementId(responseNotificationDTO.getNotificationId());
         if (notification == null) {
             return ResponseEntity.badRequest().body("Notification not found");
         }
         // Create a new response notification with default values
-        responseNotification response = new responseNotification();
+        ResponseNotification response = new ResponseNotification();
         response.setResponseContent(responseNotificationDTO.getResponseContent());
         response.setResponseTime(LocalDateTime.now());
         response.setAccount(account);
@@ -1071,13 +1080,13 @@ public class updateTarget {
         return ResponseEntity.ok("Response notification created successfully");
     }
     @PostMapping("/deleteresponseNotification")
-    public ResponseEntity<?> deleteResponseNotification(@RequestBody responseNotificationDTO responseNotificationDTO, Authentication authentication) {
+    public ResponseEntity<?> deleteResponseNotification(@RequestBody ResponseNotificationDTO responseNotificationDTO, Authentication authentication) {
         String currentEmail = authentication.getName();
         Account account = accountRepository.findByEmail(currentEmail);
         if(responseNotificationDTO.getUserName() != account.getUsername()){
             return ResponseEntity.status(403).body("You do not have permission to delete this response notification");
         }
-        responseNotification response = responseNotificationRepository.findById(responseNotificationDTO.getId()).orElse(null);
+        ResponseNotification response = responseNotificationRepository.findById(responseNotificationDTO.getId()).orElse(null);
         if(response == null) {
             return ResponseEntity.badRequest().body("Response notification not found");
         }
@@ -1086,7 +1095,7 @@ public class updateTarget {
         return ResponseEntity.ok("Response notification created successfully");
     }
     @PostMapping("/createresponseComplaint")
-    public ResponseEntity<?> createResponseComplaint(@RequestBody responseComplaintsDTO responseComplaintDTO, Authentication authentication) {
+    public ResponseEntity<?> createResponseComplaint(@RequestBody ResponseComplaintsDTO responseComplaintDTO, Authentication authentication) {
         String currentEmail = authentication.getName();
         Account account = accountRepository.findByEmail(currentEmail);
 
@@ -1096,7 +1105,7 @@ public class updateTarget {
         }
 
         // Find the complaint by complaintId
-        Complaints complaint = complaintRepository.findComplaintById(responseComplaintDTO.getComplaintId());
+        Complaints complaint = complaintRepository.findByComplaintId(responseComplaintDTO.getComplaintId());
         if (complaint == null) {
             return ResponseEntity.badRequest().body("Complaint not found");
         }
@@ -1107,7 +1116,7 @@ public class updateTarget {
         }
 
         // Create a new response complaint with default values
-        responseComplaints response = new responseComplaints();
+        ResponseComplaints response = new ResponseComplaints();
         response.setResponseContent(responseComplaintDTO.getResponseContent());
         response.setResponseTime(LocalDateTime.now());
         response.setAccount(account);
@@ -1119,13 +1128,13 @@ public class updateTarget {
         return ResponseEntity.ok("Response complaint created successfully");
     }
     @PostMapping("/deleteresponseComplaint")
-    public ResponseEntity<?> deleteResponseComplaint(@RequestBody responseComplaintsDTO responseComplaintDTO, Authentication authentication) {
+    public ResponseEntity<?> deleteResponseComplaint(@RequestBody ResponseComplaintsDTO responseComplaintDTO, Authentication authentication) {
         String currentEmail = authentication.getName();
         Account account = accountRepository.findByEmail(currentEmail);
         if(responseComplaintDTO.getUserName() != account.getUsername()){
             return ResponseEntity.status(403).body("You do not have permission to delete this response complaint");
         }
-        responseComplaints response = responseComplaintsRepository.findById(responseComplaintDTO.getId()).orElse(null);
+        ResponseComplaints response = responseComplaintsRepository.findById(responseComplaintDTO.getId()).orElse(null);
         if(response == null) {
             return ResponseEntity.badRequest().body("Response complaint not found");
         }
@@ -1193,5 +1202,90 @@ public class updateTarget {
         billRepository.delete(bill);
 
         return ResponseEntity.ok("Bill deleted successfully");
+    }
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/createReceiveNotification")
+    public ResponseEntity<?> createReceiveNotification(@RequestBody ReceiveNotificationDTO dto) {
+        // Validate input
+        if (dto.getResidentId() == null || dto.getResidentId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Resident ID is required");
+        }
+        if (dto.getNotificationId() == null || dto.getNotificationId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Notification ID is required");
+        }
+        // Find Resident
+        Resident resident = residentRepository.findByResidentId(dto.getResidentId());
+        if (resident == null) {
+            return ResponseEntity.badRequest().body("Resident not found");
+        }
+
+        // Find Notification
+        Notification notification = notificationRepository.findByAnnouncementId(dto.getNotificationId());
+        if (notification == null) {
+            return ResponseEntity.badRequest().body("Notification not found");
+        }
+
+        // Check for duplicate
+        if (receiveNotificationRepository.findByResidentAndNotification(resident, notification) != null) {
+            return ResponseEntity.badRequest().body("This receiveNotification already exists");
+        }
+
+        // Create and save
+        ReceiveNotification rn = new ReceiveNotification();
+        rn.setResident(resident);
+        rn.setNotification(notification);
+        receiveNotificationRepository.save(rn);
+
+        return ResponseEntity.ok("ReceiveNotification created successfully");
+    }
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/deleteReceiveNotification")
+    public ResponseEntity<?> deleteReceiveNotification(@RequestBody ReceiveNotificationDTO dto) {
+        ReceiveNotification rn = receiveNotificationRepository.findById(dto.getId()).orElse(null);
+        if (rn == null) {
+            return ResponseEntity.badRequest().body("ReceiveNotification not found");
+        }
+        receiveNotificationRepository.delete(rn);
+        return ResponseEntity.ok("ReceiveNotification created successfully");
+    }
+    @PostMapping("/createIncludeInComplaints")
+    public ResponseEntity<?> createIncludeInComplaints(@RequestBody IncludeInComplaintsDTO dto) {
+        // Validate input
+        if (dto.getResidentId() == null || dto.getResidentId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Resident ID is required");
+        }
+        if (dto.getComplaintId() == null || dto.getComplaintId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Complaint ID is required");
+        }
+        // Find Resident
+        Resident resident = residentRepository.findByResidentId(dto.getResidentId());
+        if (resident == null) {
+            return ResponseEntity.badRequest().body("Resident not found");
+        }
+        // Find Complaint
+        Complaints complaint = complaintRepository.findByComplaintId(dto.getComplaintId());
+        if (complaint == null) {
+            return ResponseEntity.badRequest().body("Complaint not found");
+        }
+        // Check for duplicate
+        if (includeInComplaintsRepository.findByResidentAndComplaint(resident, complaint) != null) {
+            return ResponseEntity.badRequest().body("This IncludeInComplaints already exists");
+        }
+        // Create and save
+        IncludeInComplaints inc = new IncludeInComplaints();
+        inc.setResident(resident);
+        inc.setComplaint(complaint);
+        includeInComplaintsRepository.save(inc);
+
+        return ResponseEntity.ok("IncludeInComplaints created successfully");
+    }
+    @PostMapping("/deleteIncludeInComplaints")
+    public ResponseEntity<?> deleteIncludeInComplaints(@RequestBody IncludeInComplaintsDTO dto) {
+        IncludeInComplaints inc = includeInComplaintsRepository.findById(dto.getId()).orElse(null);
+        if (inc == null) {
+            return ResponseEntity.badRequest().body("IncludeInComplaints not found");
+        }
+        includeInComplaintsRepository.delete(inc);
+        return ResponseEntity.ok("IncludeInComplaints deleted successfully");
     }
 }

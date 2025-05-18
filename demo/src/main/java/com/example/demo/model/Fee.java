@@ -10,7 +10,8 @@ import java.util.List;
 public class Fee {
 
     @Id
-    private String feeId;
+    @Column(length = 100, unique = true)
+    private String Id;
 
     private String feeName;
 
@@ -29,12 +30,12 @@ public class Fee {
     private List<FeeHousehold> feeHouseholds = new ArrayList<>();
     // Getters & Setters
 
-    public String getFeeId() {
-        return feeId;
+    public String getId() {
+        return Id;
     }
 
-    public void setFeeId(String feeId) {
-        this.feeId = feeId;
+    public void setId(String Id) {
+        this.Id = Id;
     }
 
     public String getFeeType() {

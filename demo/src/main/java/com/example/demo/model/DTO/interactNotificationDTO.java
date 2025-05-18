@@ -1,7 +1,7 @@
 package com.example.demo.model.DTO;
 import java.time.LocalDateTime;
 
-public class interactNotificationDTO {
+public class InteractNotificationDTO {
 
     private Long id; // Unique identifier for the interaction
     private String typeInteract; // Type of interaction (e.g., "like", "comment")

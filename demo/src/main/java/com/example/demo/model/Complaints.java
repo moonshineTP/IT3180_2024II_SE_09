@@ -15,6 +15,7 @@ import org.hibernate.annotations.OnDeleteAction;
 public class Complaints {
     
     @Id
+    @Column(length = 100, unique = true)
     private String complaintId;
 
     @ManyToOne(optional = true)
@@ -40,9 +41,9 @@ public class Complaints {
     @OneToMany(mappedBy = "complaint", cascade = CascadeType.ALL, orphanRemoval = true)
     List<IncludeInComplaints> includeInComplaints = new ArrayList<>();
     @OneToMany(mappedBy = "complaint", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<responseComplaints> responseComplaints = new ArrayList<>();
+    List<ResponseComplaints> responseComplaints = new ArrayList<>();
     @OneToMany(mappedBy = "complaint", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<interactComplaint> interactComplaints = new ArrayList<>();
+    List<InteractComplaint> interactComplaints = new ArrayList<>();
 
 
     // Getters and Setters
@@ -121,16 +122,16 @@ public class Complaints {
     public void setIncludeInComplaints(List<IncludeInComplaints> includeInComplaints) {
         this.includeInComplaints = includeInComplaints;
     }
-    public List<responseComplaints> getResponseComplaints() {
+    public List<ResponseComplaints> getResponseComplaints() {
         return responseComplaints;
     }
-    public void setResponseComplaints(List<responseComplaints> responseComplaints) {
+    public void setResponseComplaints(List<ResponseComplaints> responseComplaints) {
         this.responseComplaints = responseComplaints;
     }
-    public List<interactComplaint> getInteractComplaints() {
+    public List<InteractComplaint> getInteractComplaints() {
         return interactComplaints;
     }
-    public void setInteractComplaints(List<interactComplaint> interactComplaints) {
+    public void setInteractComplaints(List<InteractComplaint> interactComplaints) {
         this.interactComplaints = interactComplaints;
     }
 }

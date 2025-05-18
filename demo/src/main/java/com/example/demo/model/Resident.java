@@ -13,8 +13,8 @@ import java.util.List;
 public class Resident {
 
     @Id
-    @Column(name = "resident_id", nullable = false, updatable = false)
-    private String resident_id;
+    @Column(name = "resident_id", nullable = false, updatable = false,unique = true)
+    private String residentId;
 
     @Column(name = "full_name")
     private String fullName;
@@ -71,17 +71,17 @@ public class Resident {
     private Account account;
 
     @OneToMany(mappedBy = "resident", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<receiveNotification> receiveNotifications = new ArrayList<>();
+    private List<ReceiveNotification> receiveNotifications = new ArrayList<>();
 
     @OneToMany(mappedBy = "resident", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<IncludeInComplaints> includeInComplaints = new ArrayList<>();
     // Getters and Setters
-    public String getResident_id() {
-        return resident_id;
+    public String getResidentId() {
+        return residentId;
     }
 
-    public void setResident_id(String resident_id) {
-        this.resident_id = resident_id;
+    public void setResidentId(String residentId) {
+        this.residentId = residentId;
     }
 
     public String getFullName() {

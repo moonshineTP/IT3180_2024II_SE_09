@@ -7,5 +7,5 @@ import java.util.List;
 public interface NotificationRepository extends JpaRepository<Notification, String> {
     // Custom method to find notifications by sendto field
     List<Notification> findBySendto(String sendto);
-    Notification findByAnnoucementId(String id);
+    Notification findByAnnouncementId(String id);
 }

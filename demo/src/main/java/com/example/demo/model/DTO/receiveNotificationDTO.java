@@ -1,6 +1,6 @@
 package com.example.demo.model.DTO;
 
-public class receiveNotificationDTO {
+public class ReceiveNotificationDTO {
     private Long id; // Unique identifier for the record
     private String residentId; // Reference to the Resident entity
     private String notificationId; // Reference to the Notification entity

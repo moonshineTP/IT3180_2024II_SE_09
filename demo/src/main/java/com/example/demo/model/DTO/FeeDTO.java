@@ -10,7 +10,7 @@ import com.example.demo.model.FeeHousehold;
 public class FeeDTO {
 
     @Id
-    private String feeId;
+    private String Id;
 
     private String feeName;
 
@@ -25,12 +25,12 @@ public class FeeDTO {
     private String supervisor;
     // Getters & Setters
 
-    public String getFeeId() {
-        return feeId;
+    public String getId() {
+        return Id;
     }
 
-    public void setFeeId(String feeId) {
-        this.feeId = feeId;
+    public void setId(String Id) {
+        this.Id = Id;
     }
 
     public String getFeeType() {

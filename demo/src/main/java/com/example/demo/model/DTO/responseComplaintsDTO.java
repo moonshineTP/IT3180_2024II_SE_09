@@ -1,7 +1,7 @@
 package com.example.demo.model.DTO;
 
 import java.time.LocalDateTime;
-public class responseComplaintsDTO {
+public class ResponseComplaintsDTO {
 
     private Long id; // Unique identifier for the response
 
