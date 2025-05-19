@@ -36,8 +36,6 @@ public class JwtFilter extends OncePerRequestFilter {
         @NonNull HttpServletResponse response,
         @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        
-        // Bỏ qua xác thực JWT cho các public endpoints
         String requestURI = request.getRequestURI();
         if (isPublicEndpoint(requestURI)) {
             filterChain.doFilter(request, response);
@@ -47,6 +45,7 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
             String token = extractToken(request);
             if (token == null) {
+                System.out.println("📌 Token được gửi lên: ");
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing token");
                 return;
             }
@@ -59,6 +58,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     userDetails = userDetailsService.loadUserByUsername(email);
                 } catch (UsernameNotFoundException ex) {
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Account removed");
+                    System.out.println("Account removed");
                     return;
                 }
                 UsernamePasswordAuthenticationToken authentication =
@@ -67,10 +67,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
             } else {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+                System.out.println("Token không hợp lệ");
                 return;
             }
         } catch (JwtException | IllegalArgumentException e) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token error: " + e.getMessage());
+            System.out.println("Token error: " + e.getMessage());
             return;
         }
 
@@ -88,15 +90,10 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private String extractToken(HttpServletRequest request) {
-        // Check the Authorization header first
-        String header = request.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer ")) {
-            return header.substring(7);
-        }
-    
         // If no token in the header, check cookies
         if (request.getCookies() != null) {
             for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                //System.out.print("Cookie jwt được gửi lên: " + cookie.getName());
                 if ("jwt".equals(cookie.getName())) {
                     return cookie.getValue();
                 }

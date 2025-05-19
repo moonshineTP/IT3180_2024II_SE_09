@@ -606,6 +606,7 @@ function hideLoading() {
             const response = await fetch("http://localhost:8080/api/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
+                credentials: "include",
                 body: JSON.stringify({ email, password })
             });
 
@@ -615,8 +616,6 @@ function hideLoading() {
             
             if (data.emailStatus === "Successful!" && data.passwordStatus === "Successful!") {
                 document.getElementById("loading-text").textContent = "Đăng nhập thành công! Đang chuyển hướng...";
-                localStorage.setItem("token", data.Token);
-                localStorage.setItem("isAuthenticated", "true");
                 // Chuyển hướng sau 1 giây
                 setTimeout(() => {
                     window.location.href = "/index.html";

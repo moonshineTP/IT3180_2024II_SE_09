@@ -43,10 +43,10 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> handleLogin(@RequestBody Request request, HttpServletResponse httpResponse) {
         Map<String, String> response = new HashMap<>();
 
-        // Validate email và password
-        if (!authService.validateEmail(request.getEmail(), response) || 
-            !authService.validatePassword(request.getPassword(), response)) {
-            return ResponseEntity.badRequest().body(response);
+        boolean ValidEmail = authService.validateEmail(request.getEmail(), response);
+        boolean ValidPassword = authService.validatePassword(request.getPassword(), response);
+        if (!ValidEmail||!ValidPassword) {
+            return ResponseEntity.ok(response);
         }
 
         // Tìm account và kiểm tra mật khẩu
@@ -54,25 +54,29 @@ public class AuthController {
         if (account == null) {
             response.put("emailStatus", "Không tìm thấy tài khoản với email này!");
             response.put("passwordStatus", "Successful!");
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.ok(response);
         }
 
         response.put("emailStatus", "Successful!");
         if (!passwordEncoder.matches(request.getPassword(), account.getPassword())) {
             response.put("passwordStatus", "Mật khẩu không trùng khớp!");
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.ok(response);
         }
         if(account.getBan().equals("Inactive")) {
             response.put("passwordStatus", "Tài khoản đã bị ban!");
             response.put("emailStatus", "Tài khoản đã bị ban!");
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.ok(response);
         }
         // Tạo JWT và thêm vào cookie
-        String token = jwtUtils.generateToken(account.getEmail(),60*60*24);
+        String token = jwtUtils.generateToken(account.getEmail(),60*60*24*1000L);
+        System.out.println("Token được tạo: " + token);
+        String setCookieHeader = httpResponse.getHeader("Set-Cookie");
+        System.out.println("Set-Cookie header before addCookie: " + setCookieHeader);
         authService.addJwtToCookie(token, httpResponse); // Thêm cookie vào response
+        setCookieHeader = httpResponse.getHeader("Set-Cookie");
+        System.out.println("Set-Cookie header after addCookie: " + setCookieHeader);
 
         response.put("passwordStatus", "Successful!");
-        account.setStatus("Online");
         return ResponseEntity.ok(response);
     }
     @PostMapping("/request-register")
@@ -81,7 +85,10 @@ public class AuthController {
     	String email = request.getEmail();
         String password = request.getPassword();
         Map<String, String> response = new HashMap<>();
-        if(!authService.validateEmail(email,response)&&!authService.validatePassword(password, response)&&!authService.validateUsername(username, response)) return ResponseEntity.ok(response);
+        boolean ValidEmail = authService.validateEmail(email, response);
+        boolean ValidPassword = authService.validatePassword(password, response);
+        boolean ValidUsername = authService.validateUsername(username, response);
+        if(!ValidEmail||!ValidUsername||!ValidPassword) return ResponseEntity.ok(response);
         if (userRepository.findByEmail(email)!=null) {
             response.put("emailStatus", "Email đã tồn tại");
             return ResponseEntity.ok(response);
@@ -122,7 +129,9 @@ public class AuthController {
     	String email = request.getEmail();
         String password = request.getPassword();
         Map<String, String> response = new HashMap<>();
-        if(!authService.validateEmail(email, response)&&!authService.validatePassword(password, response)) return ResponseEntity.ok(response);
+        boolean ValidEmail = authService.validateEmail(email, response);
+        boolean ValidPassword = authService.validatePassword(password, response);   
+        if(!ValidEmail||!ValidPassword) return ResponseEntity.ok(response);
         if (userRepository.findByEmail(email)==null) {
             response.put("emailStatus", "Email không tồn tại");
             return ResponseEntity.ok(response);
@@ -155,22 +164,6 @@ public class AuthController {
         PtokenRepository.delete(resetToken);
 
         return ResponseEntity.ok("Đổi mật khẩu thành công");
-    }
-    @PostMapping("/logout")
-    public ResponseEntity<?> handleLogout(HttpServletResponse httpResponse, Authentication authentication) {
-        // Xóa cookie jwt
-        String currentEmail = authentication.getName();
-        Account account = userRepository.findByEmail(currentEmail);
-        account.setStatus("Offline");
-        account.setLastVisit(LocalDateTime.now());
-        userRepository.save(account);
-        Cookie cookie = new Cookie("jwt", null);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(0); // Đặt thời gian sống của cookie về 0 để xóa nó
-        httpResponse.addCookie(cookie);
-
-        return ResponseEntity.ok("Đăng xuất thành công");
     }
     static class Request {
         private String username;

@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseCookie;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,8 +22,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 import java.util.regex.Pattern;
-import jakarta.servlet.http.Cookie;
+import org.springframework.http.HttpHeaders;
 import jakarta.servlet.http.HttpServletResponse;
+
 
 @Service
 public class AuthService {
@@ -106,12 +108,15 @@ public class AuthService {
         return true;
     }        
     public void addJwtToCookie(String token, HttpServletResponse response) {
-        Cookie cookie = new Cookie("jwt", token);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(60*60*24); // 1 ngày
-        response.addCookie(cookie);
-    }
+    ResponseCookie cookie = ResponseCookie.from("jwt", token)
+        .httpOnly(true)
+        .secure(false)          // false nếu chạy HTTP (localhost)      // QUAN TRỌNG cho cross-origin (localhost:5173 ↔ 8080)
+        .path("/")
+        .maxAge(60 * 60 * 24) // Thời gian sống của cookie (1 ngày)
+        .build();
+
+    response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+}
     @Transactional
     public void createToken(String email, String newPassword, String token, String type) {
         if (PASSWORD_RESET.equals(type)) {

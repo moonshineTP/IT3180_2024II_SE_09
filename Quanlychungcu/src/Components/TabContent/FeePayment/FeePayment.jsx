@@ -1,24 +1,12 @@
-import React, { useState } from "react";
-import TabContentFrame_1 from "../../TabContentFrames/TabContentFrame_1/TabContentFrame_1.jsx";
-import DebtHandling from "./DebtHandling/DebtHandling.jsx";
-import FeeInfo from "./FeeInfo/FeeInfo.jsx";
-import PaymentMonitoring from "./PaymentMonitoring/PaymentMonitoring.jsx";
-function FeePayment() {
-  const Option = {
-    FeeInfo: <FeeInfo />,
-    "Payment Monitoring": <PaymentMonitoring />,
-    "Debt Handling": <DebtHandling />,
-  };
-  const [activeNav, setActiveNav] = useState("FeeInfo");
+import TabContentFrame_2 from "../../TabContentFrames/TabContentFrame_2/TabContentFame_2";
+
+function FeePaymentContent () {
   return (
     <>
-      <TabContentFrame_1
-        activeTab="FeePayment"
-        activeNav={activeNav}
-        setActiveNav={setActiveNav}
-        Option={Option}
-      />
+      <div>This is HouseHoldInfo</div>
     </>
   );
 }
-export default FeePayment;
+export default function FeePaymentInfo() {
+  return <TabContentFrame_2 content={FeePaymentContent()} />;
+}

@@ -1,5 +1,6 @@
 package com.example.demo.model.DTO;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 public class AccountDTO {
@@ -9,7 +10,7 @@ public class AccountDTO {
     private String status;
     private String ban;
     private LocalDateTime createdDate;
-    private LocalDateTime lastVisit;
+    private Instant lastVisit;
     private String resident_id; // Include resident_id if the account is linked to a resident
 
     public String getUsername() {
@@ -60,11 +61,11 @@ public class AccountDTO {
         this.createdDate = createdDate;
     }
 
-    public LocalDateTime getLastVisit() {
+    public Instant getLastVisit() {
         return lastVisit;
     }
 
-    public void setLastVisit(LocalDateTime lastVisit) {
+    public void setLastVisit(Instant lastVisit) {
         this.lastVisit = lastVisit;
     }
 

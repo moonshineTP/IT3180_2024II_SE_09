@@ -27,6 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found with email: " + email);
         }
         // Return a UserDetails object with only the email in the SecurityContext
+        System.out.println("User found with email: " + email); 
         return new org.springframework.security.core.userdetails.User(
             account.getEmail(),
             "", // No password needed in the SecurityContext

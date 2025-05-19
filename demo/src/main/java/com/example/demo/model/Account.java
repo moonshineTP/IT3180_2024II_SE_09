@@ -1,6 +1,7 @@
 // File: Account.java
 package com.example.demo.model;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,7 @@ public class Account {
     private LocalDateTime createdDate;
 
     @Column(name = "last_visit")
-    private LocalDateTime lastVisit;
+    private Instant lastVisit;
 
     @Column(nullable = false, length = 100)
     private String password;
@@ -70,8 +71,8 @@ public class Account {
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
 
-    public LocalDateTime getLastVisit() { return lastVisit; }
-    public void setLastVisit(LocalDateTime lastVisit) {  this.lastVisit = lastVisit; }
+    public Instant getLastVisit() { return lastVisit; }
+    public void setLastVisit(Instant lastVisit) {  this.lastVisit = lastVisit; }
 
     public LocalDateTime getCreatedDate() { return createdDate; }
     public void setCreatedDate(LocalDateTime createdDate) { this.createdDate = createdDate; }

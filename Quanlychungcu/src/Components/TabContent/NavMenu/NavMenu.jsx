@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import "./NavMenu.css";
 
 export default function NavMenu({ activeNav, setActiveNav, array }) {

@@ -38,15 +38,29 @@ function Header() {
     return () => clearInterval(intervalId); // Cleanup on unmount
   }, []);
   const handleLogout = async () => {
-    try {
-      // Call the logout API
-      await axios.post('/api/auth/logout', {}, { withCredentials: true });
-      // Redirect to the login page
-      window.location.href = '/index1.html';
-    } catch (error) {
-      console.error('Logout failed:', error);
+  try {
+    // 1) Kiểm tra token (cookie) còn hợp lệ không
+    await axios.get("http://localhost:8080/checkin", {
+      withCredentials: true,
+    });
+
+    // 2) Nếu thành công → tiến hành logout
+    await axios.post("http://localhost:8080/logouts", null, {
+      withCredentials: true,
+    });
+  } catch (err) {
+    // Nếu checkin trả 401 (token hết hạn) thì bỏ qua bước logout
+    if (err.response?.status === 403) {
+      console.error("Gặp lỗi khi logout:", err);
     }
-  };
+    // Các trường hợp 401, 403, hoặc lỗi khác vẫn sẽ rơi xuống finally để redirect
+  } finally {
+    // 3) Redirect về trang đăng nhập dù thành công hay thất bại
+    window.location.href = "/index1.html";
+  }
+};
+
+
   return (
     <div id="header">
       <span className="item" style={{ background: headerGradient }}>
@@ -68,7 +82,7 @@ function Header() {
       <span className="item right-container" style={{ background: headerGradient }}>
         <div className="greeting-text">{greeting}</div>
         <div className="email-text">
-          {localStorage.getItem("email")}
+          Khoichimbe
         </div>
 
         <div className="icon-button-container">

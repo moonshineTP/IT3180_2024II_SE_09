@@ -1,4 +1,3 @@
-import React, { act } from "react";
 import Home from "./Home/Home.jsx";
 import Accounts from "./Accounts/Accounts.jsx";
 import HouseHoldInfo from "./HouseHoldInfo/HouseHoldInfo.jsx";
