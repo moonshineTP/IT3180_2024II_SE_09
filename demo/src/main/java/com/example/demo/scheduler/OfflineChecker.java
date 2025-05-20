@@ -2,6 +2,7 @@ package com.example.demo.scheduler;   // đổi theo cấu trúc của bạn
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,7 @@ public class OfflineChecker {
         Instant cutoff = Instant.now().minus(Duration.ofMinutes(5));
         List<Account> inactive = accountRepo
                 .findByLastVisitBeforeAndStatus(cutoff, "Online");
-
-        inactive.forEach(u -> u.setStatus("Offline"));
+        inactive.forEach(u -> {u.setStatus("Offline"); u.setLastOffline(LocalDateTime.now());});
         accountRepo.saveAll(inactive);
     }
 }

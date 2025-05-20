@@ -26,6 +26,9 @@ public class Account {
     @Column(name = "last_visit")
     private Instant lastVisit;
 
+    @Column(name = "last_offline")
+    private LocalDateTime lastOffline;
+
     @Column(nullable = false, length = 100)
     private String password;
 
@@ -58,6 +61,12 @@ public class Account {
     // ---------------------------
     // Getter & Setter
     // ---------------------------
+    @PrePersist
+    private void onCreate() {
+        if (lastOffline == null) {               
+            lastOffline = LocalDateTime.now();         
+        }
+    }
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
@@ -85,5 +94,23 @@ public class Account {
     }
     public void setResident(Resident resident) {
         this.resident = resident;
+    }
+    public List<InteractNotification> getInteractNotifications() {
+        return interactNotifications;
+    }
+    public void setInteractNotifications(List<InteractNotification> interactNotifications) {
+        this.interactNotifications = interactNotifications;
+    }
+    public List<ResponseNotification> getResponseNotifications() {
+        return responseNotifications;
+    }
+    public void setResponseNotifications(List<ResponseNotification> responseNotifications) {
+        this.responseNotifications = responseNotifications;
+    }
+    public LocalDateTime getLastOffline() {
+        return lastOffline;
+    }
+    public void setLastOffline(LocalDateTime lastOffline) {
+        this.lastOffline = lastOffline;
     }
 }

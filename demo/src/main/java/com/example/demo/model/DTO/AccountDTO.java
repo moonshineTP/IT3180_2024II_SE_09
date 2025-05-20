@@ -3,6 +3,8 @@ package com.example.demo.model.DTO;
 import java.time.Instant;
 import java.time.LocalDateTime;
 
+import org.springframework.cglib.core.Local;
+
 public class AccountDTO {
     private String username;
     private String email; // Optional, based on role
@@ -11,6 +13,7 @@ public class AccountDTO {
     private String ban;
     private LocalDateTime createdDate;
     private Instant lastVisit;
+    private LocalDateTime lastOffline;
     private String resident_id; // Include resident_id if the account is linked to a resident
 
     public String getUsername() {
@@ -75,5 +78,11 @@ public class AccountDTO {
 
     public void setResident_id(String residentId) {
         this.resident_id = residentId;
+    }
+    public LocalDateTime getLastOffline() {
+        return lastOffline;
+    }
+    public void setLastOffline(LocalDateTime lastOffline) {
+        this.lastOffline = lastOffline;
     }
 }

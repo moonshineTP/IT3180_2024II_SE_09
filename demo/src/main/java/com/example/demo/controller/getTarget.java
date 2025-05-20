@@ -128,7 +128,32 @@ public class getTarget {
         }
         return ResponseEntity.badRequest().body("Invalid request");
     }
+    @PostMapping("/getVehiclesByResident")
+    public ResponseEntity<?> getVehiclesByResident(@RequestBody VehicleDTO vehicleDTO) {
+        // Validate the residentId in the DTO
+        if (vehicleDTO.getResidentId() == null || vehicleDTO.getResidentId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Resident ID is required");
+        }
 
+        // Find the resident by residentId
+        Resident resident = residentRepository.findByResidentId(vehicleDTO.getResidentId());
+        if (resident == null) {
+            return ResponseEntity.badRequest().body("Resident not found");
+        }
+
+        // Find vehicles by resident
+        List<Vehicle> vehicles = vehicleRepository.findAllByResident(resident);
+        if (vehicles.isEmpty()) {
+            return ResponseEntity.ok("No vehicles found for the given resident");
+        }
+
+        // Map vehicles to VehicleDTOs
+        List<VehicleDTO> vehicleDTOs = vehicles.stream()
+                .map(vehicle -> mapService.mapToVehicleDTO(vehicle))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(vehicleDTOs);
+    }
     @PostMapping("/getVehicle")
     public ResponseEntity<?> getVehicleByLicensePlate(@RequestBody VehicleDTO vehicleDTO) {
         // Validate the license plate in the DTO

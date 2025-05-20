@@ -1,0 +1,81 @@
+.popup-dialog {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: transparent;
+}
+.popup-dialog[open] {
+    display: flex;
+}
+.popup-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.popup-content {
+    position: relative;
+    min-width: 300px; /* Bề ngang tối thiểu */
+    max-width: 90vw; /* Không vượt quá 90% chiều rộng màn hình */
+    width: auto; /* Chiều rộng tự động theo nội dung */
+    height: auto; /* Thay height cố định bằng auto */
+    min-height: 200px; /* Chiều cao tối thiểu */
+    max-height: 80vh; /* Chiều cao tối đa 80% màn hình */
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    padding: 1.5rem;
+    overflow: auto;
+    margin: 20px; /* Tạo khoảng cách với viền màn hình */
+    box-sizing: border-box; /* Giữ nguyên kích thước khi có padding */
+}
+
+.popup-close-btn {
+    position: absolute;
+    top: 1rem;       /* Điều chỉnh khoảng cách từ trên xuống */
+    right: 1rem; 
+    font-size: 1.5rem;
+    line-height: 1;
+    color: #6b7280;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem; /* Thêm padding để dễ click */
+    transition: all 0.2s ease; /* Thêm hiệu ứng mượt */
+}
+
+.popup-close-btn:hover {
+    color: #1f2937;
+    transform: scale(1.1);
+}
+.popup-close-btn:active {
+  transform: scale(0.9); /* Hiệu ứng nhấn */
+}
+.popup-back-btn {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #6b7280;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.popup-back-btn.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.popup-back-btn:hover:not(.disabled) {
+  color: #1f2937;
+  transform: scale(1.1);
+}

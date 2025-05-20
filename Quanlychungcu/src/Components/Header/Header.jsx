@@ -5,9 +5,17 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell, faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 
-function Header() {
+function Header({onOpenPopup ,account}) {
   const [greeting, setGreeting] = useState('');
   const [headerGradient, setHeaderGradient] = useState('');
+
+  const getRoleText = () => {
+    switch(account?.role) {
+      case 'resident': return "Cư dân";
+      case 'admin': return "Quản trị viên";
+      default: return "Khách";
+    }
+  };
 
   const updateHeader = () => {
     const now = new Date();
@@ -56,6 +64,7 @@ function Header() {
     // Các trường hợp 401, 403, hoặc lỗi khác vẫn sẽ rơi xuống finally để redirect
   } finally {
     // 3) Redirect về trang đăng nhập dù thành công hay thất bại
+    localStorage.removeItem("loggedInUser");
     window.location.href = "/index1.html";
   }
 };
@@ -81,15 +90,22 @@ function Header() {
 
       <span className="item right-container" style={{ background: headerGradient }}>
         <div className="greeting-text">{greeting}</div>
-        <div className="email-text">
-          Khoichimbe
+        <div className="username-text">{account?.username || "Đang tải..."}</div>
+        <div className="role-text">
+          {account ? 
+            `Bạn là ${getRoleText()} của chung cư` : 
+            <span className="loading-role">Đang tải thông tin...</span>
+          }
         </div>
 
         <div className="icon-button-container">
           <button className="icon-button notification-button" title="Thông báo">
             <FontAwesomeIcon icon={faBell} />
           </button>
-          <button className="icon-button message-button" title="Tài khoản">
+          <button className="icon-button message-button"
+            title="Tài khoản"
+            onClick={onOpenPopup}
+          >
             <FontAwesomeIcon icon={faUser} />
           </button>
           <button

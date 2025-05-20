@@ -81,6 +81,7 @@ public class MapService {
         dto.setBan(account.getBan());
         dto.setCreatedDate(account.getCreatedDate());
         dto.setLastVisit(account.getLastVisit());
+        dto.setLastOffline(account.getLastOffline());
         if (account.getResident() != null) {
             dto.setResident_id(account.getResident().getResidentId());
         }

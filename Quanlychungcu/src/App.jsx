@@ -7,6 +7,8 @@ import TabContent from "./Components/TabContent/TabContent";
 import "./index.css";
 import "./Components/Header/Header.css";
 import "./Components/MenuTab/MenuTab.css";
+import PopUp from "./Components/PopUp/PopUp";
+import AccountPopUp from "./Components/TabContent/Accounts/AccountPopUp";
 
 
 export default function App() {
@@ -25,6 +27,22 @@ export default function App() {
         console.error("Ping failed:", error);
       }
     };
+    const fetchAccount = async () => {
+      try {
+        const response = await axios.post(
+          "http://localhost:8080/api/gettarget/getPrivateAccount",null,
+          { withCredentials: true }
+        );
+        setAccountInfo(response.data);
+      } catch (error) {
+        console.error("Lỗi khi lấy thông tin tài khoản:", error);
+        if (error.response?.status === 403) {
+          window.location.href = "/index1.html";
+        }
+      }
+    };
+
+    fetchAccount();
 
     // Gửi ping lần đầu
     sendPing();
@@ -36,10 +54,21 @@ export default function App() {
     return () => clearInterval(intervalId);
   }, []);
   const [activeTab, setActiveTab] = useState("Home");
+  const [isOpen, setIsOpen] = useState(false);
+  const [accountInfo, setAccountInfo] = useState(null)
   return (
     <>
-      <Header />
+      <Header 
+      onOpenPopup={() => setIsOpen(true)} 
+      account={accountInfo} 
+      />
       {/* Truyền props xuống MenuTab */}
+      {/* Thêm điều kiện render PopUp */}
+      {isOpen && (
+        <PopUp isOpen={isOpen} onClose={() => setIsOpen(false)}>
+          <AccountPopUp account={accountInfo}/>
+        </PopUp>
+      )}
       <div id="main">
         <MenuTab activeTab={activeTab} setActiveTab={setActiveTab} />
         {/* Truyền prop xuống TabContent */}

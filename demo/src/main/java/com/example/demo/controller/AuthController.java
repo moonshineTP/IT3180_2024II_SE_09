@@ -99,7 +99,7 @@ public class AuthController {
         }
         // Tạo và lưu token
         String token = UUID.randomUUID().toString();
-        authService.createToken(email, password, token, "Register");
+        authService.createToken(email, password,username, token, "Register");
         
         // Gửi email
         authService.sendEmail(email, token, "Register");
@@ -120,6 +120,7 @@ public class AuthController {
         Account user = new Account();
         user.setPassword(resetToken.getHashedNewPassword());
         user.setEmail(resetToken.getEmail());
+        user.setUsername(resetToken.getUsername());
         userRepository.save(user);
         RtokenRepository.delete(resetToken);
         return ResponseEntity.ok("Đăng kí thành công");
@@ -138,7 +139,7 @@ public class AuthController {
         }
         // Tạo và lưu token
         String token = UUID.randomUUID().toString();
-        authService.createToken(email, password,token, "PasswordReset");
+        authService.createToken(email, password,"",token, "PasswordReset");
         // Gửi email
         authService.sendEmail(email, token, "PasswordReset");
         

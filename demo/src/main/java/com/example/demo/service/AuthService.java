@@ -118,20 +118,23 @@ public class AuthService {
     response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 }
     @Transactional
-    public void createToken(String email, String newPassword, String token, String type) {
+    public void createToken(String email, String newPassword, String username, String token, String type) {
         if (PASSWORD_RESET.equals(type)) {
             PtokenRepository.deleteByEmail(email);
             PasswordResetToken resetToken = new PasswordResetToken();
             resetToken.setToken(token);
+            resetToken.setUsername(username);
             resetToken.setEmail(email);
             resetToken.setHashedNewPassword(passwordEncoder.encode(newPassword));
             resetToken.setExpiryDate(calculateExpiryDate());
+
             PtokenRepository.save(resetToken);
         } else if (REGISTER.equals(type)) {
             RtokenRepository.deleteByEmail(email);
             RegisterToken registerToken = new RegisterToken();
             registerToken.setToken(token);
             registerToken.setEmail(email);
+            registerToken.setUsername(username);
             registerToken.setHashedNewPassword(passwordEncoder.encode(newPassword));
             registerToken.setExpiryDate(calculateExpiryDate());
             RtokenRepository.save(registerToken);
