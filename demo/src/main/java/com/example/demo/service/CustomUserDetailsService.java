@@ -23,7 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) {
         // Fetch account by email
         Account account = accountRepository.findByEmail(email);
-        if (account == null) {
+        if (account == null||account.getBan().equals("inactive")) {
             throw new UsernameNotFoundException("User not found with email: " + email);
         }
         // Return a UserDetails object with only the email in the SecurityContext

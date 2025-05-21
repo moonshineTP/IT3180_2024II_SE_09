@@ -2,13 +2,17 @@
 #header {
   background-color: white;
   height: 15rem;
-  display: flex;
-  align-items: center;
   position: relative;
+  display: flex;
 }
 
 .item {
   box-sizing: border-box;
+  display: flex; /* Thêm flex container */
+  justify-content: space-between; /* Căn đều 2 phần */
+  align-items: center; /* Căn giữa theo chiều dọc */
+  width: 100%; /* Chiếm toàn bộ width của parent */
+  height: 100%;
 }
 
 .item:nth-child(1) {
@@ -35,6 +39,7 @@
 }
 
 #logo-text {
+   flex: 0 1 auto; /* Không phát triển, không co lại */
   color: #06ac06;
   margin-left: 1rem;
   display: flex;
@@ -150,4 +155,81 @@
   0% { opacity: 0.6; }
   50% { opacity: 1; }
   100% { opacity: 0.6; }
+}
+.weather-forecast-container {
+  flex: 1; /* Chiếm phần không gian còn lại */
+  display: flex;
+  justify-content: flex-end; /* Căn về phía bên phải */
+  align-items: center;
+  gap: 1rem; /* Tạo khoảng cách giữa các panel */
+  padding-right: 1rem;
+  height: 100%; /* Thêm chiều cao 100% */
+}
+.weather-icon {
+  font-size: 2.5rem !important;
+  margin: 0.5rem 0;
+  color: #1fe86f; /* Màu icon vàng */
+}
+.weather-temp {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0.3rem 0;
+}
+
+.weather-description {
+  font-size: 0.9rem;
+  text-align: center;
+  line-height: 1.3;
+  opacity: 0.9;
+}
+.weather-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 120px; /* Đảm bảo độ rộng tối thiểu */
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  justify-content: space-around; /* Phân bố đều không gian */
+  width: 150px; /* Chiều rộng cố định */
+  height: 160px; /* Chiều cao cố định (tỷ lệ 3:4 = 150:200) */
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 102, 204, 0.2);
+}
+@media (max-width: 1200px) {
+  .weather-panel {
+    width: 130px;
+    height: 173px;
+    padding: 0.8rem;
+  }
+  
+  .weather-icon {
+    font-size: 2rem !important;
+  }
+  
+  .weather-temp {
+    font-size: 1.5rem;
+  }
+}
+/* Placeholder styles */
+.weather-panel.placeholder {
+  background: rgba(74, 144, 226, 0.3);
+}
+
+.placeholder-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+}
+.weather-panel:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(6, 141, 4, 0.673);
+}
+
+.weather-day {
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }

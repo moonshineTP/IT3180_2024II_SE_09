@@ -42,10 +42,13 @@ export default function App() {
       }
     };
 
-    fetchAccount();
+    const init = async () => {
+      // Gửi ping lần đầu
+      await sendPing();
+      fetchAccount();
+    };
 
-    // Gửi ping lần đầu
-    sendPing();
+    init();
 
     // Gửi ping định kỳ mỗi 30 giây
     const intervalId = setInterval(sendPing, 30000);
