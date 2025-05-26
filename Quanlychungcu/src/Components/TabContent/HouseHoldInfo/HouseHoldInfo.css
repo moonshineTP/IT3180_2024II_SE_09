@@ -1,0 +1,295 @@
+.householdHeader {
+  height: auto; /* Let content + padding define height */
+  min-height: 5rem; /* Ensure a minimum height */
+  padding: 0.75rem 1.5rem; /* Add some padding horizontally and vertically */
+  font-size: 2.5rem; /* Adjust base font size for the text */
+  text-align: center; /* Keep for fallback, but flex handles actual centering */
+  background: linear-gradient(135deg, #a0e6e1 0%, #76d1cc 100%); /* Softer gradient */
+  color: #004d40; /* Darker, more muted green for better contrast and sophistication */
+  font-weight: 500; /* Slightly bolder */
+  letter-spacing: 0.5px; /* Subtle letter spacing */
+
+  display: flex;
+  justify-content: center; /* Center items horizontally */
+  align-items: center;     /* Center items vertically */
+
+  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 77, 64, 0.15);
+  
+}
+
+.header-icon {
+  font-size: 2.2rem; /* Icon size relative to text */
+  color: #004d40; /* Same as text, or slightly lighter/darker for effect */
+  /* margin: 0 0.75rem; No margin needed if using space on text span */
+}
+
+.header-text {
+  margin: 0 1.2rem; /* Space between icons and text */
+  line-height: 1.2; /* Ensure text is well-spaced vertically if it wraps */
+}
+/* Optional: Add hover effects or transitions for a bit more flair */
+.householdHeader:hover {
+  background: linear-gradient(135deg, #95e0db 0%, #6cc7c2 100%);
+}
+.main-filter-panel {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-panel-header {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #007bff;
+}
+.filter-panel-header h3 .svg-inline--fa {
+    margin-right: 8px;
+}
+
+
+.filter-mode-selector {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.mode-button {
+    padding: 10px 20px;
+    border: 1px solid #007bff;
+    background-color: white;
+    color: #007bff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mode-button:hover {
+    background-color: #e7f3ff;
+}
+
+.mode-button.active {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
+.mode-button .svg-inline--fa {
+    font-size: 1.1em;
+}
+
+
+.filter-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+.filter-section h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #343a40;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.filter-field-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    background-color: #fdfdfd;
+}
+.filter-field-item.disabled {
+    background-color: #e9ecef; /* Màu nền khi bị vô hiệu hóa */
+    opacity: 0.7;
+}
+
+
+.filter-field-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.filter-field-header label {
+    font-weight: 500;
+    color: #495057;
+    margin-right: 10px; /* Khoảng cách giữa label và icon */
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.filter-field-icon {
+    color: #007bff;
+    margin-right: 5px; /* Thêm lại nếu cần */
+}
+
+
+.filter-field-toggle {
+    cursor: pointer;
+    color: #007bff;
+    font-size: 1.2em; /* Kích thước icon tick/untick */
+}
+.filter-field-toggle:hover {
+    opacity: 0.8;
+}
+
+.filter-field-item input[type="text"],
+.filter-field-item input[type="email"],
+.filter-field-item input[type="date"],
+.filter-field-item select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+}
+.filter-field-item input:disabled,
+.filter-field-item select:disabled {
+    background-color: #f8f9fa; /* Màu nền khác cho input bị disable */
+    cursor: not-allowed;
+}
+
+
+.date-range-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap; /* <-- THÊM DÒNG NÀY */
+}
+.date-range-filter input[type="date"] {
+    flex-grow: 1; /* Cho phép input co giãn */
+    flex-shrink: 1; /* Cho phép input co lại */
+    flex-basis: 100px; /* Đặt một kích thước cơ sở tối thiểu mong muốn cho mỗi input date */
+    /* Hoặc có thể dùng min-width: 100px; thay cho flex-basis */
+    min-width: 120px; /* Đảm bảo input date không quá nhỏ */
+}
+.date-range-filter span {
+    color: #6c757d;
+    flex-shrink: 0; /* Ngăn chữ "đến" bị co lại */
+}
+
+
+.filter-actions-section {
+    margin-top: 15px;
+    text-align: right;
+}
+
+.reset-filter-btn {
+    padding: 8px 15px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.reset-filter-btn:hover {
+    background-color: #5a6268;
+}
+
+.apply-all-filters-section {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.apply-all-btn {
+    padding: 12px 25px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.apply-all-btn:hover {
+    background-color: #218838;
+}
+
+/* Results Panel */
+.filter-results-panel {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+}
+.filter-results-panel h3 {
+    margin-top: 0;
+    color: #007bff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .filter-grid {
+        grid-template-columns: 1fr; /* Stack fields on smaller screens */
+    }
+    .filter-mode-selector {
+        flex-direction: column; /* Stack mode buttons */
+    }
+    .mode-button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+/* ./Components/TabContent/HouseHoldInfo/HouseHoldInfo.css */
+/* ... (các style đã có) ... */
+
+.create-new-buttons {
+    display: flex;
+    justify-content: flex-start; /* Hoặc center tùy ý */
+    gap: 15px;
+    margin-bottom: 20px; /* Khoảng cách với các filter panel */
+    padding: 10px 0;
+    border-bottom: 1px solid #eee; /* Phân cách nhẹ */
+}
+
+.create-new-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.create-new-btn:hover {
+    background-color: #0056b3;
+}
+
+.create-new-btn .svg-inline--fa {
+    font-size: 1.1em;
+}

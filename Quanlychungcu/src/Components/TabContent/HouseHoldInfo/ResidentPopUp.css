@@ -1,0 +1,412 @@
+/* ./Components/TabContent/Residents/ResidentPopUp.css */
+.resident-info-container {
+    padding: 25px;
+    max-width: 900px; /* Make it wider than AccountPopUp */
+    width: 95%; /* Use percentage for better responsiveness */
+    margin: 0 auto;
+    background: #ffffff; /* White background */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-family: 'Arial', sans-serif; /* Example font */
+    color: #333; /* Darker text */
+}
+
+/* Messages */
+.error-message.small,
+.success-message.small {
+    padding: 5px 10px;
+    margin: 5px 0;
+    font-size: 0.8rem;
+}
+
+/* Header Section */
+.resident-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+.resident-avatar-container {
+    width: 120px; /* Fixed width for avatar */
+    height: 160px; /* Fixed height for avatar (approx 3:4) */
+    flex-shrink: 0; /* Prevent shrinking */
+    margin-right: 25px;
+    border: 3px solid #f0f0f0;
+    border-radius: 4px; /* Slightly rounded corners */
+    overflow: hidden; /* Hide parts outside the container */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+     /* Center the avatar within its container if it's smaller */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.resident-avatar {
+    width: 100%; /* Make image fill container width */
+    height: 100%; /* Make image fill container height */
+    object-fit: cover; /* Crop image to fit, maintaining aspect ratio */
+    display: block; /* Remove extra space below image */
+}
+
+
+.resident-main-info {
+    flex: 1; /* Take available space */
+    min-width: 200px; /* Minimum width before wrapping */
+}
+
+.resident-name {
+    margin: 0 0 10px 0;
+    font-size: 1.8rem;
+    color: #2c3e50;
+    font-weight: 700;
+    letter-spacing: -0.8px;
+}
+
+.resident-id,
+.resident-apartment {
+    margin: 5px 0;
+    font-size: 1rem;
+    color: #555;
+}
+
+.resident-id strong,
+.resident-apartment strong {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.resident-apartment .fa-home {
+    color: #3498db;
+    margin-right: 5px;
+}
+
+
+/* Detail Grid - Three Columns */
+.resident-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive columns */
+    gap: 25px; /* Space between columns */
+    margin-bottom: 25px;
+}
+
+.detail-column {
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.detail-column h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    color: #3498db;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 5px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    color: #555;
+    /* Allow text to wrap within the item */
+    flex-wrap: wrap;
+}
+
+.detail-item span {
+     flex-shrink: 0; /* Prevent label from shrinking */
+     margin-right: 5px;
+}
+
+.detail-item span:last-child {
+    flex-shrink: 1; /* Allow the value span to shrink/wrap */
+}
+
+.detail-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+    flex-shrink: 0;
+    color: #7f8c8d; /* Grayish icon color */
+}
+
+/* Editable fields in details */
+.detail-input {
+     flex: 1; /* Take remaining space */
+     min-width: 100px; /* Ensure input has a minimum width */
+     padding: 4px 8px;
+     border: 1px solid #ccc;
+     border-radius: 4px;
+     font-size: 0.9rem;
+     box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+
+/* Specific styles for select inputs */
+.detail-input[type="date"],
+.detail-input select {
+     padding: 4px 6px; /* Adjust padding for select/date */
+}
+
+/* Linked account info styling */
+.resident-apartment-wrapper
+.linked-account-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.resident-apartment-wrapper
+.linked-account-info span {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.view-linked-account-button {
+    padding: 3px 8px;
+    font-size: 0.8rem;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.view-linked-account-button:hover {
+    background-color: #2980b9;
+}
+
+
+/* Vehicle List Column */
+.vehicle-column {
+     display: flex;
+     flex-direction: column;
+}
+
+.vehicle-list-container {
+    max-height: 250px; /* Fixed max height */
+    overflow-y: auto; /* Add scrollbar if needed */
+    padding-right: 10px; /* Space for scrollbar */
+    margin-right: -10px; /* Negative margin to counteract padding */
+    flex-grow: 1; /* Allow container to fill space */
+}
+
+.vehicle-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed #ccc; /* Dashed line separator */
+    font-size: 0.9rem;
+    color: #555;
+}
+.vehicle-item:last-child {
+    border-bottom: none; /* No border for the last item */
+}
+
+.vehicle-icon {
+    margin-right: 8px;
+    color: #555;
+    flex-shrink: 0;
+}
+
+.no-data-text,
+.loading-text {
+    font-style: italic;
+    color: #7f8c8d;
+    text-align: center;
+    padding: 10px;
+}
+
+
+/* Action Buttons */
+.action-buttons {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+    display: flex; /* Use flexbox */
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 10px; /* Space between buttons */
+}
+
+.edit-button,
+.cancel-button,
+.save-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex; /* Align icon and text */
+    align-items: center;
+    gap: 5px;
+}
+
+.edit-button {
+    background-color: #007bff; /* Primary blue */
+    color: white;
+}
+.edit-button:hover {
+    background-color: #0056b3;
+     transform: translateY(-1px);
+}
+
+.cancel-button {
+    background-color: #6c757d; /* Secondary gray */
+    color: white;
+}
+.cancel-button:hover {
+    background-color: #5a6268;
+     transform: translateY(-1px);
+}
+
+.save-button {
+    background-color: #28a745; /* Success green */
+    color: white;
+}
+.save-button:hover {
+    background-color: #218838;
+     transform: translateY(-1px);
+}
+
+.button-icon {
+    margin-right: 5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .resident-details-grid {
+        grid-template-columns: 1fr; /* Stack columns on small screens */
+    }
+
+    .resident-header {
+        flex-direction: column;
+        align-items: flex-start; /* Align items to the start */
+    }
+
+    .resident-avatar-container {
+         margin-right: 0;
+         margin-bottom: 15px; /* Space below avatar when stacked */
+         width: 100px; /* Adjust avatar size */
+         height: 133px;
+         align-self: center; /* Center avatar horizontally */
+    }
+
+    .resident-main-info {
+        width: 100%; /* Take full width */
+        min-width: auto;
+        text-align: center; /* Center text */
+    }
+    .resident-name,
+    .resident-id,
+    .resident-apartment {
+        text-align: center;
+    }
+     .resident-apartment .fa-home {
+         margin-right: 0; /* Remove margin for icon in stacked layout */
+         display: block; /* Stack icon above text */
+         margin-bottom: 5px;
+     }
+
+
+    .detail-column {
+        padding: 10px; /* Reduce padding */
+    }
+
+     .detail-item {
+         flex-direction: column; /* Stack items vertically */
+         align-items: flex-start;
+         gap: 2px; /* Small gap when stacked */
+     }
+     .detail-item span,
+     .detail-icon {
+         margin-right: 0;
+     }
+      .detail-icon {
+          margin-bottom: 5px; /* Space below icon */
+      }
+     .detail-item span:last-child {
+         margin-left: 0;
+         font-weight: normal; /* Remove bold for values in stacked view if needed */
+     }
+
+    .detail-input {
+        width: 100%; /* Full width input */
+    }
+
+    .action-buttons {
+         justify-content: center; /* Center buttons */
+    }
+}
+
+@media (max-width: 480px) {
+     .resident-info-container {
+         padding: 15px;
+     }
+      .resident-name {
+          font-size: 1.5rem;
+      }
+     .edit-button, .cancel-button, .save-button {
+         font-size: 0.9rem;
+         padding: 6px 12px;
+     }
+}
+.apartment-info-block {
+    display: flex; /* Align apartment number and button */
+    align-items: center;
+    gap: 10px; /* Space between text and button */
+    flex-wrap: wrap; /* Allow button to wrap on small screens */
+}
+
+.resident-apartment {
+    margin: 5px 0; /* Keep original margin */
+    /* Removed flex-grow, let it take natural width */
+}
+
+.view-household-button {
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    background-color: #17a2b8; /* Info blue, or choose another color */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0; /* Prevent button from shrinking */
+}
+
+.view-household-button:hover {
+    background-color: #138496; /* Darker shade */
+}
+
+.view-household-button .fa-users {
+    margin-right: 3px;
+}
+
+/* Ensure main-info-input for apartment number in edit mode takes full width */
+.resident-main-info .main-info-input.apartment-number-input {
+    width: calc(100% - 20px); /* Or adjust as needed */
+}
+
+
+/* Responsive adjustments for apartment info block */
+@media (max-width: 768px) {
+    .apartment-info-block {
+        justify-content: center; /* Center items in the block when stacked */
+    }
+     .resident-main-info .main-info-input.apartment-number-input,
+     .resident-main-info .resident-apartment {
+        width: 100%; /* Full width for text and input in stacked layout */
+        text-align: center;
+    }
+    .view-household-button {
+        margin-top: 5px; /* Add some space if it wraps below */
+    }
+}

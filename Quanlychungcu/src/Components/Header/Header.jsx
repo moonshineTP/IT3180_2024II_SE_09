@@ -36,7 +36,7 @@ const getWeatherIcon = (weatherCode) => {
 };
 
 
-function Header({onOpenPopup ,account}) {
+function Header({onOpenPopUp ,account}) {
   const [greeting, setGreeting] = useState('');
   const [headerGradient, setHeaderGradient] = useState('');
   const [currentWeather, setCurrentWeather] = useState(null);
@@ -49,6 +49,9 @@ function Header({onOpenPopup ,account}) {
       default: return "Khách";
     }
   };
+  const handleSelf = () => {
+    onOpenPopUp('account', account);
+  }
 
   const updateHeader = () => {
     const now = new Date();
@@ -201,7 +204,6 @@ function Header({onOpenPopup ,account}) {
     // Các trường hợp 401, 403, hoặc lỗi khác vẫn sẽ rơi xuống finally để redirect
   } finally {
     // 3) Redirect về trang đăng nhập dù thành công hay thất bại
-    localStorage.removeItem("loggedInUser");
     window.location.href = "/index1.html";
   }
 };
@@ -267,7 +269,7 @@ const allWeatherPanels = [];
           </button>
           <button className="icon-button message-button"
             title="Tài khoản"
-            onClick={onOpenPopup}
+            onClick={handleSelf}
           >
             <FontAwesomeIcon icon={faUser} />
           </button>
@@ -283,5 +285,4 @@ const allWeatherPanels = [];
     </div>
   );
 }
-
 export default Header;

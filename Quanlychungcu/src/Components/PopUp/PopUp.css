@@ -26,7 +26,6 @@
     min-height: 200px; /* Chiều cao tối thiểu */
     max-height: 80vh; /* Chiều cao tối đa 80% màn hình */
     background: white;
-    border-radius: 1rem;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     padding: 1.5rem;
     overflow: auto;

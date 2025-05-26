@@ -1,0 +1,272 @@
+/* ./Account.css or wherever you define .accountHeader */
+.accountHeader {
+  height: auto; /* Let content + padding define height */
+  min-height: 5rem; /* Ensure a minimum height */
+  padding: 0.75rem 1.5rem; /* Add some padding horizontally and vertically */
+  font-size: 2.5rem; /* Adjust base font size for the text */
+  text-align: center; /* Keep for fallback, but flex handles actual centering */
+  background: linear-gradient(135deg, #a0e6e1 0%, #76d1cc 100%); /* Softer gradient */
+  color: #004d40; /* Darker, more muted green for better contrast and sophistication */
+  font-weight: 500; /* Slightly bolder */
+  letter-spacing: 0.5px; /* Subtle letter spacing */
+
+  display: flex;
+  justify-content: center; /* Center items horizontally */
+  align-items: center;     /* Center items vertically */
+
+  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 77, 64, 0.15);
+  
+}
+
+.header-icon {
+  font-size: 2.2rem; /* Icon size relative to text */
+  color: #004d40; /* Same as text, or slightly lighter/darker for effect */
+  /* margin: 0 0.75rem; No margin needed if using space on text span */
+}
+
+.header-text {
+  margin: 0 1.2rem; /* Space between icons and text */
+  line-height: 1.2; /* Ensure text is well-spaced vertically if it wraps */
+}
+
+/* Optional: Add hover effects or transitions for a bit more flair */
+.accountHeader:hover {
+  background: linear-gradient(135deg, #95e0db 0%, #6cc7c2 100%);
+}
+/* Filter Panel Styles */
+.filter-panel {
+  background: #74abe1;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin: 2rem auto;
+  box-shadow: 0 2px 8px rgba(0, 77, 64, 0.1);
+  max-width: 1200px;
+  position: relative; /* Quan trọng - tạo reference point cho absolute positioning */
+}
+
+
+.filter-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 0.5rem;
+  height:3rem;
+}
+
+.filter-icon {
+  font-size: 1.5rem;
+  color: #004d40;
+  margin-right: 0.8rem;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #e0e0e0;
+}
+
+.input-icon {
+  color: #76d1cc;
+  margin-right: 1rem;
+  width: 20px;
+}
+
+.filter-input, .filter-select {
+  flex: 1;
+  border: none;
+  padding: 0.8rem;
+  font-size: 1rem;
+  background: transparent;
+  outline: none;
+}
+
+.filter-select {
+  appearance: none;
+  cursor: pointer;
+}
+
+.date-group {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.date-pair {
+  display: flex;
+  align-items: center;
+  background: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.date-pair:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 12px rgba(0, 77, 64, 0.1);
+}
+
+.date-inputs {
+  flex: 1;
+  margin-left: 1rem;
+}
+
+.date-inputs label {
+  display: block;
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.3rem;
+}
+
+.date-range {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-date {
+  padding: 0.5rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 0.3rem;
+  font-size: 0.9rem;
+}
+.filter-date:hover {
+  border-color: #a0e6e1;
+  box-shadow: 0 2px 6px rgba(160, 230, 225, 0.2);
+}
+
+.filter-date:focus {
+  outline: none;
+  border-color: #76d1cc;
+  box-shadow: 0 0 0 3px rgba(118, 209, 204, 0.3);
+}
+
+.date-separator {
+  color: #76d1cc;
+  font-weight: 500;
+  margin: 0 0.2rem;
+}
+/* Hiệu ứng chung cho các input */
+.input-group, .date-pair {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input-group:hover {
+  border-color: #a0e6e1;
+  box-shadow: 0 2px 8px rgba(160, 230, 225, 0.15);
+}
+
+.filter-input:focus, .filter-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #76d1cc;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .date-group {
+    flex-direction: column;
+  }
+  
+  .date-pair {
+    min-width: unset;
+  }
+  
+  .date-range {
+    flex-direction: column;
+  }
+  
+  .date-separator {
+    display: none;
+  }
+  
+  .filter-date {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-date {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+  
+  .date-inputs label {
+    font-size: 0.85rem;
+  }
+}
+.filter-actions {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  z-index: 2;
+}
+
+.filter-btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filter-btn span {
+  font-size: 0.95rem;
+}
+
+.apply-btn {
+  background: #1a73e8;
+  color: white;
+}
+
+.apply-btn:hover {
+  background: #1557b0;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(26, 115, 232, 0.3);
+}
+
+.apply-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 1px 2px rgba(26, 115, 232, 0.2);
+}
+
+.reset-btn {
+  background: #f8f9fa;
+  color: #1a73e8;
+  border: 1px solid #1a73e8;
+}
+
+.reset-btn:hover {
+  background: #e3f2fd;
+  transform: translateY(-1px);
+}
+
+.reset-btn:active {
+  transform: scale(0.98);
+}
+.apply-btn {
+  background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+}
+
+.apply-btn:hover {
+  background: linear-gradient(135deg, #1557b0 0%, #0a2d66 100%);
+}

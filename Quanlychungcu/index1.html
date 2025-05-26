@@ -597,12 +597,6 @@ function hideLoading() {
       async function login() {
         const email = document.getElementById("login-email").value;
         const password = document.getElementById("login-password").value;
-        if(localStorage.getItem('loggedInUser') !== null && localStorage.getItem('loggedInUser') !== email) {
-            alert("Tài khoản đã được đăng nhập trên trình duyệt rồi thưa cha nội :((((");
-            // Chuyển hướng về trang chính
-            window.location.href = "/index.html";
-            return;
-        }
         try {
             // Hiển thị loading
             document.getElementById("loading-text").textContent = "Loading...";

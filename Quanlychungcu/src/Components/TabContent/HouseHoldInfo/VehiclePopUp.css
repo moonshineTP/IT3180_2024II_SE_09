@@ -1,0 +1,297 @@
+/* ./Components/TabContent/Vehicles/VehiclePopUp.css */
+
+.vehicle-popup-container {
+    padding: 25px;
+    max-width: 600px; /* Adjust as needed */
+    width: 90%;
+    margin: 20px auto;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.vehicle-popup-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #007bff; /* Prominent border */
+}
+
+.vehicle-header-icon {
+    font-size: 2.5rem; /* Large icon */
+    color: #007bff;
+}
+
+.vehicle-header-text h2 {
+    margin: 0 0 5px 0;
+    font-size: 1.6rem; /* Prominent title */
+    color: #007bff;
+    font-weight: 700;
+}
+
+.license-plate-highlight {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.license-plate-highlight strong {
+    font-weight: bold;
+    background-color: #e9ecef; /* Light highlight for license plate */
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #17a2b8; /* A distinct color */
+}
+
+/* Error Message Styling */
+.error-message.vehicle-error { /* Specific styling for vehicle popup errors */
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin: 0 0 15px 0; /* Margin below error */
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.error-message.vehicle-error .fa-exclamation-triangle {
+    margin-right: 5px;
+}
+
+
+.vehicle-details-list {
+    overflow-y: auto; /* Scroll if content overflows */
+    padding-right: 10px; /* Space for scrollbar */
+    flex-grow: 1; /* Allow list to take available vertical space */
+     /* Custom scrollbar styles (optional) */
+     scrollbar-width: thin;
+     scrollbar-color: #007bff #f1f1f1;
+}
+.vehicle-details-list::-webkit-scrollbar {
+  width: 8px;
+}
+.vehicle-details-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+.vehicle-details-list::-webkit-scrollbar-thumb {
+  background: #007bff;
+  border-radius: 10px;
+}
+
+
+.vehicle-detail-item {
+    display: flex;
+    justify-content: space-between; /* Label on left, value on right */
+    align-items: flex-start; /* Align items to top if text wraps */
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.vehicle-detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #555;
+    margin-right: 10px;
+    display: inline-flex; /* To align icon with text */
+    align-items: center;
+    gap: 6px; /* Space between icon and label text */
+    flex-shrink: 0; /* Prevent label from shrinking too much */
+     white-space: nowrap; /* Prevent label from wrapping if possible */
+}
+.detail-label .svg-inline--fa { /* Target FontAwesome icons within labels */
+    color: #007bff; /* Icon color */
+    width: 16px; /* Consistent icon size */
+}
+
+
+.detail-value {
+    color: #2c3e50;
+    text-align: right; /* Align value to the right */
+    word-break: break-word; /* Allow long values to wrap */
+}
+.detail-value.note-value { /* Specific for note to align left if long */
+    text-align: left;
+    white-space: pre-wrap; /* Preserve line breaks in note */
+}
+
+
+.owner-info-item .owner-id-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-end; /* Align items to the right of the container */
+    flex-grow: 1; /* Allow this container to take space */
+}
+
+.view-owner-button {
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    background-color: #28a745; /* Green for view owner */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap; /* Prevent button text from wrapping */
+}
+
+.view-owner-button:hover {
+    background-color: #218838;
+}
+.view-owner-button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .vehicle-popup-container {
+        max-width: 95%;
+        padding: 20px;
+    }
+    .vehicle-popup-header {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+    .vehicle-header-icon {
+        font-size: 2rem;
+        margin-bottom: 5px;
+    }
+    .vehicle-header-text h2 {
+        font-size: 1.4rem;
+    }
+    .license-plate-highlight {
+        font-size: 1.1rem;
+    }
+    .vehicle-detail-item {
+        flex-direction: column; /* Stack label and value */
+        align-items: flex-start; /* Align to start */
+    }
+    .detail-label {
+        margin-bottom: 3px; /* Space between label and value when stacked */
+        white-space: normal; /* Allow label to wrap */
+    }
+    .detail-value {
+        text-align: left; /* Align value to left when stacked */
+    }
+    .owner-info-item .owner-id-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    .view-owner-button {
+        align-self: flex-start; /* Align button to start */
+    }
+}
+
+@media (max-width: 480px) {
+    .vehicle-popup-header h2 {
+        font-size: 1.3rem;
+    }
+    .license-plate-highlight {
+        font-size: 1rem;
+    }
+    .vehicle-detail-item {
+        font-size: 0.9rem;
+    }
+}
+/* ./Components/TabContent/Vehicles/VehiclePopUp.css */
+/* ... (styles đã có từ trước) ... */
+
+/* Editable fields in details */
+.detail-input {
+    flex: 1; /* Take remaining space */
+    min-width: 150px; /* Ensure input has a minimum width */
+    padding: 6px 10px;
+    border: 1px solid #ced4da; /* Lighter border */
+    border-radius: 4px;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    font-family: inherit;
+    color: #495057;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+.detail-input:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.detail-input select {
+    cursor: pointer;
+    background-color: #fff;
+}
+.detail-input.note-textarea {
+    resize: vertical; /* Allow vertical resize for textarea */
+    min-height: 60px;
+}
+
+
+/* Action Buttons adjustments for edit mode */
+.action-buttons {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    align-items: center;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.saving-text {
+     font-style: italic;
+     color: #7f8c8d;
+     margin-right: auto; /* Push buttons to the right */
+     font-size: 0.9rem;
+     display: flex;
+     align-items: center;
+     gap: 5px;
+}
+
+/* Success Message Styling */
+.success-message.vehicle-success { /* Specific styling for vehicle popup success */
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin: 0 0 15px 0; /* Margin below message */
+    text-align: center;
+}
+.success-message.vehicle-success::before {
+  content: '✅ ';
+}
+
+/* Responsive adjustments for edit inputs */
+@media (max-width: 768px) {
+    .detail-input {
+        width: 100%; /* Full width input when stacked */
+        min-width: auto;
+    }
+    .edit-actions {
+        width: 100%;
+        justify-content: space-around; /* Space out save/cancel buttons */
+    }
+}

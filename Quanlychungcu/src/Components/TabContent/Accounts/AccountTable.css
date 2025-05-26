@@ -1,0 +1,121 @@
+/* AccountTable.css */
+.account-table-container {
+  margin: 2rem auto;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 0.8rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.account-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.account-table th,
+.account-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.account-table th {
+  background-color: #74abe1;
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+.account-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.action-buttons {
+  gap: 0.8rem;
+}
+
+.icon-btn {
+  padding: 0.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: inline-flex;
+}
+
+.view-btn {
+  color: #1a73e8;
+}
+
+.view-btn:hover {
+  background-color: #e3f2fd;
+  transform: scale(1.1);
+}
+
+.delete-btn {
+  color: #dc3545;
+}
+
+.delete-btn:hover {
+  background-color: #f8d7da;
+  transform: scale(1.1);
+}
+
+.no-results {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .account-table th,
+  .account-table td {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .icon-btn {
+    width: 30px;
+    height: 30px;
+  }
+}
+/* AccountTable.css */
+.pagination {
+  margin: 1.5rem 0;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.pagination button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #74abe1;
+  background: white;
+  color: #74abe1;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: #74abe1;
+  color: white;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination button.active {
+  background: #74abe1;
+  color: white;
+  font-weight: bold;
+}

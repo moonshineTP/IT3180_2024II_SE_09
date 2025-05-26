@@ -1,0 +1,99 @@
+/* ./Components/TabContent/HouseHoldInfo/ResidentResultTable.css */
+/* Hoặc tạo file ResultTable.css chung */
+
+.result-table-container { /* Class chung cho container bảng */
+  margin: 2rem auto;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 0.8rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow-x: auto; /* Cho phép cuộn ngang nếu bảng quá rộng */
+}
+
+.result-table { /* Class chung cho bảng */
+  width: 100%;
+  min-width: 700px; /* Đặt min-width để tránh bảng bị bóp quá mức */
+  border-collapse: collapse;
+  background: white;
+}
+
+.result-table th,
+.result-table td {
+  padding: 0.75rem 1rem; /* Điều chỉnh padding nếu cần */
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 0.9rem; /* Điều chỉnh font size */
+}
+
+.result-table th {
+  background-color: #6c757d; /* Màu xám cho header */
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  white-space: nowrap; /* Ngăn header xuống dòng */
+}
+.result-table th .svg-inline--fa { /* Icon trong header */
+    margin-right: 6px;
+}
+
+.result-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.actions-cell {
+    text-align: center; /* Căn giữa các nút action */
+}
+
+.action-buttons {
+  display: flex; /* Sửa thành flex để các nút nằm cạnh nhau */
+  justify-content: center; /* Căn giữa các nút trong flex container */
+  gap: 0.5rem;
+}
+
+.icon-btn { /* Style chung cho icon button */
+  padding: 0.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 50%;
+  width: 32px; /* Kích thước nhỏ hơn */
+  height: 32px;
+  display: inline-flex; /* Giữ nguyên */
+  align-items: center;
+  justify-content: center;
+  color: #555; /* Màu icon mặc định */
+}
+
+.view-btn { color: #007bff; }
+.view-btn:hover { background-color: #e7f3ff; transform: scale(1.1); }
+
+.delete-btn { color: #dc3545; }
+.delete-btn:hover { background-color: #f8d7da; transform: scale(1.1); }
+
+.no-results { /* Style chung */
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.pagination { /* Style chung */
+  margin: 1.5rem 0;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.pagination button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #6c757d;
+  background: white;
+  color: #6c757d;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.pagination button:hover:not(:disabled) { background: #5a6268; color: white; }
+.pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+.pagination button.active { background: #545b62; color: white; font-weight: bold; }
