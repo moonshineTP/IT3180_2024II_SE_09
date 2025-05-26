@@ -79,6 +79,7 @@ public class GetList {
                 .map(grantedAuthority -> grantedAuthority.getAuthority())
                 .findFirst()
                 .orElse("guest");
+        System.out.println(currentUserRole);
         String currentEmail = authentication.getName();
         // Fetch all accounts
         List<Account> accounts = accountRepository.findAll();
@@ -86,7 +87,7 @@ public class GetList {
         // Filter and map accounts based on the user's role
         List<AccountDTO> accountDTOs = accounts.stream()
                 .map(account -> {
-                    boolean includeEmail = "admin".equals(currentUserRole) || account.getEmail().equals(currentEmail);
+                    boolean includeEmail = "ROLE_admin".equals(currentUserRole) || account.getEmail().equals(currentEmail);
                     return mapService.mapToAccountDTO(account, includeEmail);
                 })
                 .collect(Collectors.toList());
@@ -109,7 +110,7 @@ public class GetList {
         // Map residents to DTOs based on the user's role
         List<ResidentDTO> residentDTOs = residents.stream()
                 .map(resident -> {
-                    boolean full = "admin".equals(currentUserRole) || resident.getAccount().getEmail().equals(currentEmail);
+                    boolean full = "ROLE_admin".equals(currentUserRole) || (resident.getAccount() != null &&resident.getAccount().getEmail().equals(currentEmail));
                     return mapService.mapToResidentDTO(resident, full);
                 })
                 .collect(Collectors.toList());
@@ -170,7 +171,7 @@ public class GetList {
                 .map(grantedAuthority -> grantedAuthority.getAuthority())
                 .findFirst()
                 .orElse("guest");
-        if(!"admin".equals(currentUserRole)) {
+        if(!"ROLE_admin".equals(currentUserRole)) {
             return ResponseEntity.status(403).body(List.of());
         }
         // Fetch notifications where sendto is "private" and recipient is the current user

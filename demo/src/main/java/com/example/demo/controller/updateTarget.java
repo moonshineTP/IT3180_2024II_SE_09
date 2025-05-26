@@ -35,6 +35,7 @@ import com.example.demo.model.DTO.ResponseComplaintsDTO;
 import com.example.demo.repository.AccountRepository;
 import com.example.demo.repository.ResidentRepository;
 import com.example.demo.repository.VehicleRepository;
+import com.example.demo.service.MapService;
 import com.example.demo.repository.FeeRepository;
 import com.example.demo.repository.DonationRepository;
 import com.example.demo.repository.BillRepository;
@@ -53,16 +54,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.time.LocalDateTime;
-
+import java.util.Objects;
+import java.util.function.BiPredicate;
 
 
 @RestController
 @RequestMapping("/api/update")
 public class updateTarget {
+
+    private final MapService mapService;
 
 
     @Autowired
@@ -102,69 +107,106 @@ public class updateTarget {
     private ReceiveNotificationRepository receiveNotificationRepository;
     @Autowired
     private IncludeInComplaintsRepository includeInComplaintsRepository;
+
+    updateTarget(MapService mapService) {
+        this.mapService = mapService;
+    }
     @PutMapping("/changeaccount")
-    public ResponseEntity<?> updateAccount(
-            @RequestBody AccountDTO accountDTO,
-            Authentication authentication) {
+    public ResponseEntity<?> updateAccount(@RequestBody AccountDTO dto,
+                                        Authentication authentication) {
 
-        // Get the currently authenticated user's role and username
-        String currentUserRole = authentication.getAuthorities().stream()
-                .map(grantedAuthority -> grantedAuthority.getAuthority())
-                .findFirst()
-                .orElse("guest");
-
+        /*--------------------------------------------------
+        * 1. Lấy thông tin người đăng nhập
+        *-------------------------------------------------*/
+        String currentRole  = authentication.getAuthorities().stream()
+                                .map(GrantedAuthority::getAuthority)
+                                .findFirst()
+                                .orElse("ROLE_guest");
         String currentEmail = authentication.getName();
 
-        // Find the account to update
-        Account account = accountRepository.findByEmail(accountDTO.getEmail());
-        if (account==null) {
+        /*--------------------------------------------------
+        * 2. Tìm account cần cập nhật
+        *-------------------------------------------------*/
+        Account account = accountRepository.findByEmail(dto.getEmail());
+        if (account == null)
             return ResponseEntity.badRequest().body("Account not found");
+
+        boolean isAdmin = "ROLE_admin".equals(currentRole);
+
+        /*--------------------------------------------------
+        * 3. Kiểm tra quyền
+        *-------------------------------------------------*/
+        if (!isAdmin && !account.getEmail().equals(currentEmail))
+            return ResponseEntity.status(403)
+                .body("You do not have permission to update this account");
+
+        /*--------------------------------------------------
+        * 4. Cập nhật chung (username) – cho admin & owner
+        *-------------------------------------------------*/
+        if (dto.getUsername() != null &&
+            !dto.getUsername().equals(account.getUsername())) {
+
+            if (accountRepository.findByUsername(dto.getUsername()) != null)
+                return ResponseEntity.badRequest().body("Username already exists");
+
+            account.setUsername(dto.getUsername());
         }
 
-        // Check if the user has permission to update the account
-        if (!"admin".equals(currentUserRole) && !account.getEmail().equals(currentEmail)) {
-            return ResponseEntity.status(403).body("You do not have permission to update this account");
-        }
+        /*--------------------------------------------------
+        * 5. Chỉ admin được quyền sửa role, residentId
+        *-------------------------------------------------*/
+        if (isAdmin) {
 
-        // Admin can update all fields
-        if ("admin".equals(currentUserRole)) {
-            if (accountDTO.getUsername() != null) {
-                if(accountRepository.findByUsername(accountDTO.getUsername()) != null) {
-                    return ResponseEntity.badRequest().body("Username already exists");
+            /* ---------- ROLE ---------- */
+            if (dto.getRole() != null && !dto.getRole().equals(account.getRole())) {
+                account.setRole(dto.getRole());
+            }
+
+            /* ---------- RESIDENT ID ---------- */
+            // Giá trị hiện tại (có thể null):
+            String curResidentId = account.getResident() != null
+                                ? account.getResident().getResidentId()
+                                : "";
+
+            if (!curResidentId.equals(dto.getResidentId())) {
+
+                // Nếu gửi null ➜ huỷ liên kết resident
+                if (dto.getResidentId().isEmpty()) {
+                    if (account.getResident() != null)
+                        account.getResident().setAccount(null);
+                    account.setResident(null);
                 }
-                account.setUsername(accountDTO.getUsername());
-            }
-            if (accountDTO.getRole() != null) {
-                account.setRole(accountDTO.getRole());
-            }
-            if (accountDTO.getResident_id() != null) {
-                Resident resident = residentRepository.findByResidentId(accountDTO.getResident_id());
-                if (resident!=null) {
-                    // Check if the resident is already linked to another account
-                    if (resident.getAccount() != null) {
-                        return ResponseEntity.badRequest().body("Resident is already linked to another account");
-                    }
-                    account.getResident().setAccount(null); // Unlink the current account from the resident
+                // Gửi id mới
+                else {
+                    Resident resident = residentRepository.findByResidentId(dto.getResidentId());
+                    if (resident == null)
+                        return ResponseEntity.badRequest().body("Invalid resident_id");
+
+                    if (resident.getAccount() != null && resident.getAccount() != account)
+                        return ResponseEntity.badRequest()
+                                .body("Resident is already linked to another account");
+
+                    // unlink resident cũ nếu có
+                    if (account.getResident() != null)
+                        account.getResident().setAccount(null);
+
+                    // link resident mới
                     account.setResident(resident);
-                    resident.setAccount(account); // Set the linking email for the resident
-                } else {
-                    return ResponseEntity.badRequest().body("Invalid resident_id");
+                    resident.setAccount(account);
                 }
             }
-        } else {
-            // Resident or guest can only update their own account
-            if (accountDTO.getUsername() != null) {
-                if(accountRepository.findByUsername(accountDTO.getUsername()) != null) {
-                    return ResponseEntity.badRequest().body("Username already exists");
-                }
-                account.setUsername(accountDTO.getUsername());
+            if(!dto.getBan().equals(account.getBan())){
+                account.setBan(dto.getBan());
             }
         }
-        // Save the updated account
-        accountRepository.save(account);
 
+        /*--------------------------------------------------
+        * 6. Lưu và trả kết quả
+        *-------------------------------------------------*/
+        accountRepository.save(account);
         return ResponseEntity.ok("Account updated successfully");
     }
+
     @DeleteMapping("/deleteaccount")
     public ResponseEntity<?> deleteAccountByEmail(@RequestBody AccountDTO accountDTO, Authentication authentication) {
         // Get the currently authenticated user's role
@@ -174,7 +216,7 @@ public class updateTarget {
                 .orElse("guest");
 
         // Only admins are allowed to delete accounts by email
-        if (!"admin".equals(currentUserRole)) {
+        if (!"ROLE_admin".equals(currentUserRole)) {
             return ResponseEntity.status(403).body("You do not have permission to delete accounts");
         }
 
@@ -194,96 +236,83 @@ public class updateTarget {
         return ResponseEntity.ok("Account deleted successfully");
     }
     @PutMapping("/changeresident")
-    public ResponseEntity<?> changeResident(@RequestBody ResidentDTO residentDTO, Authentication authentication) {
+    public ResponseEntity<?> changeResident(@RequestBody ResidentDTO dto,Authentication auth) {
+        /* 1. Quyền hạn --------------------------------------------------------- */
+        boolean isAdmin = auth.getAuthorities().stream()
+                            .map(GrantedAuthority::getAuthority)
+                            .anyMatch("ROLE_admin"::equals);
+        if (!isAdmin)
+            return ResponseEntity.status(403)
+                .body("You do not have permission to update residents");
 
-        // Get the currently authenticated user's role
-        String currentUserRole = authentication.getAuthorities().stream()
-                .map(grantedAuthority -> grantedAuthority.getAuthority())
-                .findFirst()
-                .orElse("guest");
-
-        // Only admins are allowed to update residents
-        if (!"admin".equals(currentUserRole)) {
-            return ResponseEntity.status(403).body("You do not have permission to update residents");
-        }
-
-        // Validate the resident_id in the DTO
-        if (residentDTO.getResident_id() == null || residentDTO.getResident_id().isEmpty()) {
+        /* 2. Tìm resident cần cập nhật ----------------------------------------- */
+        if (dto.getResidentId() == null || dto.getResidentId().isBlank())
             return ResponseEntity.badRequest().body("Resident ID is required");
-        }
 
-        // Find the resident by resident_id
-        Resident resident = residentRepository.findByResidentId(residentDTO.getResident_id());
-        if (resident == null) {
+        Resident r = residentRepository.findByResidentId(dto.getResidentId());
+        if (r == null)
             return ResponseEntity.badRequest().body("Resident not found");
-        }
-        // Update fields if they are not null in the DTO
-        if (residentDTO.getFullName() != null) {
-            resident.setFullName(residentDTO.getFullName());
-        }
-        if (residentDTO.getGender() != null) {
-            resident.setGender(residentDTO.getGender());
-        }
-        if (residentDTO.getDateOfBirth() != null) {
-            resident.setDateOfBirth(residentDTO.getDateOfBirth());
-        }
-        if (residentDTO.getPlaceOfBirth() != null) {
-            resident.setPlaceOfBirth(residentDTO.getPlaceOfBirth());
-        }
-        if (residentDTO.getIdentityNumber() != null) {
-            // Ensure identityNumber is unique
-            if (residentRepository.existsByIdentityNumberAndResidentIdNot(residentDTO.getIdentityNumber(), resident.getResidentId())) {
-                return ResponseEntity.badRequest().body("Identity number must be unique");
-            }
-            resident.setIdentityNumber(residentDTO.getIdentityNumber());
-        }
-        if (residentDTO.getCccdIssueDate() != null) {
-            resident.setCccdIssueDate(residentDTO.getCccdIssueDate());
-        }
-        if (residentDTO.getCccdExpiryDate() != null) {
-            resident.setCccdExpiryDate(residentDTO.getCccdExpiryDate());
-        }
-        if (residentDTO.getPhoneNumber() != null) {
-            // Ensure phoneNumber is unique
-            if (residentRepository.existsByPhoneNumberAndResidentIdNot(residentDTO.getPhoneNumber(), resident.getResidentId())) {
-                return ResponseEntity.badRequest().body("Phone number must be unique");
-            }
-            resident.setPhoneNumber(residentDTO.getPhoneNumber());
-        }
-        if (residentDTO.getEmail() != null) {
-            // Ensure email is unique
-            if (residentRepository.existsByEmailAndResidentIdNot(residentDTO.getEmail(), resident.getResidentId())) {
-                return ResponseEntity.badRequest().body("Email must be unique");
-            }
-            resident.setEmail(residentDTO.getEmail());
-        }
-        if (residentDTO.getOccupation() != null) {
-            resident.setOccupation(residentDTO.getOccupation());
-        }
-        if (residentDTO.getApartmentNumber() != null) {
-            resident.setApartmentNumber(residentDTO.getApartmentNumber());
-        }
-        if (residentDTO.getIsHouseholdOwner() != null) {
-            // Ensure there is only one household owner in the apartment
-            if (residentDTO.getIsHouseholdOwner() && residentRepository.existsByApartmentNumberAndIsHouseholdOwnerTrueAndResidentIdNot(resident.getApartmentNumber(), resident.getResidentId())) {
-                return ResponseEntity.badRequest().body("There can only be one household owner in an apartment");
-            }
-            resident.setIsHouseholdOwner(residentDTO.getIsHouseholdOwner());
-        }
-        if (residentDTO.getRelationshipWithOwner() != null) {
-            resident.setRelationshipWithOwner(residentDTO.getRelationshipWithOwner());
-        }
-        if (residentDTO.getMoveInDate() != null) {
-            resident.setMoveInDate(residentDTO.getMoveInDate());
-        }
-        if (residentDTO.getMoveOutDate() != null) {
-            resident.setMoveOutDate(residentDTO.getMoveOutDate());
-        }
-        // Save the updated resident
-        residentRepository.save(resident);
 
-        return ResponseEntity.ok("Resident updated successfully");
+        /* 3. Hàm tiện ích kiểm tra uniqueness --------------------------------- */
+        BiPredicate<String, String> changed = (newVal, curVal) ->
+                newVal != null && !Objects.equals(newVal, curVal);
+        /* 4. Cập nhật các trường ---------------------------------------------- */
+        if (changed.test(dto.getFullName(), r.getFullName())) r.setFullName(dto.getFullName());
+        if (changed.test(dto.getGender(), r.getGender())) r.setGender(dto.getGender());
+        if (dto.getDateOfBirth() != null && !dto.getDateOfBirth().equals(r.getDateOfBirth())) r.setDateOfBirth(dto.getDateOfBirth());
+        if (changed.test(dto.getPlaceOfBirth(), r.getPlaceOfBirth()))  r.setPlaceOfBirth(dto.getPlaceOfBirth());
+
+        /*--- IdentityNumber ----------------------------------------------------*/
+        if (changed.test(dto.getIdentityNumber(), r.getIdentityNumber())) {
+            if (residentRepository.existsByIdentityNumberAndResidentIdNot(dto.getIdentityNumber(), r.getResidentId()))
+                return ResponseEntity.badRequest().body("Identity number must be unique");
+            r.setIdentityNumber(dto.getIdentityNumber());
+        }
+
+        if (dto.getCccdIssueDate()!=null && !dto.getCccdIssueDate().equals(r.getCccdIssueDate()))
+            r.setCccdIssueDate(dto.getCccdIssueDate());
+        if (dto.getCccdExpiryDate()!=null && !dto.getCccdExpiryDate().equals(r.getCccdExpiryDate()))
+            r.setCccdExpiryDate(dto.getCccdExpiryDate());
+
+        /*--- Phone -------------------------------------------------------------*/
+        if (changed.test(dto.getPhoneNumber(), r.getPhoneNumber())) {
+            if (residentRepository.existsByPhoneNumberAndResidentIdNot(dto.getPhoneNumber(), r.getResidentId()))
+                return ResponseEntity.badRequest().body("Phone number must be unique");
+            r.setPhoneNumber(dto.getPhoneNumber());
+        }
+        /*--- Email -------------------------------------------------------------*/
+        if (changed.test(dto.getEmail(), r.getEmail())) {
+            if (residentRepository.existsByEmailAndResidentIdNot(dto.getEmail(), r.getResidentId()))
+                return ResponseEntity.badRequest().body("Email must be unique");
+            r.setEmail(dto.getEmail());
+        }
+        if (changed.test(dto.getOccupation(), r.getOccupation())) r.setOccupation(dto.getOccupation());
+        if (changed.test(dto.getApartmentNumber(), r.getApartmentNumber())) {
+            if (dto.getIsHouseholdOwner() &&
+                residentRepository.existsByApartmentNumberAndIsHouseholdOwnerTrueAndResidentIdNot(dto.getApartmentNumber(), dto.getResidentId()))
+                return ResponseEntity.badRequest()
+                        .body("There can only be one household owner in an apartment");
+            r.setApartmentNumber(dto.getApartmentNumber());
+        }
+        /*--- Chủ hộ ------------------------------------------------------------*/
+        if (dto.getIsHouseholdOwner() != null &&!Objects.equals(dto.getIsHouseholdOwner(), r.getIsHouseholdOwner())) {
+            if (dto.getIsHouseholdOwner() &&
+                residentRepository.existsByApartmentNumberAndIsHouseholdOwnerTrueAndResidentIdNot(dto.getApartmentNumber(), dto.getResidentId()))
+                return ResponseEntity.badRequest()
+                        .body("There can only be one household owner in an apartment");
+            r.setIsHouseholdOwner(dto.getIsHouseholdOwner());
+        }
+        if (changed.test(dto.getRelationshipWithOwner(), r.getRelationshipWithOwner()))
+            r.setRelationshipWithOwner(dto.getRelationshipWithOwner());
+        if (dto.getMoveInDate()!=null && !dto.getMoveInDate().equals(r.getMoveInDate()))
+            r.setMoveInDate(dto.getMoveInDate());
+        if (dto.getMoveOutDate()!=null && !dto.getMoveOutDate().equals(r.getMoveOutDate()))
+            r.setMoveOutDate(dto.getMoveOutDate());
+        /* 5. Lưu & phản hồi ---------------------------------------------------- */
+        residentRepository.save(r);
+        return ResponseEntity.ok(mapService.mapToResidentDTO(r, true));
     }
+
     @DeleteMapping("/deleteresident")
     public ResponseEntity<?> deleteResidentById(@RequestParam String residentId, Authentication authentication) {
         // Get the currently authenticated user's role
@@ -293,7 +322,7 @@ public class updateTarget {
                 .orElse("guest");
 
         // Only admins are allowed to delete residents
-        if (!"admin".equals(currentUserRole)) {
+        if (!"ROLE_admin".equals(currentUserRole)) {
             return ResponseEntity.status(403).body("You do not have permission to delete residents");
         }
 
@@ -319,73 +348,68 @@ public class updateTarget {
 
         return ResponseEntity.ok("Resident and associated vehicles deleted successfully");
     }
-    @PutMapping("/changevehicle")
+   @PutMapping("/changevehicle")
     public ResponseEntity<?> updateVehicle(@RequestBody VehicleDTO vehicleDTO, Authentication authentication) {
-        // Get the currently authenticated user's role
         String currentUserRole = authentication.getAuthorities().stream()
                 .map(grantedAuthority -> grantedAuthority.getAuthority())
                 .findFirst()
                 .orElse("guest");
 
-        // Only admins are allowed to update vehicles
-        if (!"admin".equals(currentUserRole)) {
+        if (!"ROLE_admin".equals(currentUserRole)) {
             return ResponseEntity.status(403).body("You do not have permission to update vehicles");
         }
 
-        // Validate the licensePlate in the DTO
         if (vehicleDTO.getLicensePlate() == null || vehicleDTO.getLicensePlate().isEmpty()) {
             return ResponseEntity.badRequest().body("License plate is required");
         }
 
-        // Find the vehicle by licensePlate
         Vehicle vehicle = vehicleRepository.findByLicensePlate(vehicleDTO.getLicensePlate());
         if (vehicle == null) {
             return ResponseEntity.badRequest().body("Vehicle not found");
         }
 
-        // Update fields if they are not null in the DTO
-        if (vehicleDTO.getVehicleType() != null) {
+        // So sánh từng field và cập nhật nếu khác
+        if (!vehicleDTO.getVehicleType().equals(vehicle.getVehicleType())) {
             vehicle.setVehicleType(vehicleDTO.getVehicleType());
         }
-        if (vehicleDTO.getBrand() != null) {
+        if (!vehicleDTO.getBrand().equals(vehicle.getBrand())) {
             vehicle.setBrand(vehicleDTO.getBrand());
         }
-        if (vehicleDTO.getModel() != null) {
+        if (vehicleDTO.getModel().equals(vehicle.getModel())) {
             vehicle.setModel(vehicleDTO.getModel());
         }
-        if (vehicleDTO.getColor() != null) {
+        if (!vehicleDTO.getColor().equals(vehicle.getColor())) {
             vehicle.setColor(vehicleDTO.getColor());
         }
-        if (vehicleDTO.getRegistrationDate() != null) {
+        if (!vehicleDTO.getRegistrationDate().equals(vehicle.getRegistrationDate())) {
             vehicle.setRegistrationDate(vehicleDTO.getRegistrationDate());
         }
-        if (vehicleDTO.getParkingSlot() != null) {
+        if (!vehicleDTO.getParkingSlot().equals(vehicle.getParkingSlot())) {
             // Ensure parkingSlot is unique
             if (vehicleRepository.existsByParkingSlotAndLicensePlateNot(vehicleDTO.getParkingSlot(), vehicle.getLicensePlate())) {
                 return ResponseEntity.badRequest().body("Parking slot must be unique");
             }
             vehicle.setParkingSlot(vehicleDTO.getParkingSlot());
         }
-        if (vehicleDTO.getNote() != null) {
+        if (!vehicleDTO.getNote().equals(vehicle.getNote())) {
             vehicle.setNote(vehicleDTO.getNote());
         }
-
-        if (vehicleDTO.getImage() != null) {
-            vehicle.setImage(vehicleDTO.getImage());
-        }
-        // Check if the resident_id is provided and find the resident
+        // Cập nhật resident nếu khác
         if (vehicleDTO.getResidentId() != null) {
-            Resident resident = residentRepository.findByResidentId(vehicleDTO.getResidentId());
-            if (resident == null) {
-                return ResponseEntity.badRequest().body("Resident not found");
+            Resident currentResident = vehicle.getResident();
+            if (currentResident == null || !vehicleDTO.getResidentId().equals(currentResident.getResidentId())) {
+                Resident resident = residentRepository.findByResidentId(vehicleDTO.getResidentId());
+                if (resident == null) {
+                    return ResponseEntity.badRequest().body("Resident not found");
+                }
+                vehicle.setResident(resident);
             }
-            vehicle.setResident(resident);
         }
-        // Save the updated vehicle
-        vehicleRepository.save(vehicle);
 
-        return ResponseEntity.ok("Vehicle updated successfully");
+        vehicleRepository.save(vehicle);
+        return ResponseEntity.ok(vehicleDTO);
     }
+
     @DeleteMapping("/deletevehicle")
     public ResponseEntity<?> deleteVehicleByLicensePlate(@RequestBody VehicleDTO vehicleDTO, Authentication authentication) {
         // Get the currently authenticated user's role
@@ -394,7 +418,7 @@ public class updateTarget {
                 .findFirst()
                 .orElse("guest");
         // Only admins are allowed to delete vehicles
-        if (!"admin".equals(currentUserRole)) {
+        if (!"ROLE_admin".equals(currentUserRole)) {
             return ResponseEntity.status(403).body("You do not have permission to delete vehicles");
         }
         // Validate the license plate in the DTO
@@ -425,7 +449,7 @@ public class updateTarget {
                 .orElse("guest");
 
         // Only admins are allowed to update fees
-        if (!"admin".equals(currentUserRole)) {
+        if (!"ROLE_admin".equals(currentUserRole)) {
             return ResponseEntity.status(403).body("You do not have permission to update fees");
         }
 
@@ -470,7 +494,7 @@ public class updateTarget {
                 .orElse("guest");
 
         // Only admins are allowed to delete fees
-        if (!"admin".equals(currentUserRole)) {
+        if (!"ROLE_admin".equals(currentUserRole)) {
             return ResponseEntity.status(403).body("You do not have permission to delete fees");
         }
         // Validate the feeId in the DTO
@@ -510,7 +534,7 @@ public class updateTarget {
                 .orElse("guest");
 
         // Only admins are allowed to update donations
-        if (!"admin".equals(currentUserRole)) {
+        if (!"ROLE_admin".equals(currentUserRole)) {
             return ResponseEntity.status(403).body("You do not have permission to update donations");
         }
 
@@ -556,7 +580,7 @@ public class updateTarget {
                 .orElse("guest");
 
         // Only admins are allowed to delete donations
-        if (!"admin".equals(currentUserRole)) {
+        if (!"ROLE_admin".equals(currentUserRole)) {
             return ResponseEntity.status(403).body("You do not have permission to delete donations");
         }
 
@@ -592,7 +616,7 @@ public class updateTarget {
                 .orElse("guest");
 
         // Only admins are allowed to update complaints
-        if (!"admin".equals(currentUserRole)||"resident".equals(currentUserRole)) {
+        if (!"ROLE_admin".equals(currentUserRole)||"resident".equals(currentUserRole)) {
             return ResponseEntity.status(403).body("You do not have permission to update complaints");
         }
 
@@ -656,10 +680,10 @@ public class updateTarget {
         }
 
         // Only admins are allowed to delete complaints
-        if ("guest".equals(currentUserRole)) {
+        if ("ROLE_guest".equals(currentUserRole)) {
             return ResponseEntity.status(403).body("You do not have permission to delete complaints");
         }
-        if("resident".equals(currentUserRole)) {
+        if("ROLE_resident".equals(currentUserRole)) {
             if (!complaint.getResident().getAccount().getEmail().equals(currentEmail)) {
                 return ResponseEntity.status(403).body("You do not have permission to delete this complaint");
             }
@@ -678,23 +702,23 @@ public class updateTarget {
                 .orElse("guest");
 
         // Only admins are allowed to create residents
-        if (!"admin".equals(currentUserRole)) {
+        if (!"ROLE_admin".equals(currentUserRole)) {
             return ResponseEntity.status(403).body("You do not have permission to create residents");
         }
 
         // Validate the resident_id in the DTO
-        if (residentDTO.getResident_id() == null || residentDTO.getResident_id().isEmpty()) {
+        if (residentDTO.getResidentId() == null || residentDTO.getResidentId().isEmpty()) {
             return ResponseEntity.badRequest().body("Resident ID is required");
         }
 
         // Check if a resident with the same ID already exists
-        if (residentRepository.findByResidentId(residentDTO.getResident_id()) != null) {
+        if (residentRepository.findByResidentId(residentDTO.getResidentId()) != null) {
             return ResponseEntity.badRequest().body("Resident with the given ID already exists");
         }
 
         // Create a new resident with default values
         Resident resident = new Resident();
-        resident.setResidentId(residentDTO.getResident_id());
+        resident.setResidentId(residentDTO.getResidentId());
         // Save the new resident
         residentRepository.save(resident);
 
@@ -710,7 +734,7 @@ public class updateTarget {
                 .orElse("guest");
 
         // Only admins are allowed to create vehicles
-        if (!"admin".equals(currentUserRole)) {
+        if (!"ROLE_admin".equals(currentUserRole)) {
             return ResponseEntity.status(403).body("You do not have permission to create vehicles");
         }
 
@@ -726,10 +750,14 @@ public class updateTarget {
         if (vehicleRepository.findByLicensePlate(vehicleDTO.getLicensePlate()) != null) {
             return ResponseEntity.badRequest().body("Vehicle with the given license plate already exists");
         }
-
+        Resident resident = residentRepository.findByResidentId(vehicleDTO.getResidentId());
+        if (resident == null) {
+            return ResponseEntity.badRequest().body("Resident doesn't exist");
+        }
         // Create a new vehicle with default values
         Vehicle vehicle = new Vehicle();
         vehicle.setLicensePlate(vehicleDTO.getLicensePlate());
+        vehicle.setResident(resident);
         // Save the new vehicle
         vehicleRepository.save(vehicle);
 
@@ -744,7 +772,7 @@ public class updateTarget {
                 .orElse("guest");
 
         // Only admins are allowed to create fees
-        if (!"admin".equals(currentUserRole)) {
+        if (!"ROLE_admin".equals(currentUserRole)) {
             return ResponseEntity.status(403).body("You do not have permission to create fees");
         }
 
@@ -776,7 +804,7 @@ public class updateTarget {
                 .orElse("guest");
 
         // Only admins are allowed to create donations
-        if (!"admin".equals(currentUserRole)) {
+        if (!"ROLE_admin".equals(currentUserRole)) {
             return ResponseEntity.status(403).body("You do not have permission to create donations");
         }
 
@@ -809,7 +837,7 @@ public class updateTarget {
         String currentEmail = authentication.getName();
 
         // Only admins are allowed to create complaints
-        if (!"resident".equals(currentUserRole)) {
+        if (!"ROLE_resident".equals(currentUserRole)) {
             return ResponseEntity.status(403).body("You do not have permission to create complaints");
         }
 
@@ -1150,7 +1178,7 @@ public class updateTarget {
                 .findFirst()
                 .orElse("guest");
         // Only admins are allowed to create bills
-        if (!"admin".equals(currentUserRole)) {
+        if (!"ROLE_admin".equals(currentUserRole)) {
             return ResponseEntity.status(403).body("You do not have permission to create bills");
         }
         // Validate the feeId and apartmentNumber in the DTO
@@ -1190,7 +1218,7 @@ public class updateTarget {
                 .findFirst()
                 .orElse("guest");
         // Only admins are allowed to delete bills
-        if (!"admin".equals(currentUserRole)) {
+        if (!"ROLE_admin".equals(currentUserRole)) {
             return ResponseEntity.status(403).body("You do not have permission to delete bills");
         }
         // Find the Bill by startingDate and FeeHousehold

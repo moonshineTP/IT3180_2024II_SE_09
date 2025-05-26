@@ -3,7 +3,7 @@ package com.example.demo.model.DTO;
 import java.time.LocalDate;
 
 public class ResidentDTO {
-    private String resident_id;
+    private String residentId;
     private String fullName;
     private String gender;
     private LocalDate dateOfBirth;
@@ -24,12 +24,12 @@ public class ResidentDTO {
     private String linkingUsername; // Username from the linked account
 
     // Getters and Setters
-    public String getResident_id() {
-        return resident_id;
+    public String getResidentId() {
+        return residentId;
     }
 
-    public void setResident_id(String residentId) {
-        this.resident_id = residentId;
+    public void setResidentId(String residentId) {
+        this.residentId = residentId;
     }
 
     public String getFullName() {

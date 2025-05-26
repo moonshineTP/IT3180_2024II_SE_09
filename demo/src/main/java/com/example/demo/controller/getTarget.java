@@ -101,7 +101,7 @@ public class getTarget {
                 return ResponseEntity.badRequest().body("Account not found");
             }
             // Check if the username belongs to the current user
-            boolean includeEmail = account.getEmail().equals(currentEmail)||"admin".equals(currentUserRole);
+            boolean includeEmail = account.getEmail().equals(currentEmail)||"ROLE_admin".equals(currentUserRole);
 
             return ResponseEntity.ok(mapService.mapToAccountDTO(account, includeEmail));
         }
@@ -116,13 +116,13 @@ public class getTarget {
                 .findFirst()
                 .orElse("guest");
         String currentEmail = authentication.getName();
-        if(requestDTO.getResident_id() != null) {
-            Resident resident = residentRepository.findByResidentId(requestDTO.getResident_id());
+        if(requestDTO.getResidentId() != null) {
+            Resident resident = residentRepository.findByResidentId(requestDTO.getResidentId());
             if (resident==null) {
                 return ResponseEntity.badRequest().body("Resident not found");
             }
             // Check if the resident belongs to the current user
-            boolean full = "admin".equals(currentUserRole) || resident.getAccount().getEmail().equals(currentEmail);
+            boolean full = "ROLE_admin".equals(currentUserRole) || resident.getAccount().getEmail().equals(currentEmail);
             ResidentDTO responseDTO = mapService.mapToResidentDTO(resident, full);
             return ResponseEntity.ok(responseDTO);
         }
@@ -187,9 +187,11 @@ public class getTarget {
         List<ResidentDTO> residentDTOs = residents.stream()
                 .map(resident -> {
                     ResidentDTO dto = new ResidentDTO();
-                    dto.setResident_id(resident.getResidentId());
+                    dto.setResidentId(resident.getResidentId());
                     dto.setFullName(resident.getFullName());
-                    dto.setAvatar(resident.getAvatar());
+                    dto.setGender(resident.getGender());
+                    dto.setRelationshipWithOwner(resident.getRelationshipWithOwner());
+                    dto.setIsHouseholdOwner(resident.getIsHouseholdOwner());
                     return dto;
                 })
                 .toList();
@@ -244,10 +246,10 @@ public class getTarget {
         if (notification == null) {
             return ResponseEntity.badRequest().body("Notification not found");
         }
-        if("guest".equals(currentUserRole)){
+        if("ROLE_guest".equals(currentUserRole)){
             return ResponseEntity.badRequest().body("You are not allowed to access this resource");
         }
-        if ("resident".equals(currentUserRole)) {
+        if ("ROLE_resident".equals(currentUserRole)) {
         // Find the resident associated with the current account
         Resident resident = account.getResident();
 
@@ -525,7 +527,7 @@ public class getTarget {
         // Check if current user is admin or a receiver
         boolean isReceiver = receiveNotifications.stream()
                 .anyMatch(rn -> rn.getResident().getAccount().getEmail().equals(currentEmail));
-        if (!"admin".equalsIgnoreCase(currentUserRole) && !isReceiver) {
+        if (!"ROLE_admin".equalsIgnoreCase(currentUserRole) && !isReceiver) {
             return ResponseEntity.status(403).body("You do not have permission to view this list");
         }
 

@@ -21,7 +21,7 @@ public class MapService {
     // Helper method to map Resident to ResidentDTO based on role
     public ResidentDTO mapToResidentDTO(Resident resident, boolean full) {
         ResidentDTO dto = new ResidentDTO();
-        dto.setResident_id(resident.getResidentId());
+        dto.setResidentId(resident.getResidentId());
         dto.setFullName(resident.getFullName());
         dto.setGender(resident.getGender());
         dto.setDateOfBirth(resident.getDateOfBirth());
@@ -32,7 +32,8 @@ public class MapService {
         dto.setMoveInDate(resident.getMoveInDate());
         dto.setMoveOutDate(resident.getMoveOutDate());
         dto.setAvatar(resident.getAvatar());
-        dto.setLinkingUsername(resident.getAccount().getUsername());
+        dto.setLinkingUsername((resident.getAccount()!=null) ? resident.getAccount().getUsername() : null);
+        dto.setIsHouseholdOwner(resident.getIsHouseholdOwner());
         // Admin gets all information
         if (full) {
             dto.setIdentityNumber(resident.getIdentityNumber());
@@ -40,8 +41,7 @@ public class MapService {
             dto.setCccdExpiryDate(resident.getCccdExpiryDate());
             dto.setPhoneNumber(resident.getPhoneNumber());
             dto.setEmail(resident.getEmail());
-            dto.setIsHouseholdOwner(resident.getIsHouseholdOwner());
-            dto.setLinkingEmail(resident.getAccount().getEmail());
+            dto.setLinkingEmail((resident.getAccount()!=null) ? resident.getAccount().getEmail() : null);
         }
         else {
             dto.setIdentityNumber(null);
@@ -49,7 +49,6 @@ public class MapService {
             dto.setCccdExpiryDate(null);
             dto.setPhoneNumber(null);
             dto.setEmail(null);
-            dto.setIsHouseholdOwner(null);
             dto.setLinkingEmail(null);
         }
 
@@ -83,7 +82,7 @@ public class MapService {
         dto.setLastVisit(account.getLastVisit());
         dto.setLastOffline(account.getLastOffline());
         if (account.getResident() != null) {
-            dto.setResident_id(account.getResident().getResidentId());
+            dto.setResidentId(account.getResident().getResidentId());
         }
         return dto;
     }

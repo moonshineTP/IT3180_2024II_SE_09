@@ -14,7 +14,7 @@ public class AccountDTO {
     private LocalDateTime createdDate;
     private Instant lastVisit;
     private LocalDateTime lastOffline;
-    private String resident_id; // Include resident_id if the account is linked to a resident
+    private String residentId; // Include resident_id if the account is linked to a resident
 
     public String getUsername() {
         return username;
@@ -72,12 +72,12 @@ public class AccountDTO {
         this.lastVisit = lastVisit;
     }
 
-    public String getResident_id() {
-        return resident_id;
+    public String getResidentId() {
+        return residentId;
     }
 
-    public void setResident_id(String residentId) {
-        this.resident_id = residentId;
+    public void setResidentId(String residentId) {
+        this.residentId = residentId;
     }
     public LocalDateTime getLastOffline() {
         return lastOffline;

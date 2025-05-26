@@ -54,7 +54,7 @@ public class AuthService {
     
         String usernameRegex = "^(?=.{5,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$";
         if (!Pattern.matches(usernameRegex, username)) {
-            response.put("usernameStatus", "Username không hợp lệ! Từ 5-20 ký tự, chỉ gồm chữ, số, dấu . hoặc _, không bắt đầu/kết thúc bằng . hoặc _ và không có 2 ký tự đặc biệt liên tiếp.");
+            response.put("usernameStatus", "Username có cú pháp không hợp lệ! Từ 5-20 ký tự, chỉ gồm chữ, số, dấu . hoặc _, không bắt đầu/kết thúc bằng . hoặc _ và không có 2 ký tự đặc biệt liên tiếp.");
             return false;
         }
     
