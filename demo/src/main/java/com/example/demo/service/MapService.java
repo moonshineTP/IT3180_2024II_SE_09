@@ -9,6 +9,7 @@ import com.example.demo.model.Resident;
 import com.example.demo.model.Vehicle;
 import com.example.demo.model.Complaints;
 import com.example.demo.model.Notification;
+import com.example.demo.model.ReceiveNotification;
 import com.example.demo.model.DTO.AccountDTO;
 import com.example.demo.model.DTO.FeeDTO;
 import com.example.demo.model.DTO.ResidentDTO;
@@ -16,6 +17,7 @@ import com.example.demo.model.DTO.VehicleDTO;
 import com.example.demo.model.DTO.DonationDTO;
 import com.example.demo.model.DTO.ComplaintsDTO;
 import com.example.demo.model.DTO.NotificationDTO;
+import com.example.demo.model.DTO.ReceiveNotificationDTO;
 @Service 
 public class MapService {
     // Helper method to map Resident to ResidentDTO based on role
@@ -140,6 +142,13 @@ public class MapService {
         responseDTO.setType(notification.getType());
         responseDTO.setSendto(notification.getSendto());
         if(full) responseDTO.setContent(notification.getContent());
+        return responseDTO;
+    }
+    public ReceiveNotificationDTO  mapToReceiveNotificationDTO(ReceiveNotification receiveNotification) {
+        ReceiveNotificationDTO responseDTO = new ReceiveNotificationDTO();
+        responseDTO.setId(receiveNotification.getId());
+        responseDTO.setNotificationId(receiveNotification.getNotification().getAnnouncementId());
+        responseDTO.setResidentId(receiveNotification.getResident().getResidentId());
         return responseDTO;
     }
 }

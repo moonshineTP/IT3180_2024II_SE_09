@@ -1,0 +1,32 @@
+{
+  "name": "my-editor",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@ckeditor/ckeditor5-basic-styles": "^45.1.0",
+    "@ckeditor/ckeditor5-editor-classic": "^45.1.0",
+    "@ckeditor/ckeditor5-essentials": "^45.1.0",
+    "@ckeditor/ckeditor5-font": "^45.1.0",
+    "@ckeditor/ckeditor5-paragraph": "^45.1.0",
+    "@ckeditor/ckeditor5-source-editing": "^45.1.0",
+    "@ckeditor/ckeditor5-theme-lark": "^45.1.0",
+    "css-loader": "^7.1.2",
+    "my-editor": "file:",
+    "postcss": "^8.5.3",
+    "postcss-loader": "^8.1.1",
+    "raw-loader": "^4.0.2",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1"
+  },
+  "devDependencies": {
+    "mini-css-extract-plugin": "^2.9.2"
+  }
+}

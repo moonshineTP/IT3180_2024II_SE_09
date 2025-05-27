@@ -1,0 +1,17 @@
+/* ./Components/Common/RichTextEditor.css (Ví dụ) */
+.custom-ckeditor-container .ck-editor__editable_inline {
+    min-height: 200px; /* Đặt chiều cao tối thiểu cho vùng soạn thảo */
+    border: 1px solid #ced4da; /* Thêm border nếu muốn */
+    border-top: none; /* Bỏ border top nếu toolbar đã có */
+}
+
+.custom-ckeditor-container.disabled .ck-editor__editable_inline {
+    background-color: #e9ecef; /* Màu nền khi bị disable */
+    cursor: not-allowed;
+}
+.custom-ckeditor-container.disabled .ck-toolbar {
+    pointer-events: none; /* Vô hiệu hóa click vào toolbar */
+    opacity: 0.7;
+}
+
+/* Có thể bạn muốn tùy chỉnh thêm chiều rộng hoặc các style khác */

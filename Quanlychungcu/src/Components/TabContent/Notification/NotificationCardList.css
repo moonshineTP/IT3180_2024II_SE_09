@@ -1,0 +1,197 @@
+/* ./Components/TabContent/Notification/NotificationCardList.css */
+
+.notification-card-list-container {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.notification-list-no-results {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.1rem;
+    color: #666;
+    font-style: italic;
+}
+
+.notification-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+    gap: 20px; /* Khoảng cách giữa các thẻ */
+    padding: 10px;
+}
+
+.notification-card {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    overflow: hidden; /* Đảm bảo nội dung không tràn ra ngoài */
+    display: flex;
+    flex-direction: column; /* Xếp chồng các phần tử */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.notification-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.notification-card-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background-color: #e2f0ff; /* Nền xanh nhẹ */
+    border-bottom: 1px solid #c9e2ff;
+}
+
+.notification-type-icon {
+    font-size: 2.5rem; /* Icon to */
+    color: #007bff; /* Màu xanh chủ đạo */
+    flex-shrink: 0; /* Ngăn co lại */
+}
+
+.notification-header-info {
+    flex-grow: 1;
+    min-width: 0; /* Cho phép nội dung co lại nếu cần */
+}
+
+.notification-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    line-height: 1.3;
+    word-break: break-word; /* Cho phép từ dài bị ngắt */
+}
+
+.notification-id {
+    margin: 5px 0 0 0;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.notification-card-body {
+    padding: 15px;
+    flex-grow: 1; /* Cho phép body mở rộng để đẩy actions xuống dưới */
+}
+
+.notification-card-body p {
+    margin: 0 0 8px 0;
+    font-size: 0.9rem;
+    color: #495057;
+    line-height: 1.4;
+}
+.notification-card-body p:last-child {
+    margin-bottom: 0;
+}
+
+
+.info-icon { /* Icon nhỏ trong các trường thông tin */
+    font-size: 0.9em;
+    color: #007bff;
+    margin-right: 6px;
+}
+
+
+.notification-card-actions {
+    display: flex;
+    justify-content: flex-end; /* Nút ở cuối thẻ */
+    gap: 10px;
+    padding: 10px 15px;
+    border-top: 1px solid #eee;
+    background-color: #f0f2f5;
+}
+
+.action-button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+}
+
+.action-button.view-button {
+    background-color: #007bff;
+    color: white;
+}
+.action-button.view-button:hover {
+    background-color: #0056b3;
+}
+
+.action-button.delete-button {
+    background-color: #dc3545;
+    color: white;
+}
+.action-button.delete-button:hover {
+    background-color: #c0392b;
+}
+
+/* Pagination styles (kế thừa từ ResidentResultTable.css) */
+.notification-list-pagination {
+  margin: 1.5rem 0;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.notification-list-pagination button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #6c757d;
+  background: white;
+  color: #6c757d;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.notification-list-pagination button:hover:not(:disabled) { background: #5a6268; color: white; }
+.notification-list-pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+.notification-list-pagination button.active { background: #545b62; color: white; font-weight: bold; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .notification-cards-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Giảm min-width */
+        gap: 15px;
+    }
+}
+@media (max-width: 480px) {
+    .notification-cards-grid {
+        grid-template-columns: 1fr; /* Stack thẻ trên màn hình nhỏ */
+    }
+    .notification-card {
+        padding: 10px;
+    }
+    .notification-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px;
+    }
+    .notification-type-icon {
+        font-size: 2rem;
+    }
+    .notification-title {
+        font-size: 1rem;
+    }
+    .notification-card-body p {
+        font-size: 0.85rem;
+    }
+    .notification-card-actions {
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px;
+    }
+    .action-button {
+        width: 100%; /* Nút chiếm full width */
+        justify-content: center;
+    }
+}

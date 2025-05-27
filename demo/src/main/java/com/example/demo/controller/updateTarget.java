@@ -10,6 +10,7 @@ import com.example.demo.model.DTO.DonationDTO;
 import com.example.demo.model.DTO.DonationHouseholdDTO;
 import com.example.demo.model.DTO.ComplaintsDTO;
 import com.example.demo.model.DTO.BillDTO;
+import com.example.demo.model.DTO.NotificationDTO;
 import com.example.demo.model.Account;
 import com.example.demo.model.Bill;
 
@@ -51,6 +52,7 @@ import com.example.demo.repository.ResponseComplaintsRepository;
 import com.example.demo.repository.IncludeInComplaintsRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -657,6 +659,57 @@ public class updateTarget {
 
         return ResponseEntity.ok("Complaint updated successfully");
     }
+    @PostMapping("/changenotification")
+    public ResponseEntity<?> updateNotification(@RequestBody NotificationDTO notificationDTO, Authentication authentication) {
+        // Check if the user is authenticated
+        if (authentication == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+
+        // Get the currently authenticated user's role
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+
+        // Only admins are allowed to update notifications
+        if (!"ROLE_admin".equals(currentUserRole)) {
+            return ResponseEntity.status(403).body("You do not have permission to update notifications");
+        }
+
+        // Validate the announcementId in the DTO
+        if (notificationDTO.getAnnouncementId() == null || notificationDTO.getAnnouncementId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Announcement ID is required");
+        }
+
+        // Find the notification by announcementId
+        Notification notification = notificationRepository.findByAnnouncementId(notificationDTO.getAnnouncementId());
+        if (notification == null) {
+            return ResponseEntity.badRequest().body("Notification not found");
+        }
+
+        // Update fields if they are not null in the DTO
+        if (notificationDTO.getTitle() != null && !notificationDTO.getTitle().equals(notification.getTitle())) {
+            notification.setTitle(notificationDTO.getTitle());
+        }
+        if (notificationDTO.getContent() != null && !notificationDTO.getContent().equals(notification.getContent())) {
+            notification.setContent(notificationDTO.getContent());
+        }
+        if (notificationDTO.getSendto() != null && !notificationDTO.getSendto().equals(notification.getSendto())) {
+            notification.setSendto(notificationDTO.getSendto());
+        }
+        if (notificationDTO.getCreatedAt() != null) {
+            notification.setCreatedAt(notificationDTO.getCreatedAt());
+        }
+        if(notificationDTO.getCreatorName() != null && !notificationDTO.getCreatorName().equals(notification.getCreatorName())) {
+            notification.setCreatorName(notificationDTO.getCreatorName());
+        }
+        notification.setUpdatedAt(LocalDateTime.now()); 
+        // Save the updated notification
+        notificationRepository.save(notification);
+
+        return ResponseEntity.ok(mapService.mapToNotificationDTO(notification, false));
+    }
     @DeleteMapping("/deletecomplaints")
     public ResponseEntity<?> deleteComplaintById(@RequestBody ComplaintsDTO complaintDTO, Authentication authentication) {
         // Get the currently authenticated user's role
@@ -692,6 +745,36 @@ public class updateTarget {
         complaintRepository.delete(complaint);
 
         return ResponseEntity.ok("Complaint deleted successfully");
+    }
+    @DeleteMapping("/deletenotification")
+    public ResponseEntity<?> deleteNotificationById(@RequestBody NotificationDTO notificationDTO, Authentication authentication) {
+        // Get the currently authenticated user's role
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+
+        // Only admins are allowed to delete notifications
+        if (!"ROLE_admin".equals(currentUserRole)) {
+            return ResponseEntity.status(403).body("You do not have permission to delete notifications");
+        }
+
+        // Validate the announcementId in the DTO
+        String announcementId = notificationDTO.getAnnouncementId();
+        if (announcementId == null || announcementId.isEmpty()) {
+            return ResponseEntity.badRequest().body("Announcement ID is required");
+        }
+
+        // Find the notification by announcementId
+        Notification notification = notificationRepository.findByAnnouncementId(announcementId);
+        if (notification == null) {
+            return ResponseEntity.badRequest().body("Notification not found");
+        }
+
+        // Delete the notification
+        notificationRepository.delete(notification);
+
+        return ResponseEntity.ok("Notification deleted successfully");
     }
     @PostMapping("/createresident")
     public ResponseEntity<?> createResident(@RequestBody ResidentDTO residentDTO, Authentication authentication) {
@@ -863,6 +946,49 @@ public class updateTarget {
         complaintRepository.save(complaint);
 
         return ResponseEntity.ok("Complaint created successfully");
+    }
+    // Trong NotificationController.java (Backend)
+    @PostMapping("/createnotification")
+    public ResponseEntity<?> createNotification(@RequestBody NotificationDTO dto, Authentication authentication) {
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+
+        if (!"ROLE_admin".equals(currentUserRole)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission to create notifications");
+        }
+        if (dto.getAnnouncementId() == null || dto.getAnnouncementId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Announcement ID is required");
+        }
+        if (notificationRepository.findByAnnouncementId(dto.getAnnouncementId()) != null) {
+            return ResponseEntity.badRequest().body("Notification with the given ID already exists");
+        }
+        if (dto.getTitle() == null || dto.getTitle().isEmpty()) {
+            return ResponseEntity.badRequest().body("Title is required");
+        }
+        // ... (các validation khác cho content, type, sendto) ...
+
+        Notification notification = new Notification();
+        notification.setAnnouncementId(dto.getAnnouncementId());
+        notification.setTitle(dto.getTitle());
+        notification.setType(dto.getType());
+        notification.setSendto(dto.getSendto());
+        notification.setContent(dto.getContent());
+
+        // *** THAY ĐỔI LOGIC CHO CREATOR NAME ***
+        if (dto.getCreatorName() != null && !dto.getCreatorName().isEmpty()) {
+            notification.setCreatorName(dto.getCreatorName()); // Ưu tiên creatorName từ DTO
+        } else {
+            notification.setCreatorName(authentication.getName()); // Nếu DTO không có, lấy từ người đang đăng nhập
+        }
+
+        notification.setCreatedAt(LocalDateTime.now());
+        notification.setUpdatedAt(LocalDateTime.now());
+
+        Notification savedNotification = notificationRepository.save(notification);
+        // Nên trả về DTO của notification vừa tạo
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapService.mapToNotificationDTO(savedNotification,true)); // Giả sử có mapService
     }
     @PreAuthorize("hasRole('admin')")
     @PostMapping("/createFeeHousehold")
@@ -1264,17 +1390,37 @@ public class updateTarget {
         rn.setNotification(notification);
         receiveNotificationRepository.save(rn);
 
-        return ResponseEntity.ok("ReceiveNotification created successfully");
+        return ResponseEntity.ok(mapService.mapToReceiveNotificationDTO(rn)); // Assuming mapService exists
     }
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/deleteReceiveNotification")
     public ResponseEntity<?> deleteReceiveNotification(@RequestBody ReceiveNotificationDTO dto) {
-        ReceiveNotification rn = receiveNotificationRepository.findById(dto.getId()).orElse(null);
+        // Validate input
+        if (dto.getResidentId() == null || dto.getResidentId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Resident ID is required");
+        }
+        if (dto.getNotificationId() == null || dto.getNotificationId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Notification ID is required");
+        }
+        // Find Resident
+        Resident resident = residentRepository.findByResidentId(dto.getResidentId());
+        if (resident == null) {
+            return ResponseEntity.badRequest().body("Resident not found");
+        }
+
+        // Find Notification
+        Notification notification = notificationRepository.findByAnnouncementId(dto.getNotificationId());
+        if (notification == null) {
+            return ResponseEntity.badRequest().body("Notification not found");
+        }
+
+        // Check for duplicate
+        ReceiveNotification rn = receiveNotificationRepository.findByResidentAndNotification(resident, notification);
         if (rn == null) {
-            return ResponseEntity.badRequest().body("ReceiveNotification not found");
+            return ResponseEntity.badRequest().body("This receiveNotification dont exist");
         }
         receiveNotificationRepository.delete(rn);
-        return ResponseEntity.ok("ReceiveNotification created successfully");
+        return ResponseEntity.ok(mapService.mapToReceiveNotificationDTO(rn)); // Assuming mapService exists
     }
     @PostMapping("/createIncludeInComplaints")
     public ResponseEntity<?> createIncludeInComplaints(@RequestBody IncludeInComplaintsDTO dto) {

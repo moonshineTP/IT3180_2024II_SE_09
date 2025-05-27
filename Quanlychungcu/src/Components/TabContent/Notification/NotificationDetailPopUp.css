@@ -1,0 +1,477 @@
+/* ./Components/TabContent/Notification/NotificationDetailPopUp.css */
+
+.notification-detail-popup-container {
+    position: relative; /* Cho phép định vị absolute cho nút back */
+    padding: 25px 30px;
+    max-width: 800px; /* Chiều rộng tối đa */
+    width: 100%; /* Chiếm toàn bộ chiều rộng có thể */
+    margin: 20px auto; /* Căn giữa */
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    max-height: 90vh; /* Chiều cao tối đa, cho phép scroll */
+    overflow-y: auto; /* Cho phép scroll nội dung nếu quá dài */
+    box-sizing: border-box; /* Tính padding vào kích thước */
+}
+
+/* Nút quay lại */
+.detail-back-btn {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    color: #6c757d;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.2s ease;
+    padding: 5px; /* Vùng click rộng hơn */
+    z-index: 10; /* Đảm bảo nút nằm trên cùng */
+}
+.detail-back-btn:hover {
+    color: #343a40;
+    transform: scale(1.1);
+}
+
+/* Header thông báo chi tiết */
+.detail-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+    position: relative; /* Cho nút edit */
+}
+
+.detail-type-icon {
+    font-size: 2.5rem;
+    color: #007bff;
+    flex-shrink: 0;
+}
+
+.detail-header-text {
+    flex-grow: 1;
+    min-width: 0; /* Ngăn chặn tràn */
+}
+.detail-header-text h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #343a40;
+    font-weight: 600;
+    word-break: break-word; /* Cho phép từ dài bị ngắt */
+}
+
+/* Nút chỉnh sửa */
+.detail-edit-btn {
+    background-color: #17a2b8; /* Info blue */
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0; /* Ngăn co lại */
+}
+.detail-edit-btn:hover {
+    background-color: #138496;
+}
+
+/* Thông tin bài báo (Title, ID, Creator, CreatedAt, SendTo) */
+.detail-info-block {
+    margin-bottom: 20px;
+    padding: 0 15px; /* Padding nhẹ bên trong */
+}
+
+.detail-info-block h2.detail-title {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 10px;
+    word-break: break-word;
+}
+.detail-info-block .detail-id,
+.detail-info-block .detail-creator,
+.detail-info-block .detail-created-at,
+.detail-info-block .detail-sendto {
+    margin-bottom: 5px;
+    font-size: 0.95rem;
+    color: #555;
+}
+.detail-info-block .detail-id strong {
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+/* Input tiêu đề khi chỉnh sửa */
+.detail-title-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1.8rem;
+    font-weight: 700;
+    box-sizing: border-box;
+}
+.detail-title-input:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+
+/* Nội dung bài báo */
+.detail-content-block {
+    background-color: #fafafa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    margin-bottom: 20px;
+    /* Styles cho CKEditor hoặc div hiển thị */
+}
+.detail-content-display {
+    line-height: 1.6;
+    color: #333;
+    word-break: break-word;
+}
+.detail-content-display img { /* Đảm bảo ảnh hiển thị không quá lớn */
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 10px 0;
+}
+
+
+/* Nút lưu/hủy khi chỉnh sửa */
+.detail-edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.detail-cancel-btn,
+.detail-save-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.detail-cancel-btn {
+    background-color: #6c757d;
+    color: white;
+}
+.detail-cancel-btn:hover { background-color: #5a6268; }
+.detail-save-btn {
+    background-color: #28a745;
+    color: white;
+}
+.detail-save-btn:hover { background-color: #218838; }
+.detail-save-btn:disabled {
+    background-color: #adb5bd;
+    cursor: not-allowed;
+}
+
+
+/* Icon tương tác dưới bên phải */
+.detail-action-icons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding: 15px 0;
+    border-top: 1px solid #eee;
+    margin-top: 20px;
+}
+
+.action-icon-btn {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    color: #6c757d;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 8px;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+}
+.action-icon-btn:hover {
+    background-color: #f0f2f5;
+    color: #333;
+}
+.action-icon-btn.active {
+    color: #007bff; /* Màu xanh khi active */
+    font-weight: bold;
+}
+.action-icon-btn.active .fa-thumbs-up { color: #28a745; } /* Like active green */
+.action-icon-btn.active .fa-thumbs-down { color: #dc3545; } /* Dislike active red */
+.action-icon-btn.active .fa-star { color: #ffc107; } /* Star active yellow */
+
+
+/* Danh sách các tương tác (Tabs) */
+.detail-interaction-tabs {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.interaction-tab-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; /* Cho phép xuống dòng */
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.interaction-tab-buttons .tab-btn {
+    padding: 8px 15px;
+    border: 1px solid #dcdfe3;
+    background-color: #f0f2f5;
+    color: #555;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.interaction-tab-buttons .tab-btn:hover {
+    background-color: #e4e6eb;
+}
+.interaction-tab-buttons .tab-btn.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+    font-weight: bold;
+}
+
+.interaction-list-display {
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    background-color: #fafafa;
+    min-height: 150px; /* Chiều cao tối thiểu */
+    max-height: 300px; /* Chiều cao tối đa */
+    overflow-y: auto; /* Cuộn */
+    position: relative; /* Cho loading */
+}
+
+.loading-text, .no-data-text {
+    text-align: center;
+    font-style: italic;
+    color: #7f8c8d;
+    padding: 20px;
+}
+.error-message { /* Dùng chung cho lỗi */
+    color: #dc3545;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.interaction-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.interaction-item {
+    padding: 10px 0;
+    border-bottom: 1px dashed #e0e0e0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: #495057;
+    flex-wrap: wrap; /* Cho phép wrap nếu nội dung dài */
+}
+.interaction-item:last-child {
+    border-bottom: none;
+}
+
+.interaction-item .item-icon {
+    color: #007bff;
+    flex-shrink: 0;
+    font-size: 1.1em;
+}
+
+/* Style riêng cho response/comment item */
+.response-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+.response-header .response-user {
+    color: #2c3e50;
+}
+.response-header .response-time {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    font-weight: normal;
+}
+.response-content {
+    margin: 5px 0 0 0;
+    padding-left: 30px; /* Thụt vào chút */
+    word-break: break-word;
+}
+.delete-interaction-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+    margin-left: auto; /* Đẩy nút xóa sang phải */
+    padding: 5px;
+}
+.delete-interaction-btn:hover {
+    color: #c0392b;
+}
+
+/* Form thêm người nhận/bình luận */
+.add-recipient-form, .add-response-form {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+.add-recipient-form input,
+.add-response-form textarea {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+}
+.add-response-form textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.add-recipient-form button,
+.add-response-form button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.add-recipient-form button:hover,
+.add-response-form button:hover {
+    background-color: #0056b3;
+}
+.add-recipient-form button:disabled,
+.add-response-form button:disabled {
+    background-color: #adb5bd;
+    cursor: not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .notification-detail-popup-container {
+        padding: 15px;
+        max-width: 95%;
+    }
+    .detail-header {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+    .detail-header-text h3 {
+        font-size: 1.2rem;
+    }
+    .detail-edit-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 0.8rem;
+        padding: 5px 10px;
+    }
+    .detail-info-block {
+        padding: 0;
+    }
+    .detail-title {
+        font-size: 1.5rem;
+    }
+    .detail-title-input {
+        font-size: 1.5rem;
+    }
+    .detail-content-block {
+        padding: 15px;
+    }
+    .detail-action-icons {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .interaction-tab-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .interaction-tab-buttons .tab-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    .add-recipient-form, .add-response-form {
+        flex-direction: column;
+    }
+    .add-recipient-form button, .add-response-form button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+@media (max-width: 480px) {
+    .notification-detail-popup-container {
+        padding: 10px;
+    }
+    .detail-type-icon {
+        font-size: 2rem;
+    }
+    .detail-back-btn {
+        font-size: 1.5rem;
+    }
+    .detail-title {
+        font-size: 1.3rem;
+    }
+    .detail-title-input {
+        font-size: 1.3rem;
+    }
+    .detail-content-display {
+        font-size: 0.9rem;
+    }
+    .interaction-item {
+        font-size: 0.85rem;
+    }
+    .response-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .response-user {
+        margin-bottom: 3px;
+    }
+    .response-content {
+        padding-left: 15px;
+    }
+}

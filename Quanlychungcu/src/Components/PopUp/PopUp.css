@@ -37,7 +37,7 @@
     position: absolute;
     top: 1rem;       /* Điều chỉnh khoảng cách từ trên xuống */
     right: 1rem; 
-    font-size: 1.5rem;
+    font-size: 2rem;
     line-height: 1;
     color: #6b7280;
     background: none;
@@ -77,4 +77,11 @@
 .popup-back-btn:hover:not(.disabled) {
   color: #1f2937;
   transform: scale(1.1);
+}
+.popup-content {
+  pointer-events: auto; /* Cho phép tương tác với nội dung bên trong */
+}
+
+.popup-dialog::backdrop {
+  pointer-events: auto; /* Cho phép click trên backdrop */
 }

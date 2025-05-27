@@ -9,9 +9,9 @@ export default function TabContent({ activeTab, onOpenPopUp, setReloadFunc, View
     Home: <Home />,
     Accounts: <Accounts onOpenPopUp={onOpenPopUp} setReloadFunc={setReloadFunc}/>,
     HouseHoldInfo: <HouseHoldInfo onOpenPopUp={onOpenPopUp} ViewerAccount={ViewerAccount} setReloadFunc={setReloadFunc}/>,
-    FeePayment: <FeePayment onOpenPopUp={onOpenPopUp}/>,
-    Notification: <Notification onOpenPopUp={onOpenPopUp}/>,
-    Complaint: <Complaint onOpenPopUp={onOpenPopUp}/>,
+    FeePayment: <FeePayment onOpenPopUp={onOpenPopUp} ViewerAccount={ViewerAccount} setReloadFunc={setReloadFunc}/>,
+    Notification: <Notification onOpenPopUp={onOpenPopUp} ViewerAccount={ViewerAccount} setReloadFunc={setReloadFunc}/>,
+    Complaint: <Complaint onOpenPopUp={onOpenPopUp} ViewerAccount={ViewerAccount} setReloadFunc={setReloadFunc}/>,
   };
   return (
     <div className="tab-content">{components[activeTab]}</div>

@@ -1,7 +1,13 @@
 /* ./Components/TabContent/Notification/Notification.css */
 
+/* Container chính của trang thông báo */
+.notification-page-container {
+  /* Thêm padding hoặc margin cho toàn trang nếu cần */
+  padding: 0 15px; /* Ví dụ */
+}
+
 /* Header của trang Notification */
-.notification-header {
+.notification-header { /* Hoặc .notification-page-container .notification-header */
   height: auto;
   min-height: 5rem;
   padding: 0.75rem 1.5rem;
@@ -37,25 +43,27 @@
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
-.primary-tabs, .secondary-tabs {
+/* Đổi tên class cho các hàng tab */
+.notification-primary-tabs,
+.notification-secondary-tabs {
   display: flex;
   justify-content: center;
-  gap: 10px; /* Khoảng cách giữa các nút tab */
-  margin-bottom: 10px; /* Khoảng cách giữa 2 hàng tab */
+  gap: 10px;
+  margin-bottom: 10px;
 }
-.secondary-tabs {
-  margin-bottom: 0; /* Hàng tab dưới không cần margin bottom */
+.notification-secondary-tabs {
+  margin-bottom: 0;
   border-top: 1px solid #eee;
   padding-top: 10px;
 }
 
-
-.tab-button {
+/* Đổi tên class cho nút tab */
+.notification-tab-button {
   padding: 8px 18px;
   border: 1px solid transparent;
-  background-color: #f0f2f5; /* Màu nền mặc định cho tab */
+  background-color: #f0f2f5;
   color: #555;
-  border-radius: 20px; /* Bo tròn nhiều hơn */
+  border-radius: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 0.95rem;
@@ -65,36 +73,35 @@
   gap: 6px;
 }
 
-.tab-button:hover {
+.notification-tab-button:hover {
   background-color: #e4e6eb;
   border-color: #cdd2d8;
 }
 
-.tab-button.active {
-  background-color: #007bff; /* Màu chủ đạo khi active */
+.notification-tab-button.active {
+  background-color: #007bff;
   color: white;
   border-color: #007bff;
   box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
 }
-.tab-button.secondary { /* Style khác một chút cho tab phụ */
+.notification-tab-button.secondary {
     padding: 6px 15px;
     font-size: 0.9rem;
     background-color: #fff;
     border: 1px solid #dcdfe3;
 }
-.tab-button.secondary:hover {
+.notification-tab-button.secondary:hover {
     background-color: #f8f9fa;
     border-color: #b8c0c8;
 }
-.tab-button.secondary.active {
-    background-color: #6c757d; /* Màu xám khi active cho tab phụ */
+.notification-tab-button.secondary.active {
+    background-color: #6c757d;
     color: white;
     border-color: #6c757d;
 }
 
-
-.unread-count-badge {
-  background-color: #dc3545; /* Màu đỏ cho badge */
+.notification-unread-badge { /* Đã có tiền tố */
+  background-color: #dc3545;
   color: white;
   padding: 2px 6px;
   border-radius: 10px;
@@ -103,30 +110,30 @@
   line-height: 1;
 }
 
-/* Detailed Filter Panel - Kế thừa style từ .main-filter-panel */
-.notification-filter-panel {
-    /* Có thể thêm style riêng nếu cần */
-    margin-top: 10px; /* Giảm margin top nếu nó ngay dưới tab */
+/* Detailed Filter Panel - Thêm class đặc trưng */
+.notification-detailed-filter-panel {
+    margin-top: 10px;
 }
-.notification-filter-panel .filter-panel-header h3 {
-    color: #6c757d; /* Màu khác cho header của filter panel này */
-}
+/* Nếu bạn muốn style header của filter panel này khác, dùng: */
+/* .notification-detailed-filter-panel .filter-panel-header h3 { ... } */
+
 
 /* Nút tạo thông báo và áp dụng lọc trong phần filter */
-.notification-filter-panel .filter-actions-section {
+.notification-filter-actions { /* Đổi tên class cho phần actions của filter */
     display: flex;
-    justify-content: space-between; /* Căn các nút ra xa nhau */
+    justify-content: space-between;
     align-items: center;
     margin-top: 20px;
     padding-top: 15px;
     border-top: 1px solid #eee;
 }
-.notification-filter-panel .reset-filter-btn {
-    /* Style đã có */
-}
-.notification-create-btn { /* Nút tạo mới */
-    background-color: #17a2b8; /* Info blue */
+/* Nút Reset có thể giữ class chung .reset-filter-btn nếu style giống nhau */
+/* .notification-filter-actions .reset-filter-btn { ... } */
+
+.notification-create-btn {
+    background-color: #17a2b8;
     color: white;
+    /* ... (các style khác cho nút create như đã có) ... */
     border: none;
     padding: 10px 15px;
     border-radius: 5px;
@@ -140,26 +147,43 @@
 .notification-create-btn:hover {
     background-color: #138496;
 }
-.notification-apply-btn { /* Nút áp dụng lọc */
+
+.notification-apply-btn {
      background-color: #28a745;
      color: white;
+     /* ... (các style khác cho nút apply như đã có) ... */
      padding: 10px 20px;
      font-weight: 500;
+     border: none;
+     border-radius: 5px;
+     cursor: pointer;
+     font-size: 0.95rem;
+     display: inline-flex;
+     align-items: center;
+     gap: 8px;
+     transition: background-color 0.2s ease;
 }
 .notification-apply-btn:hover {
     background-color: #218838;
 }
 
 
-/* Results Panel - Kế thừa style từ .filter-results-panel */
-.notification-results-panel {
-    /* Có thể thêm style riêng nếu cần */
+/* Results Panel - Thêm class đặc trưng */
+.notification-results-display-panel {
+    /* Style riêng nếu cần */
 }
-.notification-results-panel h3 {
-    color: #6c757d; /* Màu khác cho header kết quả */
-}
+/* .notification-results-display-panel h3 { ... } */
 
-/* Kế thừa các style chung cho filter-grid, filter-field-item, v.v. từ HouseHoldInfo.css
-   Nếu bạn muốn tách riêng hoàn toàn, hãy copy các style đó vào đây và đổi tên class nếu cần.
-   Hoặc, tạo một file CSS chung cho các bộ lọc.
+
+/* Nếu bạn muốn style các .filter-grid, .filter-field-item, v.v.
+   BÊN TRONG .notification-detailed-filter-panel một cách khác biệt,
+   bạn có thể dùng bộ chọn lồng nhau: */
+
+/* Ví dụ:
+.notification-detailed-filter-panel .filter-grid {
+    gap: 15px; // Khác với gap 20px mặc định
+}
+.notification-detailed-filter-panel .filter-field-item {
+    background-color: #f0f8ff; // Màu nền khác
+}
 */
