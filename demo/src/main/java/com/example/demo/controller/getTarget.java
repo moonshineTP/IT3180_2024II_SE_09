@@ -255,7 +255,7 @@ public class getTarget {
 
         // Check if the pair of resident and notification exists in the receiveNotification table
         boolean exists = receiveNotificationRepository.existsByResidentAndNotification(resident, notification);
-        if (!exists) {
+        if ((!exists) && (!notification.getSendto().equals("public"))) {
             return ResponseEntity.badRequest().body("You are not authorized to access this notification");
         }
     }
@@ -596,7 +596,7 @@ public class getTarget {
                 .collect(Collectors.toList());
 
         if (interactList.isEmpty()) {
-            return ResponseEntity.ok("No interact notifications found for the given notification and typeInteract");
+            return ResponseEntity.ok(List.of());
         }
 
         // Map to DTO (only id, userName, userRole)

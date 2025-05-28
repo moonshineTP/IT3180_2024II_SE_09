@@ -117,9 +117,30 @@ const NotificationCardList = ({
     };
 
     // Hàm để mở chi tiết thông báo (nếu muốn)
-    const handleViewNotificationDetail = (notification) => {
-        if (onOpenNotificationDetail) {
-            onOpenNotificationDetail(notification); // Gọi hàm để mở chi tiết thông báo
+    const handleViewNotificationDetail = async (notification) =>{
+        let announcementId = notification.announcementId;
+        if (!announcementId) {
+            console.error("Announcement ID is required to view details.");
+            return;
+        }
+        try {
+        const response = await axios.post(
+            'http://localhost:8080/api/gettarget/getNotification',
+            { announcementId: announcementId },
+            { withCredentials: true }
+        );
+        if (response.status === 200 && response.data) {
+            if (onOpenNotificationDetail) {
+                onOpenNotificationDetail(response.data); // Gọi hàm để mở chi tiết thông báo
+                return;
+            }
+        } else {
+            console.error("Failed to fetch notification details, status:", response.status, response.data);
+            return;
+        }
+        } catch (error) {
+            console.error("Error fetching notification details:", error);
+            return; // Trả về null khi lỗi
         }
     };
 

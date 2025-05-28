@@ -16,8 +16,8 @@ import java.util.List;
 public interface InteractNotificationRepository extends JpaRepository<InteractNotification, Long> {
 
     // Tìm thông báo được người dùng quan tâm
-    @Query("SELECT inot.notification FROM InteractNotification inot WHERE inot.account.email = :email AND inot.typeInteract = 'concerned' AND inot.notification.announcementId IN :notificationIds")
-    List<Notification> findConcernedNotificationsByUserEmailAndNotificationIds(@Param("email") String email, @Param("notificationIds") List<String> notificationIds);
+    @Query("SELECT inot.notification FROM InteractNotification inot WHERE inot.account.email = :email AND inot.typeInteract = 'starred' AND inot.notification.announcementId IN :notificationIds")
+    List<Notification> findStarredNotificationsByUserEmailAndNotificationIds(@Param("email") String email, @Param("notificationIds") List<String> notificationIds);
 
     // Tìm tương tác theo thông báo, loại và người dùng
     InteractNotification findByNotificationAndTypeInteractAndAccount(Notification notification, String typeInteract, Account account);

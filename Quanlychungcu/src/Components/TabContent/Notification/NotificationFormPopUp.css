@@ -187,3 +187,35 @@
     background-color: #adb5bd;
     cursor: not-allowed;
 }
+.clickable-username,
+.clickable-resident {
+    color: #007bff; /* Or your theme's link color */
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: bold; /* Make it stand out a bit */
+    margin-right: 4px; /* Space before role or timestamp */
+}
+
+.clickable-username:hover,
+.clickable-resident:hover {
+    text-decoration: underline;
+}
+
+.inline-spinner {
+    margin-left: 5px;
+    font-size: 0.9em; /* Slightly smaller than text */
+    color: #555;
+}
+
+/* For displaying fetch error for account/resident details */
+.detail-error-message.small-error {
+    font-size: 0.9rem;
+    padding: 5px 10px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    text-align: center;
+    background-color: #ffebee; /* Light red for errors */
+    color: #c62828; /* Darker red text */
+    border: 1px solid #ef9a9a;
+    border-radius: 4px;
+}

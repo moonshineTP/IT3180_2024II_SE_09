@@ -230,7 +230,7 @@ public class GetList {
                 .collect(Collectors.toList());
 
         // Fetch notifications with interactType="concerned" for the current user
-        List<Notification> concernedNotifications = interactNotificationRepository.findConcernedNotificationsByUserEmailAndNotificationIds(currentEmail, notificationIds);
+        List<Notification> concernedNotifications = interactNotificationRepository.findStarredNotificationsByUserEmailAndNotificationIds(currentEmail, notificationIds);
 
         if (concernedNotifications.isEmpty()) {
             return ResponseEntity.ok("No concerned notifications found for the current user");
@@ -258,21 +258,27 @@ public class GetList {
 
         // Build a set of notificationIds that have typeInteract = "read" for this user
         Set<String> readNotificationIds = userInteractions.stream()
-                .filter(in -> "read".equalsIgnoreCase(in.getTypeInteract()))
+                .filter(in -> "view".equalsIgnoreCase(in.getTypeInteract()))
                 .map(in -> in.getNotification().getAnnouncementId())
                 .collect(Collectors.toSet());
 
         // Filter input notifications: keep only those NOT in the readNotificationIds set
-        List<NotificationDTO> notReadNotificationDTOs = notificationDTOs.stream()
-                .filter(dto -> !readNotificationIds.contains(dto.getAnnouncementId()))
+        List<Notification> allNotifications = notificationRepository.findByAnnouncementIdIn(notificationIds);
+        List<Notification> notReadNotifications = allNotifications.stream()
+                .filter(notification -> !readNotificationIds.contains(notification.getAnnouncementId()))
                 .collect(Collectors.toList());
 
-        if (notReadNotificationDTOs.isEmpty()) {
+        if (notReadNotifications.isEmpty()) {
             return ResponseEntity.ok("No not-read notifications found for the current user");
         }
 
-        return ResponseEntity.ok(notReadNotificationDTOs);
-    }
+    // Map notifications to NotificationDTO using mapService
+    List<NotificationDTO> notReadNotificationDTOs = notReadNotifications.stream()
+            .map(notification -> mapService.mapToNotificationDTO(notification, false))
+            .collect(Collectors.toList());
+
+    return ResponseEntity.ok(notReadNotificationDTOs);
+}
     @PostMapping("/filterIncludedComplaints")
     public ResponseEntity<?> filterIncludedComplaints(@RequestBody List<ComplaintsDTO> complaintsDTOs, Authentication authentication) {
         String currentEmail = authentication.getName();

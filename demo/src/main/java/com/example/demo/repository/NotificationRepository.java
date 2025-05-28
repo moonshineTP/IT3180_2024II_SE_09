@@ -8,4 +8,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Stri
     // Custom method to find notifications by sendto field
     List<Notification> findBySendto(String sendto);
     Notification findByAnnouncementId(String id);
+    List<Notification> findByAnnouncementIdIn(List<String> id);
 }

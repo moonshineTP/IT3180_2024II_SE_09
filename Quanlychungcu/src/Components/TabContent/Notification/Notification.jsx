@@ -19,7 +19,7 @@ import NotificationFormPopUp from './NotificationFormPopUp'; // Import form popu
 const DEFAULT_FILTER_TEXT = '';
 const DEFAULT_FILTER_SELECT = '';
 
-function NotificationContent({ ViewerAccount }) {
+function NotificationContent({ ViewerAccount , onOpenPopUp}) {
     // --- State cho Tab điều hướng ---
     const [activePrimaryTab, setActivePrimaryTab] = useState('public');
     const [activeSecondaryTab, setActiveSecondaryTab] = useState('all');
@@ -480,12 +480,13 @@ function NotificationContent({ ViewerAccount }) {
                         onClose={handleCloseNotificationDetail} // Nút thoát trong detail popup sẽ gọi hàm này
                         refetchNotifications={handleApplyFilters} // Callback để làm mới bảng sau khi có tương tác
                         ViewerAccount={ViewerAccount}
+                        onOpenPopUp={onOpenPopUp}
                     />
                 )}
             </div> {/* Hết .notification-content-area */}
         </div>
     );
 }
-export default function Notification({ ViewerAccount}) {
-    return <TabContentFrame2 content={<NotificationContent ViewerAccount={ViewerAccount}/>}/>;
+export default function Notification({ ViewerAccount, onOpenPopUp}) {
+    return <TabContentFrame2 content={<NotificationContent ViewerAccount={ViewerAccount} onOpenPopUp={onOpenPopUp}/>}/>;
 }

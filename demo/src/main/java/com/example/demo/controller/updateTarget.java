@@ -467,7 +467,7 @@ public class updateTarget {
         }
 
         // Update fields if they are not null in the DTO
-        if (feeDTO.getFeeName() != null) {
+        if ( feeDTO.getFeeName() != null) {
             fee.setFeeName(feeDTO.getFeeName());
         }
         if (feeDTO.getFeeType() != null) {
@@ -1233,11 +1233,11 @@ public class updateTarget {
 
         return ResponseEntity.ok("Response notification created successfully");
     }
-    @PostMapping("/deleteresponseNotification")
+    @DeleteMapping("/deleteresponseNotification")
     public ResponseEntity<?> deleteResponseNotification(@RequestBody ResponseNotificationDTO responseNotificationDTO, Authentication authentication) {
         String currentEmail = authentication.getName();
         Account account = accountRepository.findByEmail(currentEmail);
-        if(responseNotificationDTO.getUserName() != account.getUsername()){
+        if(!responseNotificationDTO.getUserName().equals(account.getUsername())){
             return ResponseEntity.status(403).body("You do not have permission to delete this response notification");
         }
         ResponseNotification response = responseNotificationRepository.findById(responseNotificationDTO.getId()).orElse(null);
