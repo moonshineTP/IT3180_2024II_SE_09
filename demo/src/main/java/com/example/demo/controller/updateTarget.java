@@ -36,6 +36,7 @@ import com.example.demo.model.DTO.ResponseComplaintsDTO;
 import com.example.demo.repository.AccountRepository;
 import com.example.demo.repository.ResidentRepository;
 import com.example.demo.repository.VehicleRepository;
+import com.example.demo.service.AuthService;
 import com.example.demo.service.MapService;
 import com.example.demo.repository.FeeRepository;
 import com.example.demo.repository.DonationRepository;
@@ -60,6 +61,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.function.BiPredicate;
@@ -109,6 +111,8 @@ public class updateTarget {
     private ReceiveNotificationRepository receiveNotificationRepository;
     @Autowired
     private IncludeInComplaintsRepository includeInComplaintsRepository;
+    @Autowired
+    private AuthService authService;
 
     updateTarget(MapService mapService) {
         this.mapService = mapService;
@@ -604,6 +608,7 @@ public class updateTarget {
 
         return ResponseEntity.ok("Donation deleted successfully");
     }
+    
     @PostMapping("/changecomplaints")
     public ResponseEntity<?> updateComplaints(@RequestBody ComplaintsDTO complaintDTO, Authentication authentication) {
         // Check if the user is authenticated
@@ -659,6 +664,7 @@ public class updateTarget {
 
         return ResponseEntity.ok("Complaint updated successfully");
     }
+    
     @PostMapping("/changenotification")
     public ResponseEntity<?> updateNotification(@RequestBody NotificationDTO notificationDTO, Authentication authentication) {
         // Check if the user is authenticated
@@ -710,6 +716,7 @@ public class updateTarget {
 
         return ResponseEntity.ok(mapService.mapToNotificationDTO(notification, false));
     }
+    
     @DeleteMapping("/deletecomplaints")
     public ResponseEntity<?> deleteComplaintById(@RequestBody ComplaintsDTO complaintDTO, Authentication authentication) {
         // Get the currently authenticated user's role
@@ -746,6 +753,7 @@ public class updateTarget {
 
         return ResponseEntity.ok("Complaint deleted successfully");
     }
+    
     @DeleteMapping("/deletenotification")
     public ResponseEntity<?> deleteNotificationById(@RequestBody NotificationDTO notificationDTO, Authentication authentication) {
         // Get the currently authenticated user's role
@@ -776,6 +784,7 @@ public class updateTarget {
 
         return ResponseEntity.ok("Notification deleted successfully");
     }
+    
     @PostMapping("/createresident")
     public ResponseEntity<?> createResident(@RequestBody ResidentDTO residentDTO, Authentication authentication) {
         // Get the currently authenticated user's role
@@ -807,6 +816,7 @@ public class updateTarget {
 
         return ResponseEntity.ok("Resident created successfully");
     }
+    
     @PostMapping("/createvehicle")
     public ResponseEntity<?> createVehicle(@RequestBody VehicleDTO vehicleDTO, Authentication authentication) {
 
@@ -846,6 +856,7 @@ public class updateTarget {
 
         return ResponseEntity.ok("Vehicle created successfully");
     }
+    
     @PostMapping("/createfee")
     public ResponseEntity<?> createFee(@RequestBody FeeDTO feeDTO, Authentication authentication) {
         // Get the currently authenticated user's role
@@ -878,6 +889,7 @@ public class updateTarget {
 
         return ResponseEntity.ok("Fee created successfully");
     }
+    
     @PostMapping("/createdonation")
     public ResponseEntity<?> createDonation(@RequestBody DonationDTO donationDTO, Authentication authentication) {
         // Get the currently authenticated user's role
@@ -909,6 +921,7 @@ public class updateTarget {
 
         return ResponseEntity.ok("Donation created successfully");
     }
+    
     @PostMapping("/createcomplaints")
     public ResponseEntity<?> createComplaints(@RequestBody ComplaintsDTO complaintDTO, Authentication authentication) {
         // Get the currently authenticated user's role
@@ -948,6 +961,7 @@ public class updateTarget {
         return ResponseEntity.ok("Complaint created successfully");
     }
     // Trong NotificationController.java (Backend)
+    
     @PostMapping("/createnotification")
     public ResponseEntity<?> createNotification(@RequestBody NotificationDTO dto, Authentication authentication) {
         String currentUserRole = authentication.getAuthorities().stream()
@@ -990,10 +1004,18 @@ public class updateTarget {
         // Nên trả về DTO của notification vừa tạo
         return ResponseEntity.status(HttpStatus.CREATED).body(mapService.mapToNotificationDTO(savedNotification,true)); // Giả sử có mapService
     }
-    @PreAuthorize("hasRole('admin')")
+    
     @PostMapping("/createFeeHousehold")
     public ResponseEntity<?> createFeeHousehold(@RequestBody FeeHouseholdDTO feeHouseholdDTO, Authentication authentication) {
         // Validate the feeId and apartmentNumber in the DTO
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+
+        if (!"ROLE_admin".equals(currentUserRole)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission to create notifications");
+        }
         if (feeHouseholdDTO.getFeeID() == null || feeHouseholdDTO.getFeeID().isEmpty()) {
             return ResponseEntity.badRequest().body("Fee ID is required");
         }
@@ -1023,10 +1045,18 @@ public class updateTarget {
 
         return ResponseEntity.ok("FeeHousehold created successfully");
     }
-    @PreAuthorize("hasRole('admin')")
+    
     @DeleteMapping("/deleteFeeHousehold")
     public ResponseEntity<?> deleteFeeHousehold(@RequestBody FeeHouseholdDTO feeHouseholdDTO, Authentication authentication) {
         // Validate the feeId and apartmentNumber in the DTO
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+
+        if (!"ROLE_admin".equals(currentUserRole)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission to create notifications");
+        }
         if (feeHouseholdDTO.getFeeID() == null || feeHouseholdDTO.getFeeID().isEmpty()) {
             return ResponseEntity.badRequest().body("Fee ID is required");
         }
@@ -1048,10 +1078,18 @@ public class updateTarget {
 
         return ResponseEntity.ok("FeeHousehold created successfully");
     }
-    @PreAuthorize("hasRole('admin')")
+    
     @PostMapping("/createDonationHousehold")
     public ResponseEntity<?> createDonationHousehold(@RequestBody DonationHouseholdDTO donationHouseholdDTO, Authentication authentication) {
         // Validate the donationId and apartmentNumber in the DTO
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+
+        if (!"ROLE_admin".equals(currentUserRole)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission to create notifications");
+        }
         if (donationHouseholdDTO.getDonation_id() == null || donationHouseholdDTO.getDonation_id().isEmpty()) {
             return ResponseEntity.badRequest().body("Donation ID is required");
         }
@@ -1080,10 +1118,17 @@ public class updateTarget {
         donationRepository.save(donation);
         return ResponseEntity.ok("DonationHousehold created successfully");
     }
-    @PreAuthorize("hasRole('admin')")
+    
     @DeleteMapping("/deleteDonationHousehold")
     public ResponseEntity<?> deleteDonationHousehold(@RequestBody DonationHouseholdDTO donationHouseholdDTO, Authentication authentication) {
         // Validate the donationId and apartmentNumber in the DTO
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+        if (!"ROLE_admin".equals(currentUserRole)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission to create notifications");
+        }
         if (donationHouseholdDTO.getDonation_id() == null || donationHouseholdDTO.getDonation_id().isEmpty()) {
             return ResponseEntity.badRequest().body("Donation ID is required");
         }
@@ -1108,6 +1153,7 @@ public class updateTarget {
         donationRepository.save(donation);
         return ResponseEntity.ok("DonationHousehold created successfully");
     }
+    
     @PostMapping("/createInteractComplaints")
     public ResponseEntity<?> createInteractComplaint(@RequestBody InteractComplaintDTO interactComplaintsDTO, Authentication authentication) {
         String currentEmail = authentication.getName();
@@ -1136,6 +1182,7 @@ public class updateTarget {
         interactComplaintRepository.save(interactComplaints);
         return ResponseEntity.ok("InteractComplaints created successfully");
     }
+    
     @DeleteMapping("/deleteInteractComplaints")
     public ResponseEntity<?> deleteInteractComplaint(@RequestBody InteractComplaintDTO interactComplaintsDTO, Authentication authentication) {
         String currentEmail = authentication.getName();
@@ -1158,6 +1205,7 @@ public class updateTarget {
         interactComplaintRepository.delete(interactComplaints);
         return ResponseEntity.ok("InteractComplaints created successfully");
     }
+    
     @PostMapping("/createInteractNotification")
     public ResponseEntity<?> createInteractNotification(@RequestBody InteractNotificationDTO interactNotificationDTO, Authentication authentication) {
         String currentEmail = authentication.getName();
@@ -1186,6 +1234,7 @@ public class updateTarget {
         interactNotificationRepository.save(interact);
         return ResponseEntity.ok("InteractComplaints created successfully");
     }
+    
     @DeleteMapping("/deleteInteractNotification")
     public ResponseEntity<?> deleteInteractNotification(@RequestBody InteractNotificationDTO interactNotificationDTO, Authentication authentication) {
         String currentEmail = authentication.getName();
@@ -1208,6 +1257,7 @@ public class updateTarget {
         interactNotificationRepository.delete(interact);
         return ResponseEntity.ok("InteractComplaints created successfully");
     }
+    
     @PostMapping("/createresponseNotification")
     public ResponseEntity<?> createResponseNotification(@RequestBody ResponseNotificationDTO responseNotificationDTO, Authentication authentication) {
         String currentEmail = authentication.getName();
@@ -1233,6 +1283,7 @@ public class updateTarget {
 
         return ResponseEntity.ok("Response notification created successfully");
     }
+    
     @DeleteMapping("/deleteresponseNotification")
     public ResponseEntity<?> deleteResponseNotification(@RequestBody ResponseNotificationDTO responseNotificationDTO, Authentication authentication) {
         String currentEmail = authentication.getName();
@@ -1248,6 +1299,7 @@ public class updateTarget {
 
         return ResponseEntity.ok("Response notification created successfully");
     }
+    
     @PostMapping("/createresponseComplaint")
     public ResponseEntity<?> createResponseComplaint(@RequestBody ResponseComplaintsDTO responseComplaintDTO, Authentication authentication) {
         String currentEmail = authentication.getName();
@@ -1281,6 +1333,7 @@ public class updateTarget {
 
         return ResponseEntity.ok("Response complaint created successfully");
     }
+    
     @PostMapping("/deleteresponseComplaint")
     public ResponseEntity<?> deleteResponseComplaint(@RequestBody ResponseComplaintsDTO responseComplaintDTO, Authentication authentication) {
         String currentEmail = authentication.getName();
@@ -1296,6 +1349,7 @@ public class updateTarget {
 
         return ResponseEntity.ok("Response complaint created successfully");
     }
+    
     @PostMapping("/createBill")
     public ResponseEntity<?> createBill(@RequestBody BillDTO billDTO, Authentication authentication) {
         // Get the currently authenticated user's role
@@ -1336,6 +1390,7 @@ public class updateTarget {
 
         return ResponseEntity.ok("Bill created successfully");
     }
+    
     @PostMapping("/deleteBill")
     public ResponseEntity<?> deleteBill(@RequestBody BillDTO billDTO, Authentication authentication) {
         // Get the currently authenticated user's role
@@ -1357,9 +1412,16 @@ public class updateTarget {
 
         return ResponseEntity.ok("Bill deleted successfully");
     }
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/createReceiveNotification")
-    public ResponseEntity<?> createReceiveNotification(@RequestBody ReceiveNotificationDTO dto) {
+    public ResponseEntity<?> createReceiveNotification(@RequestBody ReceiveNotificationDTO dto, Authentication authentication) {
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+        // Only admins are allowed to delete bills
+        if (!"ROLE_admin".equals(currentUserRole)) {
+            return ResponseEntity.status(403).body("You do not have permission to delete bills");
+        }
         // Validate input
         if (dto.getResidentId() == null || dto.getResidentId().isEmpty()) {
             return ResponseEntity.badRequest().body("Resident ID is required");
@@ -1392,10 +1454,18 @@ public class updateTarget {
 
         return ResponseEntity.ok(mapService.mapToReceiveNotificationDTO(rn)); // Assuming mapService exists
     }
-    @PreAuthorize("hasRole('ADMIN')")
+    
     @PostMapping("/deleteReceiveNotification")
-    public ResponseEntity<?> deleteReceiveNotification(@RequestBody ReceiveNotificationDTO dto) {
+    public ResponseEntity<?> deleteReceiveNotification(@RequestBody ReceiveNotificationDTO dto,Authentication authentication) {
         // Validate input
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+        // Only admins are allowed to delete bills
+        if (!"ROLE_admin".equals(currentUserRole)) {
+            return ResponseEntity.status(403).body("You do not have permission to delete bills");
+        }
         if (dto.getResidentId() == null || dto.getResidentId().isEmpty()) {
             return ResponseEntity.badRequest().body("Resident ID is required");
         }
@@ -1422,6 +1492,7 @@ public class updateTarget {
         receiveNotificationRepository.delete(rn);
         return ResponseEntity.ok(mapService.mapToReceiveNotificationDTO(rn)); // Assuming mapService exists
     }
+    
     @PostMapping("/createIncludeInComplaints")
     public ResponseEntity<?> createIncludeInComplaints(@RequestBody IncludeInComplaintsDTO dto) {
         // Validate input
@@ -1453,6 +1524,7 @@ public class updateTarget {
 
         return ResponseEntity.ok("IncludeInComplaints created successfully");
     }
+    
     @PostMapping("/deleteIncludeInComplaints")
     public ResponseEntity<?> deleteIncludeInComplaints(@RequestBody IncludeInComplaintsDTO dto) {
         IncludeInComplaints inc = includeInComplaintsRepository.findById(dto.getId()).orElse(null);
@@ -1461,5 +1533,50 @@ public class updateTarget {
         }
         includeInComplaintsRepository.delete(inc);
         return ResponseEntity.ok("IncludeInComplaints deleted successfully");
+    }
+    
+    @PostMapping("/sendEmailToResidentsByIds")
+    public ResponseEntity<?> sendEmailToResidentsByIds(@RequestBody Map<String, Object> requestBody, Authentication authentication) {
+        // Extract HtmlContent and ResidentIds from the request body
+        String currentUserRole = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("guest");
+        // Only admins are allowed to delete bills
+        if (!"ROLE_admin".equals(currentUserRole)) {
+            return ResponseEntity.status(403).body("You do not have permission to delete bills");
+        }
+        String htmlContent = (String) requestBody.get("HtmlContent");
+        String subject = (String) requestBody.get("Subject");
+        List<String> residentIds = (List<String>) requestBody.get("ResidentIds");
+
+        // Validate input
+        if (htmlContent == null || htmlContent.isEmpty()) {
+            return ResponseEntity.badRequest().body("HtmlContent is required");
+        }
+        if (subject == null || subject.isEmpty()) {
+            return ResponseEntity.badRequest().body("Subject is required");
+        }
+        if (residentIds == null || residentIds.isEmpty()) {
+            return ResponseEntity.badRequest().body("ResidentIds list cannot be empty");
+        }
+
+        // Fetch emails of accounts connected to the residents
+        List<String> emails = authService.getEmailsByResidentIds(residentIds);
+
+        if (emails.isEmpty()) {
+            return ResponseEntity.ok("No accounts found for the given resident IDs");
+        }
+
+        // Send email to each recipient using the existing service
+        try {
+            for (String email : emails) {
+                authService.sendEmailNoti(email, subject, htmlContent);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to send emails: " + e.getMessage());
+        }
+
+        return ResponseEntity.ok("Emails sent successfully to " + emails.size() + " recipients");
     }
 }

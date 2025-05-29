@@ -475,3 +475,25 @@
         padding-left: 15px;
     }
 }
+/* Có thể bạn muốn tùy chỉnh thêm chiều rộng hoặc các style khác */
+.detail-content-display table,
+.detail-content-display th,
+.detail-content-display td {
+    border: 1px solid #cccccc; /* Màu viền xám nhạt, dễ nhìn */
+}
+
+.detail-content-display table {
+    border-collapse: collapse; /* Gộp các đường viền cho đẹp */
+    width: auto; /* Để bảng tự co giãn theo nội dung, hoặc 100% nếu muốn full width */
+    margin: 1em 0; /* Khoảng cách trên dưới cho bảng */
+}
+
+.detail-content-display th,
+.detail-content-display td {
+    padding: 6px 10px; /* Padding cho các ô, có thể điều chỉnh */
+    text-align: left; /* Căn lề trái mặc định */
+}
+
+.detail-content-display th {
+    background-color: #f0f0f0; /* Màu nền nhẹ cho header bảng */
+}

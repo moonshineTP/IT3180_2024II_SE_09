@@ -18,6 +18,7 @@ public interface ResidentRepository extends JpaRepository<Resident, String> {
     boolean existsByApartmentNumberAndIsHouseholdOwnerTrueAndResidentIdNot(
         String apartmentNumber, String residentId
     );
+    List<Resident> findByResidentIdIn(List<String> residentIds);
 
     List<Resident> findByApartmentNumber(String apartmentNumber);
 }

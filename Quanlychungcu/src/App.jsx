@@ -64,10 +64,11 @@ export default function App() {
   };
 
   // Hàm đóng popup
-  const closePopUp = async () => {
+  const closePopUp = async (secret=null) => {
     await fetchAccount();
     setIsOpen(false);
     setActivePopUp(null);
+    if(secret) secret();
   };
 
   useEffect(() => {

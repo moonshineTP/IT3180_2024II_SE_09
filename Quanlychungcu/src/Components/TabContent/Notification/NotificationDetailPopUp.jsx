@@ -4,8 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faBell, faCalendarAlt, faSpinner,
     faThumbsUp, faThumbsDown, faStar, faEye, faCommentDots, faUsers, faPlus, faTrash, faChevronLeft,
-    faUser, faTools, faExclamationTriangle, faEdit, faBookOpen,
-} from '@fortawesome/free-solid-svg-icons'; // Added faExternalLinkAlt
+    faUser, faTools, faExclamationTriangle, faEdit, faBookOpen, faPaperPlane // Added faPaperPlane for email send button
+} from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import RichTextEditor from '../../Common/RichTextEditor';
 import './NotificationDetailPopUp.css';
@@ -14,7 +14,6 @@ import './NotificationDetailPopUp.css';
 const DEFAULT_TEXT = 'N/A';
 const DEFAULT_DATE_TEXT = 'N/A';
 
-// ... (formatDisplayDateTime, getTypeIcon remain the same) ...
 const formatDisplayDateTime = (dateTimeString) => {
     if (!dateTimeString) return DEFAULT_DATE_TEXT;
     try {
@@ -69,14 +68,20 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
     const [isLoadingDetails, setIsLoadingDetails] = useState(false);
     const [detailFetchError, setDetailFetchError] = useState('');
 
+    // --- NEW STATE FOR EMAIL SENDING FEATURE ---
+    const [isLoadingEmailSend, setIsLoadingEmailSend] = useState(false);
+    const [emailSendSuccessMessage, setEmailSendSuccessMessage] = useState('');
+    const [emailSendErrorMessage, setEmailSendErrorMessage] = useState('');
+
 
     const fetchInteractionData = useCallback(async (tabType) => {
-        // ... (existing fetchInteractionData logic - no changes needed here for the new feature)
         if (!notification?.announcementId) return;
 
         setIsLoadingInteractions(true);
         setInteractionError('');
         setCurrentInteractionList([]);
+        setEmailSendErrorMessage(''); // Clear email error when changing tabs/fetching interactions
+        setEmailSendSuccessMessage('');
 
         let apiPath;
         let payload = { announcementId: notification.announcementId };
@@ -117,14 +122,15 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
         } finally {
             setIsLoadingInteractions(false);
         }
-    }, [notification?.announcementId, activeInteractionTab]); // Added notification.announcementId for robustness
+    }, [notification?.announcementId]);
 
     const fetchAllCountsAndUserStatus = useCallback(async () => {
-        // ... (existing fetchAllCountsAndUserStatus logic - no changes needed here for the new feature)
         if (!notification?.announcementId) return;
 
         setIsLoading(true);
         setInteractionError('');
+        setEmailSendErrorMessage(''); // Clear email error when refetching all counts
+        setEmailSendSuccessMessage('');
 
         try {
             const fetchApiAndNormalize = async (apiCallPromise) => {
@@ -165,6 +171,7 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
             else { setUserLikeStatus('none'); }
             setUserStarredStatus(userStarred);
 
+            // Re-fetch current tab's interaction list to ensure counts are updated
             fetchInteractionData(activeInteractionTab);
 
         } catch (error) {
@@ -180,7 +187,6 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
 
 
     useEffect(() => {
-        // ... (existing useEffect logic for setup and view registration - no changes needed here for the new feature)
         setNotification(notificationData);
         setTempTitle(notificationData?.title || DEFAULT_TEXT);
         setTempContent(notificationData?.content || DEFAULT_TEXT);
@@ -190,17 +196,23 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
         setIsEditing(false);
         setErrorMessage('');
         setSuccessMessage('');
-        setDetailFetchError(''); // Clear detail fetch error on new notification load
+        setDetailFetchError('');
+        setEmailSendErrorMessage(''); // Clear email error on new notification load
+        setEmailSendSuccessMessage('');
+
 
         const registerViewAndCheckStatus = async () => {
             if (!notificationData?.announcementId || !ViewerAccount?.username) return;
             try {
+                // Check if user has already viewed
                 const viewResponse = await axios.post(
                     'http://localhost:8080/api/gettarget/getInteractNotification',
                     { notificationId: notificationData.announcementId, typeInteract: 'view' },
                     { withCredentials: true }
                 );
                 const hasViewed = Array.isArray(viewResponse.data) && viewResponse.data.some(item => item.userName === ViewerAccount.username);
+
+                // If not viewed, register view
                 if (!hasViewed) {
                     await axios.post(
                         'http://localhost:8080/api/update/createInteractNotification',
@@ -210,10 +222,12 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
                 }
             } catch (err) {
                 console.error("Failed to register view or check status:", err);
+                // Status 400 might mean 'already viewed' or invalid input, not always an error
                 if (err.response?.status !== 400) {
                      console.error("Failed to register view:", err);
                 }
             } finally {
+                // Always fetch all counts and user status after initial view attempt
                 fetchAllCountsAndUserStatus();
             }
         };
@@ -221,7 +235,7 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
     }, [notificationData, ViewerAccount, fetchAllCountsAndUserStatus]);
 
 
-    const handleSave = async () => { /* ... as before ... */
+    const handleSave = async () => {
         if (!isAdmin) { setErrorMessage("Bạn không có quyền chỉnh sửa."); return; }
         if (!notification.announcementId) { setErrorMessage("Mã thông báo không tồn tại."); return; }
         if (!tempTitle.trim()) { setErrorMessage("Tiêu đề không được để trống."); return; }
@@ -261,7 +275,7 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
             setIsLoading(false);
         }
     };
-    const handleInteraction = async (interactionType) => { /* ... as before ... */
+    const handleInteraction = async (interactionType) => {
         if (!ViewerAccount?.username || !notification?.announcementId) {
             setInteractionError("Vui lòng đăng nhập để tương tác.");
             return;
@@ -295,12 +309,15 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
             setIsLoading(false);
         }
     };
-    const handleAddReceiveRecipient = async () => { /* ... as before ... */
+    const handleAddReceiveRecipient = async () => {
         if (!newRecipientId.trim()) { setInteractionError("Vui lòng nhập Mã cư dân."); return; }
         if (!notification?.announcementId) { setInteractionError("Mã thông báo không tồn tại."); return; }
         if (currentInteractionList.some(r => r.residentId === newRecipientId)) { setInteractionError("Mã cư dân này đã có trong danh sách."); return; }
         setIsLoadingInteractions(true);
         setInteractionError('');
+        setEmailSendErrorMessage(''); // Clear email error when adding recipient
+        setEmailSendSuccessMessage('');
+
         try {
             const response = await axios.post(
                 'http://localhost:8080/api/update/createReceiveNotification',
@@ -309,7 +326,7 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
             );
             if (response.status === 200 && response.data) {
                 setNewRecipientId('');
-                await fetchInteractionData('receive');
+                await fetchInteractionData('receive'); // Re-fetch the receive list to update counts/display
             } else {
                 setInteractionError(response.data?.message || response.data || "Lỗi khi thêm người nhận.");
             }
@@ -320,11 +337,14 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
             setIsLoadingInteractions(false);
         }
     };
-    const handleDeleteReceiveRecipient = async (residentIdToDelete) => { /* ... as before ... */
+    const handleDeleteReceiveRecipient = async (residentIdToDelete) => {
         if (!window.confirm(`Bạn có chắc chắn muốn xóa cư dân ${residentIdToDelete} khỏi danh sách nhận không?`)) return;
         if (!residentIdToDelete || !notification?.announcementId) { setInteractionError("Thiếu thông tin để xóa."); return; }
         setIsLoadingInteractions(true);
         setInteractionError('');
+        setEmailSendErrorMessage(''); // Clear email error when deleting recipient
+        setEmailSendSuccessMessage('');
+
         try {
             const response = await axios.delete(
                 'http://localhost:8080/api/update/deleteReceiveNotification',{
@@ -333,7 +353,7 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
                 withCredentials: true }
             );
             if (response.status === 200) {
-                await fetchInteractionData('receive');
+                await fetchInteractionData('receive'); // Re-fetch the receive list to update counts/display
             } else {
                 setInteractionError(response.data?.message || response.data || "Lỗi khi xóa người nhận.");
             }
@@ -344,7 +364,7 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
             setIsLoadingInteractions(false);
         }
     };
-    const handleAddResponse = async () => { /* ... as before ... */
+    const handleAddResponse = async () => {
         if (!newComment.trim()) { setInteractionError("Bình luận không được để trống."); return; }
         if (!notification?.announcementId || !ViewerAccount?.username) { setInteractionError("Không đủ thông tin để bình luận."); return; }
         setIsLoadingInteractions(true);
@@ -371,7 +391,7 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
             setIsLoadingInteractions(false);
         }
     };
-    const handleDeleteResponse = async (responseId, responseUserName) => { /* ... as before ... */
+    const handleDeleteResponse = async (responseId, responseUserName) => {
         if (!window.confirm(`Xác nhận xóa bình luận này của ${responseUserName}?`)) return;
         if (!responseId || !notification?.announcementId) { setInteractionError("Thiếu thông tin để xóa bình luận."); return; }
         setIsLoadingInteractions(true);
@@ -395,23 +415,21 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
         }
     };
 
-    // --- NEW: HANDLER TO FETCH ACCOUNT DETAILS AND OPEN POPUP ---
+    // --- HANDLER TO FETCH ACCOUNT DETAILS AND OPEN POPUP ---
     const handleUserClick = async (username) => {
         if (!username || typeof onOpenPopUp !== 'function') return;
-        if (isLoadingDetails) return; // Prevent multiple clicks
+        if (isLoadingDetails) return;
 
         setIsLoadingDetails(true);
         setDetailFetchError('');
         try {
-            // Adjust API endpoint as per your backend setup
-            // Using the @PostMapping("/account") endpoint structure
             const response = await axios.post(
-                'http://localhost:8080/api/gettarget/account', // Assuming '/api' is your base API path
+                'http://localhost:8080/api/gettarget/account',
                 { username: username },
                 { withCredentials: true }
             );
             if (response.data) {
-                onOpenPopUp('account', response.data); // Call parent's function
+                onOpenPopUp('account', response.data);
             } else {
                 setDetailFetchError('Không tìm thấy thông tin tài khoản.');
             }
@@ -423,23 +441,21 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
         }
     };
 
-    // --- NEW: HANDLER TO FETCH RESIDENT DETAILS AND OPEN POPUP ---
+    // --- HANDLER TO FETCH RESIDENT DETAILS AND OPEN POPUP ---
     const handleResidentClick = async (residentId) => {
         if (!residentId || typeof onOpenPopUp !== 'function') return;
-        if (isLoadingDetails) return; // Prevent multiple clicks
+        if (isLoadingDetails) return;
 
         setIsLoadingDetails(true);
         setDetailFetchError('');
         try {
-            // Adjust API endpoint as per your backend setup
-            // Using the @PostMapping("/getResident") endpoint structure
             const response = await axios.post(
-                'http://localhost:8080/api/gettarget/getResident', // Assuming '/api' is your base API path
+                'http://localhost:8080/api/gettarget/getResident',
                 { residentId: residentId },
                 { withCredentials: true }
             );
             if (response.data) {
-                onOpenPopUp('resident', response.data); // Call parent's function
+                onOpenPopUp('resident', response.data);
             } else {
                 setDetailFetchError('Không tìm thấy thông tin cư dân.');
             }
@@ -448,6 +464,78 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
             setDetailFetchError(err.response?.data?.message || err.response?.data || 'Lỗi tải thông tin cư dân.');
         } finally {
             setIsLoadingDetails(false);
+        }
+    };
+
+    // --- NEW: HANDLER FOR SENDING EMAILS ---
+    const handleSendEmailToResidents = async () => {
+        setEmailSendSuccessMessage('');
+        setEmailSendErrorMessage('');
+
+        if (!isAdmin) {
+            setEmailSendErrorMessage("Bạn không có quyền gửi email.");
+            return;
+        }
+        if (notification.sendto !== 'private') {
+            setEmailSendErrorMessage("Chỉ có thể gửi email cho thông báo riêng tư.");
+            return;
+        }
+        if (!notification.title || !notification.content) {
+            setEmailSendErrorMessage("Tiêu đề và nội dung thông báo không được trống.");
+            return;
+        }
+
+        // Ensure currentInteractionList is populated with 'receive' data
+        if (activeInteractionTab !== 'receive' && interactionCounts.receive === 0) {
+            // If not on 'receive' tab and count is 0, fetch it first
+            // This case might be rare if the button is only visible on the 'receive' tab.
+            // But it's a safety check. For simplicity in UI, we'll assume the button is
+            // only enabled/visible when the 'receive' tab is active and its data loaded.
+            setEmailSendErrorMessage("Vui lòng chuyển sang tab 'Nhận' để tải danh sách cư dân trước.");
+            return;
+        }
+        if (currentInteractionList.length === 0) {
+             setEmailSendErrorMessage("Không có cư dân nào trong danh sách nhận để gửi email.");
+             return;
+        }
+
+        const residentIdsToSend = currentInteractionList.map(item => item.residentId);
+
+        if (residentIdsToSend.length === 0) {
+            setEmailSendErrorMessage("Không tìm thấy mã cư dân nào để gửi email.");
+            return;
+        }
+
+        setIsLoadingEmailSend(true);
+
+        const requestBody = {
+            HtmlContent: notification.content,
+            Subject: notification.title,
+            ResidentIds: residentIdsToSend,
+        };
+
+        try {
+            const response = await axios.post(
+                'http://localhost:8080/api/update/sendEmailToResidentsByIds', // Your backend API endpoint
+                requestBody,
+                { withCredentials: true }
+            );
+
+            if (response.status === 200) {
+                setEmailSendSuccessMessage("✅ " + response.data);
+            } else {
+                setEmailSendErrorMessage(response.data?.message || "Đã xảy ra lỗi khi gửi email.");
+            }
+        } catch (error) {
+            console.error("Error sending email:", error);
+            setEmailSendErrorMessage(error.response?.data?.message || error.response?.data || `Lỗi: ${error.message}`);
+        } finally {
+            setIsLoadingEmailSend(false);
+            // Optionally clear messages after a delay
+            setTimeout(() => {
+                setEmailSendSuccessMessage('');
+                setEmailSendErrorMessage('');
+            }, 5000);
         }
     };
 
@@ -460,7 +548,9 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
 
             {errorMessage && <p className="detail-error-message">{errorMessage}</p>}
             {successMessage && <p className="detail-success-message">{successMessage}</p>}
-            {detailFetchError && <p className="detail-error-message small-error">{detailFetchError}</p>} {/* Display fetch error */}
+            {detailFetchError && <p className="detail-error-message small-error">{detailFetchError}</p>}
+            {emailSendErrorMessage && <p className="detail-error-message">{emailSendErrorMessage}</p>} {/* NEW: Display email send error */}
+            {emailSendSuccessMessage && <p className="detail-success-message">{emailSendSuccessMessage}</p>} {/* NEW: Display email send success */}
 
 
             <div className="detail-header">
@@ -529,7 +619,6 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
 
             <div className="detail-interaction-tabs">
                 <div className="interaction-tab-buttons">
-                    {/* ... tab buttons ... */}
                     <button className={`tab-btn ${activeInteractionTab === 'view' ? 'active' : ''}`} onClick={() => setActiveInteractionTab('view')}>
                         <FontAwesomeIcon icon={faEye} /> Xem ({interactionCounts.view})
                     </button>
@@ -562,7 +651,7 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
                     ) : (
                         <ul className="interaction-list">
                             {currentInteractionList.map((item) => (
-                                <li key={item.id || item.residentId || item.userName + Date.now()} className="interaction-item"> {/* Ensure unique key */}
+                                <li key={item.id || item.residentId || item.userName + Date.now()} className="interaction-item">
                                     {activeInteractionTab === 'view' && (
                                         <>
                                             <FontAwesomeIcon icon={faEye} className="item-icon" />
@@ -632,12 +721,21 @@ const NotificationDetailPopUp = ({ notificationData, onClose, refetchNotificatio
                             ))}
                         </ul>
                     )}
-                    {/* ... Forms for adding recipient/response ... */}
-                     {activeInteractionTab === 'receive' && isAdmin && !isLoadingInteractions && (
+                    {activeInteractionTab === 'receive' && isAdmin && !isLoadingInteractions && (
                         <div className="add-recipient-form">
                             <input type="text" value={newRecipientId} onChange={(e) => setNewRecipientId(e.target.value)} placeholder="Mã cư dân mới" />
                             <button onClick={handleAddReceiveRecipient} disabled={isLoadingInteractions}>
                                 {isLoadingInteractions ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faPlus} />} Thêm
+                            </button>
+                            {/* NEW: Send Email Button for Admins */}
+                            <button
+                                className="send-email-btn"
+                                onClick={handleSendEmailToResidents}
+                                disabled={isLoadingEmailSend || currentInteractionList.length === 0}
+                                title="Gửi email thông báo này đến các cư dân trong danh sách."
+                            >
+                                {isLoadingEmailSend ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faPaperPlane} />}
+                                Gửi email cho cư dân
                             </button>
                         </div>
                     )}

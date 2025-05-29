@@ -10,10 +10,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.model.Account;
 import com.example.demo.model.PasswordResetToken;
 import com.example.demo.model.RegisterToken;
+import com.example.demo.model.Resident;
+import com.example.demo.repository.AccountRepository;
 import com.example.demo.repository.PasswordResetTokenRepository;
 import com.example.demo.repository.RegisterTokenRepository;
+import com.example.demo.repository.ResidentRepository;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -21,7 +25,11 @@ import jakarta.mail.internet.MimeMessage;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.List;
+
 import org.springframework.http.HttpHeaders;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -37,14 +45,16 @@ public class AuthService {
     private final PasswordResetTokenRepository PtokenRepository;
     private final RegisterTokenRepository RtokenRepository;
     private final JavaMailSender mailSender;
+    private final ResidentRepository residentRepository;
 
     public AuthService(PasswordEncoder passwordEncoder,
                        PasswordResetTokenRepository PtokenRepository, RegisterTokenRepository RtokenRepository,
-                       JavaMailSender mailSender) {
+                       JavaMailSender mailSender,ResidentRepository residentRepository) {
         this.passwordEncoder = passwordEncoder;
         this.PtokenRepository = PtokenRepository;
         this.RtokenRepository = RtokenRepository;
         this.mailSender = mailSender;
+        this.residentRepository = residentRepository;
     }
     public boolean validateUsername(String username, Map<String, String> response) {
         if (username == null || username.isEmpty()) {
@@ -169,13 +179,46 @@ public class AuthService {
             logger.error("Gửi email thất bại: {}", e.getMessage());
         }
     }
-
+    public void sendEmailNoti(String Email,  String Subject, String HtmlContent){
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+        try {
+            helper.setTo(Email);
+            helper.setSubject(HtmlContent);
+            helper.setText(HtmlContent, true);
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            logger.error("Gửi email thất bại: {}", e.getMessage());
+        }
+    }
     private Date calculateExpiryDate() {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.MINUTE, TOKEN_EXPIRY_MINUTES);
         return cal.getTime();
     }
+    public List<String> getEmailsByResidentIds(List<String> residentIds) {
+    // Validate input
+        if (residentIds == null || residentIds.isEmpty()) {
+            throw new IllegalArgumentException("Resident IDs list cannot be null or empty");
+        }
 
+        // Fetch residents by residentIds
+        List<Resident> residents = residentRepository.findByResidentIdIn(residentIds);
+
+        // Extract accounts connected to the residents
+        List<Account> accounts = residents.stream()
+                .map(Resident::getAccount) // Assuming Resident has a getAccount() method
+                .filter(Objects::nonNull) // Exclude null accounts
+                .collect(Collectors.toList());
+
+        // Extract emails from the accounts
+        List<String> emails = accounts.stream()
+                .map(Account::getEmail)
+                .collect(Collectors.toList());
+        System.out.println(emails);
+
+        return emails;
+    }
     @Transactional
     @Scheduled(cron = "0 0 3 * * ?")
     public void cleanupExpiredTokens() {

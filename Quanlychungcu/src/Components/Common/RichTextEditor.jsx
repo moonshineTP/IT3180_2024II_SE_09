@@ -2,6 +2,7 @@
 import React from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic'; // Classic build thường có sẵn các plugin FontColor, FontBackgroundColor
+import './RichTextEditor.css'
 const editorConfiguration = {
     licenseKey: 'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NDg3MzU5OTksImp0aSI6IjExZmZlN2JiLWQ5ZjUtNDQ4NS1iMTdlLTIzNjI5Y2VkMjNhMiIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6IjdkMjZlNWYwIn0.lsgzlsYKUTN_kVq4LaCmSKKepF8VgAuL_F1iKyHoBl7Q7-EHjAOt1xiemv_DPJ8zc7ZgPU3vkHUY5riLMcdzow',
     toolbar: [
@@ -24,6 +25,9 @@ const editorConfiguration = {
             // Nếu bạn chỉ cho chèn qua URL, không cần các style phức tạp hoặc linkImage ở đây.
             // Nếu sau này có upload, bạn có thể thêm: 'imageStyle:inline', 'imageStyle:block', 'imageStyle:side', 'linkImage'
         ]
+    },
+    mediaEmbed : {
+        previewsInData: true
     },
     // (Không bắt buộc, nhưng tốt để có) Cấu hình màu sắc cho FontColor và FontBackgroundColor
     fontColor: {

@@ -22,7 +22,11 @@ import com.example.demo.model.Vehicle;
 import com.example.demo.model.InteractNotification;
 import com.example.demo.repository.ResidentRepository;
 import com.example.demo.repository.VehicleRepository;
+import com.example.demo.service.AuthService;
 import com.example.demo.service.MapService;
+
+import jakarta.mail.internet.InternetAddress;
+
 import com.example.demo.repository.FeeRepository;
 import com.example.demo.repository.DonationRepository;
 import com.example.demo.model.Notification;
@@ -37,6 +41,7 @@ import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import java.util.Set;
+import java.util.Map;
 
 
 @RestController
@@ -54,9 +59,10 @@ public class GetList {
     private ReceiveNotificationRepository receiveNotificationRepository;
     private InteractNotificationRepository interactNotificationRepository;
     private IncludeInComplaintsRepository includeInComplaintsRepository;
+    private AuthService authService;
     // Constructor injection for AccountRepository
     public GetList(AccountRepository accountRepository, ResidentRepository residentRepository, VehicleRepository vehicleRepository, 
-            MapService mapService, FeeRepository feeRepository, DonationRepository donationRepository, 
+            MapService mapService, FeeRepository feeRepository, DonationRepository donationRepository, AuthService authService,
             NotificationRepository notificationRepository, ComplaintRepository complaintsRepository, ReceiveNotificationRepository receiveNotificationRepository, 
             InteractNotificationRepository interactNotificationRepository, IncludeInComplaintsRepository includeInComplaintsRepository) {
         this.includeInComplaintsRepository = includeInComplaintsRepository;
@@ -70,6 +76,7 @@ public class GetList {
         this.feeRepository = feeRepository;
         this.donationRepository = donationRepository;
         this.complaintsRepository = complaintsRepository;
+        this.authService=authService;
     }
 
     @GetMapping("/accounts")
@@ -278,7 +285,7 @@ public class GetList {
             .collect(Collectors.toList());
 
     return ResponseEntity.ok(notReadNotificationDTOs);
-}
+    }
     @PostMapping("/filterIncludedComplaints")
     public ResponseEntity<?> filterIncludedComplaints(@RequestBody List<ComplaintsDTO> complaintsDTOs, Authentication authentication) {
         String currentEmail = authentication.getName();
